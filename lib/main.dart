@@ -5,6 +5,8 @@ import 'providers/auth_provider.dart';
 import 'screens/register_screen.dart';
 import 'screens/otp_verification_screen.dart';
 import 'screens/terms_policy_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/dashboard_screen.dart';
 
 void main() {
   runApp(const LegashApp());
@@ -73,10 +75,12 @@ class LegashApp extends StatelessWidget {
             ),
           ),
         ),
-        initialRoute: '/register',
+        initialRoute: '/login',
         routes: {
+          '/login': (_) => const LoginScreen(),
           '/register': (_) => const RegisterScreen(),
           '/terms': (_) => const TermsPolicyScreen(),
+          '/dashboard': (_) => const DashboardScreen(),
         },
         onGenerateRoute: (settings) {
           if (settings.name == '/otp') {

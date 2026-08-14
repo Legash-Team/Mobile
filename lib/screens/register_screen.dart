@@ -160,7 +160,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               Center(
                 child: Image.asset(
-                  'lib/legashicon.png',
+                  'lib/legash.jpg',
                   height: 72,
                 ),
               ),

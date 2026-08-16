@@ -378,7 +378,17 @@ class OnboardingScreen2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return _ScreenScaffold(
+    illustration: SvgPicture.asset(
+        OnboardingSvg.onboardingShield,
+        width: 160,
+        height: 200,
+        fit: BoxFit.contain,
+      ),
+      title: "You decide what's shared",
+      subtitle:
+          'Your name and blood type are visible to a matching hospital. Your phone stays private until you choose to respond.',
+    );
   }
 }
 

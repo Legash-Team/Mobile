@@ -233,7 +233,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  
+  Widget _buildSlide(int index) {
+    return switch (index) {
+      0 => const OnboardingScreen1(),
+      1 => const OnboardingScreen2(),
+      2 => const OnboardingScreen3(),
+      3 => const OnboardingScreen4(),
+      _ => const SizedBox.shrink(),
+    };
+  }
 }
 
 class PageIndicatorDots extends StatelessWidget {
@@ -306,3 +314,45 @@ class OnboardingNavArrow extends StatelessWidget {
 }
 
 
+
+
+//screens
+//screen1
+class OnboardingScreen1 extends StatelessWidget {
+  const OnboardingScreen1({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+//screen2
+class OnboardingScreen2 extends StatelessWidget {
+  const OnboardingScreen2({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+//screen3
+class OnboardingScreen3 extends StatelessWidget {
+  const OnboardingScreen3({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+//screen4
+class OnboardingScreen4 extends StatelessWidget {
+  const OnboardingScreen4({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}

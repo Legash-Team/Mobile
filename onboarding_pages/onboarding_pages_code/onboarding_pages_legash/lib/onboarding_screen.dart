@@ -113,7 +113,7 @@ abstract final class OnboardingText {
 }
 
 //SVGs
-abstract final class LSvg {
+abstract final class OnboardingSvg {
   static const onboardingNetwork = 'assets/svg/onboarding_network.svg';
   static const onboardingShield = 'assets/svg/onboarding_shield.svg';
   static const onboardingStar = 'assets/svg/onboarding_star.svg';
@@ -317,13 +317,58 @@ class OnboardingNavArrow extends StatelessWidget {
 
 
 //screens
+
+class _ScreenScaffold extends StatelessWidget {
+  final Widget illustration;
+  final String title;
+  final String subtitle;
+  final Widget? below; // e.g. CTA buttons on slide 4
+
+  const _ScreenScaffold({
+    required this.illustration,
+    required this.title,
+    required this.subtitle,
+    this.below,
+  });
+
+   @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Spacer(flex: 2),
+        illustration,
+        const Spacer(flex: 1),
+        Text(title, style: OnboardingText.h2(), textAlign: TextAlign.center),
+        const SizedBox(height: OnboardingSpace.md),
+        Text(subtitle, style: OnboardingText.lede(), textAlign: TextAlign.center),
+        if (below != null) ...[
+          const SizedBox(height: OnboardingSpace.xl),
+          below!,
+        ],
+        const Spacer(flex: 3),
+      ],
+    );
+  }
+}
+
+
 //screen1
 class OnboardingScreen1 extends StatelessWidget {
   const OnboardingScreen1({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return _ScreenScaffold(
+      illustration: SvgPicture.asset(
+        OnboardingSvg.onboardingNetwork,
+        width: 260,
+        height: 260,
+        fit: BoxFit.contain,
+      ),
+      title: "Blood, matched to where it's needed",
+      subtitle:
+          'LEGASH connects donors directly with nearby hospitals that need their blood type — no waiting rooms, no guessing.',
+    );
   }
 }
 

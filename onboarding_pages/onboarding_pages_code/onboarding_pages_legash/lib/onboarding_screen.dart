@@ -313,9 +313,6 @@ class OnboardingNavArrow extends StatelessWidget {
   }
 }
 
-
-
-
 //screens
 
 class _ScreenScaffold extends StatelessWidget {
@@ -331,7 +328,7 @@ class _ScreenScaffold extends StatelessWidget {
     this.below,
   });
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -340,7 +337,11 @@ class _ScreenScaffold extends StatelessWidget {
         const Spacer(flex: 1),
         Text(title, style: OnboardingText.h2(), textAlign: TextAlign.center),
         const SizedBox(height: OnboardingSpace.md),
-        Text(subtitle, style: OnboardingText.lede(), textAlign: TextAlign.center),
+        Text(
+          subtitle,
+          style: OnboardingText.lede(),
+          textAlign: TextAlign.center,
+        ),
         if (below != null) ...[
           const SizedBox(height: OnboardingSpace.xl),
           below!,
@@ -350,7 +351,6 @@ class _ScreenScaffold extends StatelessWidget {
     );
   }
 }
-
 
 //screen1
 class OnboardingScreen1 extends StatelessWidget {
@@ -379,7 +379,7 @@ class OnboardingScreen2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _ScreenScaffold(
-    illustration: SvgPicture.asset(
+      illustration: SvgPicture.asset(
         OnboardingSvg.onboardingShield,
         width: 160,
         height: 200,
@@ -398,7 +398,17 @@ class OnboardingScreen3 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return _ScreenScaffold(
+      illustration: SvgPicture.asset(
+        OnboardingSvg.onboardingStar,
+        width: 160,
+        height: 200,
+        fit: BoxFit.contain,
+      ),
+      title: "Every account is reviewed",
+      subtitle:
+          'Both donors and hospitals must be verified before they can post or respond before they can post or respond to requests - so every connection is real.',
+    );
   }
 }
 
@@ -408,6 +418,85 @@ class OnboardingScreen4 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return _ScreenScaffold(
+      illustration: SvgPicture.asset(
+        OnboardingSvg.logoLegash,
+        width: 100,
+        height: 116,
+        fit: BoxFit.contain,
+      ),
+      title: "Ready to be someone's match?",
+      subtitle: 'Takes about two minutes to get started.',
+      below: Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                //go to register page
+              },
+
+              style: ButtonStyle(
+                backgroundColor: const WidgetStatePropertyAll(
+                  OnboardingColor.crimson,
+                ),
+                foregroundColor: const WidgetStatePropertyAll(Colors.white),
+                overlayColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.pressed))
+                    return OnboardingColor.crimsonDark;
+                  return null;
+                }),
+                elevation: const WidgetStatePropertyAll(0),
+                padding: const WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(vertical: OnboardingSpace.md + 4),
+                ),
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(OnboardingRadius.md),
+                  ),
+                ),
+              ),
+              child: Text('Create an account', style: OnboardingText.button()),
+            ),
+          ),
+
+          const SizedBox(height: OnboardingSpace.md),
+
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () {
+                //go to login page
+              },
+              style: ButtonStyle(
+                foregroundColor: const WidgetStatePropertyAll(
+                  OnboardingColor.ink,
+                ),
+                overlayColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.pressed))
+                    return OnboardingColor.paperDim;
+                  return null;
+                }),
+                side: const WidgetStatePropertyAll(
+                  BorderSide(color: OnboardingColor.sand, width: 1.5),
+                ),
+                padding: const WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(vertical: OnboardingSpace.md + 4),
+                ),
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(OnboardingRadius.md),
+                  ),
+                ),
+              ),
+              child: Text(
+                'I already have an account',
+                style: OnboardingText.button(color: OnboardingColor.ink),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

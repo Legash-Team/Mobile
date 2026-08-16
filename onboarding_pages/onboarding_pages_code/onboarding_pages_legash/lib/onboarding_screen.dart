@@ -186,19 +186,123 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Align(
         alignment: Alignment.centerRight,
         child: _currentPage < _totalPages - 1
-        ? TextButton(
-          onPressed: () => _goToPage(_totalPages - 1),
-          style: TextButton.styleFrom(
-            foregroundColor: OnboardingColor.inkSoft,
-            padding: const EdgeInsets.symmetric(horizontal: OnboardingRadius.sm,
-            vertical: OnboardingSpace.xs),
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ? TextButton(
+                onPressed: () => _goToPage(_totalPages - 1),
+                style: TextButton.styleFrom(
+                  foregroundColor: OnboardingColor.inkSoft,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: OnboardingRadius.sm,
+                    vertical: OnboardingSpace.xs,
+                  ),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text('Skip', style: OnboardingText.medium()),
+              )
+            : const SizedBox(height: 48),
+      ),
+    );
+  }
+
+  Widget _buildBottomNav() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        OnboardingSpace.lg,
+        0,
+        OnboardingSpace.lg,
+        OnboardingSpace.xl,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          PageIndicatorDots(
+            current: _currentPage,
+            total: _totalPages,
+            onTap: _goToPage,
           ),
-          child: Text('Skip', style: OnboardingText.medium()),
-        )
-        : const SizedBox(height: 48,)
+          OnboardingNavArrow(
+            isLastPage: _currentPage == _totalPages - 1,
+            onTap: () {
+              if (_currentPage < _totalPages - 1) {
+                _goToPage(_currentPage + 1);
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  
+}
+
+class PageIndicatorDots extends StatelessWidget {
+  final int current;
+  final int total;
+  final ValueChanged<int> onTap;
+
+  const PageIndicatorDots({
+    super.key,
+    required this.current,
+    required this.total,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(total, (i) {
+        final active = i == current;
+        return GestureDetector(
+          onTap: () => onTap(i),
+          behavior: HitTestBehavior.opaque,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            width: active ? 24 : 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: active ? OnboardingColor.crimson : OnboardingColor.sand,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class OnboardingNavArrow extends StatelessWidget {
+  final bool isLastPage;
+  final VoidCallback onTap;
+
+  const OnboardingNavArrow({
+    super.key,
+    required this.isLastPage,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: const BoxDecoration(
+          color: OnboardingColor.crimson,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          isLastPage ? Icons.check_rounded : Icons.arrow_forward_rounded,
+          color: Colors.white,
+          size: 24,
+        ),
       ),
     );
   }
 }
+
+

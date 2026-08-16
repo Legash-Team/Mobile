@@ -1,12 +1,10 @@
-import 'dart:nativewrappers/_internal/vm/lib/mirrors_patch.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 //design template
 
 //color style
-abstract final class OnboardingColor {
+abstract class OnboardingColor {
   static const ink = Color(0xFF1B1410);
   static const inkSoft = Color(0xFF4A4038);
   static const paper = Color(0xFFFAF6F0);
@@ -17,14 +15,14 @@ abstract final class OnboardingColor {
   static const verified = Color(0xFF1F6F5C);
 }
 
-abstract final class OnboardingRadius {
+abstract class OnboardingRadius {
   static const sm = 8.0;
   static const md = 14.0;
   static const lg = 18.0;
   static const pill = 999.0;
 }
 
-abstract final class OnboardingSpace {
+abstract class OnboardingSpace {
   static const xs = 8.0;
   static const sm = 12.0;
   static const md = 16.0;
@@ -33,12 +31,12 @@ abstract final class OnboardingSpace {
 }
 
 //text style
-abstract final class OnboardingFont {
+abstract class OnboardingFont {
   static const sans = 'IBMPlexSans';
   static const mono = 'IBMPlexMono';
 }
 
-abstract final class OnboardingText {
+abstract class OnboardingText {
   static TextStyle h1({Color? color}) => TextStyle(
     fontFamily: OnboardingFont.sans,
     fontSize: 34,
@@ -113,7 +111,7 @@ abstract final class OnboardingText {
 }
 
 //SVGs
-abstract final class OnboardingSvg {
+abstract class OnboardingSvg {
   static const onboardingNetwork = 'assets/svg/onboarding_network.svg';
   static const onboardingShield = 'assets/svg/onboarding_shield.svg';
   static const onboardingStar = 'assets/svg/onboarding_star.svg';
@@ -155,20 +153,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            _buildSkip(),
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
                 physics: const BouncingScrollPhysics(),
                 onPageChanged: (i) => setState(() => _currentPage = i),
-                itemCount: -_totalPages,
+                itemCount: _totalPages,
                 itemBuilder: (_, index) => Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: OnboardingRadius.lg,
                   ),
-                  //child: _buildSlide(index),
+                  child: _buildSlide(index),
                 ),
               ),
             ),
+            _buildBottomNav(),
           ],
         ),
       ),
@@ -437,20 +437,20 @@ class OnboardingScreen4 extends StatelessWidget {
               },
 
               style: ButtonStyle(
-                backgroundColor: const WidgetStatePropertyAll(
+                backgroundColor: const MaterialStatePropertyAll(
                   OnboardingColor.crimson,
                 ),
-                foregroundColor: const WidgetStatePropertyAll(Colors.white),
-                overlayColor: WidgetStateProperty.resolveWith((states) {
-                  if (states.contains(WidgetState.pressed))
+                foregroundColor: const MaterialStatePropertyAll(Colors.white),
+                overlayColor: MaterialStateProperty.resolveWith((states) {
+                  if (states.contains(MaterialState.pressed))
                     return OnboardingColor.crimsonDark;
                   return null;
                 }),
-                elevation: const WidgetStatePropertyAll(0),
-                padding: const WidgetStatePropertyAll(
+                elevation: const MaterialStatePropertyAll(0),
+                padding: const MaterialStatePropertyAll(
                   EdgeInsets.symmetric(vertical: OnboardingSpace.md + 4),
                 ),
-                shape: WidgetStatePropertyAll(
+                shape: MaterialStatePropertyAll(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(OnboardingRadius.md),
                   ),
@@ -469,21 +469,21 @@ class OnboardingScreen4 extends StatelessWidget {
                 //go to login page
               },
               style: ButtonStyle(
-                foregroundColor: const WidgetStatePropertyAll(
+                foregroundColor: const MaterialStatePropertyAll(
                   OnboardingColor.ink,
                 ),
-                overlayColor: WidgetStateProperty.resolveWith((states) {
-                  if (states.contains(WidgetState.pressed))
+                overlayColor: MaterialStateProperty.resolveWith((states) {
+                  if (states.contains(MaterialState.pressed))
                     return OnboardingColor.paperDim;
                   return null;
                 }),
-                side: const WidgetStatePropertyAll(
+                side: const MaterialStatePropertyAll(
                   BorderSide(color: OnboardingColor.sand, width: 1.5),
                 ),
-                padding: const WidgetStatePropertyAll(
+                padding: const MaterialStatePropertyAll(
                   EdgeInsets.symmetric(vertical: OnboardingSpace.md + 4),
                 ),
-                shape: WidgetStatePropertyAll(
+                shape: MaterialStatePropertyAll(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(OnboardingRadius.md),
                   ),

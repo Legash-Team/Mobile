@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onboarding_pages_legash/onboarding_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,18 +14,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home:  Text('Flutter Demo Home Page'),
+      home: const OnboardingScreen(),
     );
   }
 }
-
-// class MyHomePage extends StatefulWidget {
-//   const MyHomePage({super.key, required this.title});
-//   final String title;
-
-//   @override
-//   State<MyHomePage> createState() => _MyHomePageState();
-// }
-

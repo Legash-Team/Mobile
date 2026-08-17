@@ -114,7 +114,7 @@ abstract class OnboardingText {
 abstract class OnboardingSvg {
   static const onboardingNetwork = 'assets/svg/onboarding_network.svg';
   static const onboardingShield = 'assets/svg/onboarding_shield.svg';
-  static const onboardingStar = 'assets/svg/onboarding_star.svg';
+  static const onboardingVerified = 'assets/svg/onboarding_verified.svg';
   static const logoLegash = 'assets/svg/logo_legash.svg';
 }
 
@@ -400,7 +400,7 @@ class OnboardingScreen3 extends StatelessWidget {
   Widget build(BuildContext context) {
     return _ScreenScaffold(
       illustration: SvgPicture.asset(
-        OnboardingSvg.onboardingStar,
+        OnboardingSvg.onboardingVerified,
         width: 160,
         height: 200,
         fit: BoxFit.contain,

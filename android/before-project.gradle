@@ -1,0 +1,14 @@
+gradle.beforeProject { project ->
+    if (project != rootProject) {
+        def androidExt = project.extensions.findByName('android')
+        if (androidExt) {
+            try {
+                androidExt.setCompileSdk(36)
+            } catch (e) {
+                try {
+                    androidExt.setCompileSdkVersion('36')
+                } catch (e2) {}
+            }
+        }
+    }
+}

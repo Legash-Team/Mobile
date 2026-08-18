@@ -51,7 +51,7 @@ class DonorDashboardScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '$_greeting(), $donorName',
+              '${_greeting()}, $donorName',
               style: theme.textTheme.headlineSmall?.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.bold,

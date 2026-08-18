@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../widgets/bottom_nav_bar.dart';
+import 'donations_history_screen.dart';
 import 'donor_dashboard_screen.dart';
 import 'events_screen.dart';
 import 'notifications_screen.dart';
@@ -20,6 +21,10 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
     setState(() => _currentIndex = 2);
   }
 
+  void _goHome() {
+    setState(() => _currentIndex = 0);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +33,7 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
         index: _currentIndex,
         children: [
           DonorDashboardScreen(onOpenRequests: _openRequests),
-          const EventsScreen(),
+          DonationsHistoryScreen(onGoHome: _goHome),
           NotificationsScreen(
             onPendingCountChanged: (count) {
               if (count != _pendingCount) {
@@ -36,6 +41,7 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
               }
             },
           ),
+          const EventsScreen(),
         ],
       ),
       bottomNavigationBar: BottomNavBar(
@@ -48,15 +54,20 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
             activeIcon: Icons.home,
           ),
           const BottomNavItem(
-            label: 'Events',
-            icon: Icons.event_note_outlined,
-            activeIcon: Icons.event_note,
+            label: 'Donations',
+            icon: Icons.water_drop_outlined,
+            activeIcon: Icons.water_drop,
           ),
           BottomNavItem(
             label: 'Requests',
             icon: Icons.campaign_outlined,
             activeIcon: Icons.campaign,
             pendingCount: _pendingCount,
+          ),
+          const BottomNavItem(
+            label: 'Events',
+            icon: Icons.event_note_outlined,
+            activeIcon: Icons.event_note,
           ),
         ],
       ),

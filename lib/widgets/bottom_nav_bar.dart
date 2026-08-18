@@ -43,8 +43,9 @@ class BottomNavBar extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
+        bottom: true,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+          padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(items.length, (index) {
@@ -54,69 +55,55 @@ class BottomNavBar extends StatelessWidget {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => onTap(index),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeOut,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: active ? AppColors.crimson : Colors.transparent,
-                      borderRadius: BorderRadius.circular(AppRadius.pill),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Icon(
-                              active ? item.activeIcon : item.icon,
-                              size: 22,
-                              color: active ? Colors.white : Colors.black54,
-                            ),
-                            if (item.pendingCount > 0)
-                              Positioned(
-                                right: -8,
-                                top: -6,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  constraints: const BoxConstraints(
-                                    minWidth: 16,
-                                    minHeight: 16,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: active ? AppColors.surface : AppColors.crimson,
-                                    shape: BoxShape.circle,
-                                    border: active
-                                        ? Border.all(color: AppColors.crimson, width: 1.5)
-                                        : null,
-                                  ),
-                                  child: Text(
-                                    '${item.pendingCount}',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: active ? AppColors.crimson : Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                  child: Center(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeOut,
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: active ? AppColors.crimson : Colors.transparent,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        alignment: Alignment.center,
+                        children: [
+                          Icon(
+                            active ? item.activeIcon : item.icon,
+                            size: 22,
+                            color: active ? Colors.white : Colors.black54,
+                          ),
+                          if (item.pendingCount > 0)
+                            Positioned(
+                              right: -2,
+                              top: -2,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                constraints: const BoxConstraints(
+                                  minWidth: 16,
+                                  minHeight: 16,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: active ? AppColors.surface : AppColors.crimson,
+                                  shape: BoxShape.circle,
+                                  border: active
+                                      ? Border.all(color: AppColors.crimson, width: 1.5)
+                                      : null,
+                                ),
+                                child: Text(
+                                  '${item.pendingCount}',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: active ? AppColors.crimson : Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
-                          ],
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          item.label,
-                          style: TextStyle(
-                            color: active ? Colors.white : Colors.black54,
-                            fontSize: 13,
-                            fontWeight: active ? FontWeight.w600 : FontWeight.w400,
-                          ),
-                        ),
-                      ],
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

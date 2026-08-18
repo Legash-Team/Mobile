@@ -2,18 +2,23 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../constants.dart';
 
+// this is where we will handle all the api calls and error handling
 class ApiException implements Exception {
   final String message;
   final int statusCode;
-
   ApiException(this.message, this.statusCode);
-
   @override
   String toString() => message;
 }
 
+// the above class is user to handle api exceptions and error comes from backend and we 
+//will use it in the api service class to throw exceptions when the api call fails
+
+
+
 class ApiService {
-  static String? token;
+  static String? token;// this is used to store the token after login and
+  // we will use it in the headers of the api calls
 
   static Map<String, String> get _headers {
     final headers = <String, String>{

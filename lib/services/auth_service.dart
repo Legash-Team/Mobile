@@ -3,25 +3,25 @@ import '../models/donor_model.dart';
 
 class AuthService {
   static Future<Map<String, dynamic>> registerDonor(DonorModel data) async {
-    return ApiService.post('/donor/register', data.toJson());
+    return ApiService.post('/v1/donor/register', data.toJson());
   }
 
   static Future<Map<String, dynamic>> verifyOtp(String phone, String code) async {
-    return ApiService.post('/donor/verify-otp', {
+    return ApiService.post('/v1/donor/verify-otp', {
       'phone': phone,
       'code': code,
     });
   }
 
   static Future<Map<String, dynamic>> loginDonor(String phone, String password) async {
-    return ApiService.post('/donor/login', {
+    return ApiService.post('/v1/donor/login', {
       'phone': phone,
       'password': password,
     });
   }
 
   static Future<Map<String, dynamic>> forgotPassword(String phone) async {
-    return ApiService.post('/donor/forgot-password', {
+    return ApiService.post('/v1/donor/forgot-password', {
       'phone': phone,
     });
   }
@@ -31,7 +31,7 @@ class AuthService {
     String code,
     String newPassword,
   ) async {
-    return ApiService.post('/donor/reset-password', {
+    return ApiService.post('/v1/donor/reset-password', {
       'phone': phone,
       'code': code,
       'newPassword': newPassword,

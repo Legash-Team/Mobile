@@ -1,0 +1,226 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../constants.dart';
+import '../models/notification_model.dart';
+import '../providers/auth_provider.dart';
+import '../services/api_service.dart';
+import '../services/notification_service.dart';
+import '../widgets/notification_card.dart';
+
+class NotificationsScreen extends StatefulWidget {
+  final ValueChanged<int>? onPendingCountChanged;
+
+  const NotificationsScreen({super.key, this.onPendingCountChanged});
+
+  @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  static const _filters = ['All', 'Nearby', 'Urgent'];
+
+  List<NotificationModel> _items = [];
+  bool _loaded = false;
+  bool _hasError = false;
+  String _activeFilter = 'All';
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final items = await NotificationService.getNotifications();
+      if (!mounted) return;
+      setState(() {
+        _items = items;
+        _loaded = true;
+        _hasError = false;
+      });
+      _reportPending(items);
+    } catch (e) {
+      if (!mounted) return;
+      if (e is ApiException && e.statusCode == 401) {
+        context.read<AuthProvider>().logout();
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+        return;
+      }
+      setState(() {
+        _loaded = true;
+        _hasError = true;
+      });
+    }
+  }
+
+  void _reportPending(List<NotificationModel> items) {
+    final count = items.where((n) => n.isPending && n.isOpen).length;
+    widget.onPendingCountChanged?.call(count);
+  }
+
+  List<NotificationModel> get _visible {
+    switch (_activeFilter) {
+      case 'Urgent':
+        return _items.where((n) => n.isPending && n.isOpen).toList();
+      case 'Nearby':
+        return _items;
+      default:
+        return _items;
+    }
+  }
+
+  void _onCardChanged(NotificationModel updated) {
+    setState(() {
+      _items = [
+        for (final item in _items) item.id == updated.id ? updated : item,
+      ];
+    });
+    _reportPending(_items);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      backgroundColor: AppColors.paper,
+      appBar: AppBar(
+        title: const Text(
+          'Requests',
+          style: TextStyle(
+            color: AppColors.crimson,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: AppColors.paper,
+        elevation: 0,
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.xs,
+              AppSpacing.lg,
+              AppSpacing.sm,
+            ),
+            child: Row(
+              children: [
+                for (final filter in _filters) ...[
+                  if (filter != _filters.first) const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _activeFilter = filter),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: _activeFilter == filter
+                              ? AppColors.crimson
+                              : AppColors.paperDim,
+                          borderRadius: BorderRadius.circular(AppRadius.pill),
+                        ),
+                        child: Text(
+                          filter,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: _activeFilter == filter
+                                ? Colors.white
+                                : AppColors.textPrimary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          Expanded(child: _buildBody(theme)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody(ThemeData theme) {
+    if (!_loaded) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.crimson),
+      );
+    }
+
+    if (_hasError) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        children: [
+          const SizedBox(height: AppSpacing.xl),
+          const Icon(Icons.cloud_off, size: 48, color: AppColors.textSecondary),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            'Could not load requests.',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppColors.textSecondary,
+              fontSize: 15,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Center(
+            child: FilledButton(
+              onPressed: _load,
+              style: FilledButton.styleFrom(backgroundColor: AppColors.crimson),
+              child: const Text('Retry'),
+            ),
+          ),
+        ],
+      );
+    }
+
+    final visible = _visible;
+    return RefreshIndicator(
+      onRefresh: _load,
+      color: AppColors.crimson,
+      child: visible.isEmpty
+          ? ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: [
+                const SizedBox(height: 120),
+                const Icon(
+                  Icons.campaign_outlined,
+                  size: 56,
+                  color: AppColors.textSecondary,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  _activeFilter == 'All'
+                      ? 'No active requests right now.'
+                      : 'No $_activeFilter requests right now.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            )
+          : ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.xs,
+                AppSpacing.lg,
+                AppSpacing.lg,
+              ),
+              children: [
+                for (final item in visible)
+                  NotificationCard(
+                    notification: item,
+                    onChanged: _onCardChanged,
+                  ),
+              ],
+            ),
+    );
+  }
+}

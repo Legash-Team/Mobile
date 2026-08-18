@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 
-const String baseUrl = 'http://localhost:3000/api';
+const String baseUrl = 'https://legash-mock.onrender.com';
 
 class AppColors {
   static const Color ink = Color(0xFF1B1410);
   static const Color inkSoft = Color(0xFF4A4038);
-  static const Color paper = Color(0xFFFAF6F0);
-  static const Color paperDim = Color(0xFFF2EBE1);
+  static const Color paper = Color(0xFFFAF7F2);
+  static const Color paperDim = Color(0xFFF5EFEB);
   static const Color sand = Color(0xFFEAE0D0);
-  static const Color crimson = Color(0xFFC31F3B);
+  static const Color crimson = Color(0xFFC21838);
   static const Color crimsonDark = Color(0xFF8F1329);
   static const Color verified = Color(0xFF1F6F5C);
+
+  static const Color cardBorder = Color(0xFFE5DFD7);
+  static const Color pillGreen = Color(0xFFD4EDDA);
 
   static const Color primary = crimson;
   static const Color primaryDark = crimsonDark;

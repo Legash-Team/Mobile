@@ -39,8 +39,9 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text,
       );
 
-      final token = res['token'] as String;
-      final donor = DonorInfo.fromJson(res['donor'] as Map<String, dynamic>);
+      final data = res['data'] as Map<String, dynamic>;
+      final token = data['token'] as String;
+      final donor = DonorInfo.fromJson(data['donor'] as Map<String, dynamic>);
 
       if (!mounted) return;
       context.read<AuthProvider>().login(token, donor);

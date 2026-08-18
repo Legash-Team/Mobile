@@ -22,22 +22,21 @@ class DonorModel {
   });
 
   Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{
+    return {
       'name': name,
       'password': password,
       'phone': phone,
       'fin': fin,
       'gender': gender,
+      'bloodType': (bloodType != null && bloodType!.isNotEmpty)
+          ? bloodType
+          : 'unknown',
       'location': {
         'lat': lat,
         'lng': lng,
       },
       'agreedToTerms': agreedToTerms,
     };
-    if (bloodType != null && bloodType!.isNotEmpty) {
-      map['bloodType'] = bloodType;
-    }
-    return map;
   }
 }
 
@@ -45,11 +44,13 @@ class DonorInfo {
   final String id;
   final String name;
   final String phone;
+  final String? bloodType;
 
   DonorInfo({
     required this.id,
     required this.name,
     required this.phone,
+    this.bloodType,
   });
 
   factory DonorInfo.fromJson(Map<String, dynamic> json) {
@@ -57,6 +58,16 @@ class DonorInfo {
       id: json['id'] as String,
       name: json['name'] as String,
       phone: json['phone'] as String,
+      bloodType: json['bloodType'] as String?,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'phone': phone,
+      if (bloodType != null) 'bloodType': bloodType,
+    };
   }
 }

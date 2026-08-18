@@ -82,5 +82,5 @@ Shared files (`api_service.dart`, `auth_service.dart`, `auth_provider.dart`, `cu
 
 | Name | Student ID |
 |---|---|
-| Firaol Tsegaye Negash | CTC-7007-26 |
+| Firaol Tsegaye | CTC-7007-26 |
 | Falmi Abdi | CTC-927-26 |

@@ -205,6 +205,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildBottomNav() {
+    final isLastPage = _currentPage == _totalPages - 1;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         OnboardingSpace.lg,
@@ -212,24 +214,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         OnboardingSpace.lg,
         OnboardingSpace.xl,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          PageIndicatorDots(
-            current: _currentPage,
-            total: _totalPages,
-            onTap: _goToPage,
-          ),
-          OnboardingNavArrow(
-            isLastPage: _currentPage == _totalPages - 1,
-            onTap: () {
-              if (_currentPage < _totalPages - 1) {
-                _goToPage(_currentPage + 1);
-              }
-            },
-          ),
-        ],
-      ),
+      child: isLastPage
+          ? Center(
+              child: PageIndicatorDots(
+                current: _currentPage,
+                total: _totalPages,
+                onTap: _goToPage,
+              ),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                PageIndicatorDots(
+                  current: _currentPage,
+                  total: _totalPages,
+                  onTap: _goToPage,
+                ),
+                OnboardingNavArrow(
+                  isLastPage: false,
+                  onTap: () {
+                    _goToPage(_currentPage + 1);
+                  },
+                ),
+              ],
+            ),
     );
   }
 
@@ -314,12 +322,11 @@ class OnboardingNavArrow extends StatelessWidget {
 }
 
 //screens
-
 class _ScreenScaffold extends StatelessWidget {
   final Widget illustration;
   final String title;
   final String subtitle;
-  final Widget? below; // e.g. CTA buttons on slide 4
+  final Widget? below;
 
   const _ScreenScaffold({
     required this.illustration,
@@ -330,24 +337,45 @@ class _ScreenScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Spacer(flex: 2),
-        illustration,
-        const Spacer(flex: 1),
-        Text(title, style: OnboardingText.h2(), textAlign: TextAlign.center),
-        const SizedBox(height: OnboardingSpace.md),
-        Text(
-          subtitle,
-          style: OnboardingText.lede(),
-          textAlign: TextAlign.center,
-        ),
-        if (below != null) ...[
-          const SizedBox(height: OnboardingSpace.xl),
-          below!,
-        ],
-        const Spacer(flex: 3),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  illustration,
+
+                  const SizedBox(height: OnboardingSpace.xl),
+
+                  Text(
+                    title,
+                    style: OnboardingText.h2(),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: OnboardingSpace.md),
+
+                  Text(
+                    subtitle,
+                    style: OnboardingText.lede(),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  if (below != null) ...[
+                    const SizedBox(height: OnboardingSpace.xl),
+                    below!,
+                  ],
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -399,15 +427,14 @@ class OnboardingScreen3 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _ScreenScaffold(
-      illustration: SvgPicture.asset(
-        OnboardingSvg.onboardingVerified,
-        width: 160,
-        height: 200,
-        fit: BoxFit.contain,
+      illustration: const Icon(
+        Icons.favorite,
+        size: 100,
+        color: OnboardingColor.crimson,
       ),
       title: "Every account is reviewed",
       subtitle:
-          'Both donors and hospitals must be verified before they can post or respond before they can post or respond to requests - so every connection is real.',
+          'Both donors and hospitals must be verified before they can post or respond to requests - so every connection is real.',
     );
   }
 }
@@ -421,8 +448,8 @@ class OnboardingScreen4 extends StatelessWidget {
     return _ScreenScaffold(
       illustration: SvgPicture.asset(
         OnboardingSvg.logoLegash,
-        width: 100,
-        height: 116,
+        width: 160,
+        height: 200,
         fit: BoxFit.contain,
       ),
       title: "Ready to be someone's match?",
@@ -435,22 +462,21 @@ class OnboardingScreen4 extends StatelessWidget {
               onPressed: () {
                 //go to register page
               },
-
               style: ButtonStyle(
-                backgroundColor: const MaterialStatePropertyAll(
+                backgroundColor: const WidgetStatePropertyAll(
                   OnboardingColor.crimson,
                 ),
-                foregroundColor: const MaterialStatePropertyAll(Colors.white),
-                overlayColor: MaterialStateProperty.resolveWith((states) {
-                  if (states.contains(MaterialState.pressed))
+                foregroundColor: const WidgetStatePropertyAll(Colors.white),
+                overlayColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.pressed))
                     return OnboardingColor.crimsonDark;
                   return null;
                 }),
-                elevation: const MaterialStatePropertyAll(0),
-                padding: const MaterialStatePropertyAll(
+                elevation: const WidgetStatePropertyAll(0),
+                padding: const WidgetStatePropertyAll(
                   EdgeInsets.symmetric(vertical: OnboardingSpace.md + 4),
                 ),
-                shape: MaterialStatePropertyAll(
+                shape: WidgetStatePropertyAll(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(OnboardingRadius.md),
                   ),
@@ -469,21 +495,21 @@ class OnboardingScreen4 extends StatelessWidget {
                 //go to login page
               },
               style: ButtonStyle(
-                foregroundColor: const MaterialStatePropertyAll(
+                foregroundColor: const WidgetStatePropertyAll(
                   OnboardingColor.ink,
                 ),
-                overlayColor: MaterialStateProperty.resolveWith((states) {
-                  if (states.contains(MaterialState.pressed))
+                overlayColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.pressed))
                     return OnboardingColor.paperDim;
                   return null;
                 }),
-                side: const MaterialStatePropertyAll(
+                side: const WidgetStatePropertyAll(
                   BorderSide(color: OnboardingColor.sand, width: 1.5),
                 ),
-                padding: const MaterialStatePropertyAll(
+                padding: const WidgetStatePropertyAll(
                   EdgeInsets.symmetric(vertical: OnboardingSpace.md + 4),
                 ),
-                shape: MaterialStatePropertyAll(
+                shape: WidgetStatePropertyAll(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(OnboardingRadius.md),
                   ),

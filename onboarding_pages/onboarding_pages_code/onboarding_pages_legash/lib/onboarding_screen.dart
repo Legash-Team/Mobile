@@ -341,31 +341,26 @@ class _ScreenScaffold extends StatelessWidget {
       builder: (context, constraints) {
         return SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          child: ConstrainedBox(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 24),
             constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
+            child: IntrinsicHeight(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   illustration,
-
                   const SizedBox(height: OnboardingSpace.xl),
-
                   Text(
                     title,
                     style: OnboardingText.h2(),
                     textAlign: TextAlign.center,
                   ),
-
                   const SizedBox(height: OnboardingSpace.md),
-
                   Text(
                     subtitle,
                     style: OnboardingText.lede(),
                     textAlign: TextAlign.center,
                   ),
-
                   if (below != null) ...[
                     const SizedBox(height: OnboardingSpace.xl),
                     below!,

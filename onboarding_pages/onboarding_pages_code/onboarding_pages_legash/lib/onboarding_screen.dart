@@ -427,10 +427,11 @@ class OnboardingScreen3 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _ScreenScaffold(
-      illustration: const Icon(
-        Icons.favorite,
-        size: 100,
-        color: OnboardingColor.crimson,
+      illustration: SvgPicture.asset(
+        OnboardingSvg.onboardingVerified,
+        width: 160,
+        height: 200,
+        fit: BoxFit.contain,
       ),
       title: "Every account is reviewed",
       subtitle:

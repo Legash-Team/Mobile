@@ -1,6 +1,6 @@
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "lib/legash.jpg"
+  image_path: "lib/legashicon.jpg"
   adaptive_icon_background: "#C31F3B"
-  adaptive_icon_foreground: "lib/legash.jpg"
+  adaptive_icon_foreground: "lib/legashicon.jpg"

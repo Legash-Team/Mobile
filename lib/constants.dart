@@ -28,9 +28,9 @@ class AppColors {
 
 class AppRadius {
   static const double sm = 8;
-  static const double md = 14;
-  static const double lg = 18;
-  static const double pill = 999;
+  static const double md = 12;
+  static const double lg = 16;
+  static const double pill = 50;
 }
 
 class AppSpacing {

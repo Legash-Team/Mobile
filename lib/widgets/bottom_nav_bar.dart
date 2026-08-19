@@ -32,7 +32,9 @@ class BottomNavBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppRadius.lg),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -45,66 +47,67 @@ class BottomNavBar extends StatelessWidget {
         top: false,
         bottom: true,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(items.length, (index) {
               final item = items[index];
               final active = index == currentIndex;
-              return Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => onTap(index),
-                  child: Center(
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeOut,
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: active ? AppColors.crimson : Colors.transparent,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        alignment: Alignment.center,
-                        children: [
-                          Icon(
-                            active ? item.activeIcon : item.icon,
-                            size: 22,
-                            color: active ? Colors.white : Colors.black54,
-                          ),
-                          if (item.pendingCount > 0)
-                            Positioned(
-                              right: -2,
-                              top: -2,
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                constraints: const BoxConstraints(
-                                  minWidth: 16,
-                                  minHeight: 16,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: active ? AppColors.surface : AppColors.crimson,
-                                  shape: BoxShape.circle,
-                                  border: active
-                                      ? Border.all(color: AppColors.crimson, width: 1.5)
-                                      : null,
-                                ),
-                                child: Text(
-                                  '${item.pendingCount}',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: active ? AppColors.crimson : Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => onTap(index),
+                child: SizedBox(
+                  width: 56,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeOut,
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: active ? AppColors.crimson : Colors.transparent,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          alignment: Alignment.center,
+                          children: [
+                            Icon(
+                              active ? item.activeIcon : item.icon,
+                              size: 22,
+                              color: active ? Colors.white : Colors.black54,
+                            ),
+                            if (item.pendingCount > 0 && !active)
+                              Positioned(
+                                right: 2,
+                                top: 2,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.crimson,
+                                    shape: BoxShape.circle,
                                   ),
                                 ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 2),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          item.label,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                            color: active ? AppColors.crimson : Colors.black54,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               );

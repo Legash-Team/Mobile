@@ -143,7 +143,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                 CustomTextField(
                   controller: _phoneController,
                   label: 'Phone Number',
-                  hintText: '+2519XXXXXXXX',
+                  hintText: '09XXXXXXXX or +2519XXXXXXXX',
                   keyboardType: TextInputType.phone,
                   mono: true,
                   validator: Validators.validatePhone,

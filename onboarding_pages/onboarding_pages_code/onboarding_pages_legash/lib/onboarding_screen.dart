@@ -469,8 +469,9 @@ class OnboardingScreen4 extends StatelessWidget {
                 ),
                 foregroundColor: const WidgetStatePropertyAll(Colors.white),
                 overlayColor: WidgetStateProperty.resolveWith((states) {
-                  if (states.contains(WidgetState.pressed))
+                  if (states.contains(WidgetState.pressed)) {
                     return OnboardingColor.crimsonDark;
+                  }
                   return null;
                 }),
                 elevation: const WidgetStatePropertyAll(0),
@@ -500,8 +501,9 @@ class OnboardingScreen4 extends StatelessWidget {
                   OnboardingColor.ink,
                 ),
                 overlayColor: WidgetStateProperty.resolveWith((states) {
-                  if (states.contains(WidgetState.pressed))
+                  if (states.contains(WidgetState.pressed)) {
                     return OnboardingColor.paperDim;
+                  }
                   return null;
                 }),
                 side: const WidgetStatePropertyAll(

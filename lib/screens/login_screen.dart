@@ -4,6 +4,7 @@ import '../constants.dart';
 import '../models/donor_model.dart';
 import '../providers/auth_provider.dart';
 import '../services/auth_service.dart';
+import '../utils/phone_formatter.dart';
 import '../utils/validators.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/forgot_password_dialog.dart';
@@ -55,15 +56,15 @@ class _LoginScreenState extends State<LoginScreen> {
           content: Text(message),
           backgroundColor: AppColors.crimson,
           action: isNotVerified
-              ? SnackBarAction(
-                  label: 'Verify OTP',
-                  textColor: Colors.white,
-                  onPressed: () => Navigator.pushNamed(
-                    context,
-                    '/otp',
-                    arguments: _phoneController.text.trim(),
-                  ),
-                )
+                ? SnackBarAction(
+                    label: 'Verify OTP',
+                    textColor: Colors.white,
+                    onPressed: () => Navigator.pushNamed(
+                      context,
+                      '/otp',
+                      arguments: PhoneFormatter.format(_phoneController.text),
+                    ),
+                  )
               : null,
         ),
       );
@@ -108,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: AppSpacing.xl),
               Center(
                 child: Image.asset(
-                  'lib/legash.jpg',
+                  'lib/legashicon.jpg',
                   height: 72,
                 ),
               ),
@@ -138,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
               CustomTextField(
                 controller: _phoneController,
                 label: 'Phone Number',
-                hintText: '+2519XXXXXXXX',
+                hintText: '09XXXXXXXX or +2519XXXXXXXX',
                 keyboardType: TextInputType.phone,
                 mono: true,
                 validator: Validators.validatePhone,

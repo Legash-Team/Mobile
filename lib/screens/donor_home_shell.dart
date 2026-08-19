@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../widgets/bottom_nav_bar.dart';
-import 'donations_history_screen.dart';
 import 'donor_dashboard_screen.dart';
-import 'events_screen.dart';
 import 'notifications_screen.dart';
+import 'profile_screen.dart';
 
 class DonorHomeShell extends StatefulWidget {
   const DonorHomeShell({super.key});
@@ -18,11 +17,7 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
   int _pendingCount = 0;
 
   void _openRequests() {
-    setState(() => _currentIndex = 2);
-  }
-
-  void _goHome() {
-    setState(() => _currentIndex = 0);
+    setState(() => _currentIndex = 1);
   }
 
   @override
@@ -33,7 +28,6 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
         index: _currentIndex,
         children: [
           DonorDashboardScreen(onOpenRequests: _openRequests),
-          DonationsHistoryScreen(onGoHome: _goHome),
           NotificationsScreen(
             onPendingCountChanged: (count) {
               if (count != _pendingCount) {
@@ -41,7 +35,7 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
               }
             },
           ),
-          const EventsScreen(),
+          const ProfileScreen(),
         ],
       ),
       bottomNavigationBar: BottomNavBar(
@@ -53,11 +47,6 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
             icon: Icons.home_outlined,
             activeIcon: Icons.home,
           ),
-          const BottomNavItem(
-            label: 'Donations',
-            icon: Icons.water_drop_outlined,
-            activeIcon: Icons.water_drop,
-          ),
           BottomNavItem(
             label: 'Requests',
             icon: Icons.campaign_outlined,
@@ -65,9 +54,9 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
             pendingCount: _pendingCount,
           ),
           const BottomNavItem(
-            label: 'Events',
-            icon: Icons.event_note_outlined,
-            activeIcon: Icons.event_note,
+            label: 'Profile',
+            icon: Icons.person_outline,
+            activeIcon: Icons.person,
           ),
         ],
       ),

@@ -7,6 +7,7 @@ import 'screens/otp_verification_screen.dart';
 import 'screens/terms_policy_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/donor_home_shell.dart';
+import 'screens/onboarding_screen.dart';
 
 void main() {
   runApp(const LegashApp());
@@ -14,6 +15,8 @@ void main() {
 
 class LegashApp extends StatelessWidget {
   const LegashApp({super.key});
+
+  Future<bool> _checkOnboarding() => OnboardingScreen.isCompleted();
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +78,19 @@ class LegashApp extends StatelessWidget {
             ),
           ),
         ),
-        initialRoute: '/login',
+        home: FutureBuilder<bool>(
+          future: _checkOnboarding(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Scaffold(
+                backgroundColor: AppColors.paper,
+                body: Center(child: CircularProgressIndicator(color: AppColors.crimson)),
+              );
+            }
+            final completed = snapshot.data!;
+            return completed ? const LoginScreen() : const OnboardingScreen();
+          },
+        ),
         routes: {
           '/login': (_) => const LoginScreen(),
           '/register': (_) => const RegisterScreen(),

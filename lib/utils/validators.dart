@@ -1,10 +1,17 @@
 class Validators {
-  static final RegExp _phoneRegex = RegExp(r'^\+251\d{9}$');
+  static final RegExp _intlPhoneRegex = RegExp(r'^\+251\d{9}$');
+  static final RegExp _localPhoneRegex = RegExp(r'^0\d{9}$');
+  static final RegExp _barePhoneRegex = RegExp(r'^\d{9}$');
   static final RegExp _uppercaseRegex = RegExp(r'[A-Z]');
-  static final RegExp _specialCharRegex = RegExp(r'[!@#$%^&*()_+\-=\[\]{};:''"\\|,.<>/?]');
+  static final RegExp _specialCharRegex =
+      RegExp(r"""[!@#$%^&*()_+\-=\[\]{};:'"\|,.<>/?]""");
 
   static bool isValidEthiopianPhone(String phone) {
-    return _phoneRegex.hasMatch(phone.trim());
+    final trimmed = phone.trim();
+    if (_intlPhoneRegex.hasMatch(trimmed)) return true;
+    if (_localPhoneRegex.hasMatch(trimmed)) return true;
+    if (_barePhoneRegex.hasMatch(trimmed)) return true;
+    return false;
   }
 
   static bool isValidPassword(String password) {
@@ -23,7 +30,7 @@ class Validators {
       return 'Phone number is required';
     }
     if (!isValidEthiopianPhone(value)) {
-      return 'Enter a valid Ethiopian phone (+251XXXXXXXXX)';
+      return 'Enter a valid Ethiopian phone (09XXXXXXXX or +2519XXXXXXXX)';
     }
     return null;
   }

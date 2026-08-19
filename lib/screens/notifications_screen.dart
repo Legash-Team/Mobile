@@ -17,12 +17,12 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  static const _filters = ['All', 'Nearby', 'Urgent'];
+  static const _filters = ['Ongoing', 'Accepted', 'Denied'];
 
   List<NotificationModel> _items = [];
   bool _loaded = false;
   bool _hasError = false;
-  String _activeFilter = 'All';
+  String _activeFilter = 'Ongoing';
 
   @override
   void initState() {
@@ -47,6 +47,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
         return;
       }
+      if (e is ApiException && e.statusCode == 404) {
+        setState(() {
+          _items = [];
+          _loaded = true;
+          _hasError = false;
+        });
+        _reportPending(const []);
+        return;
+      }
       setState(() {
         _loaded = true;
         _hasError = true;
@@ -61,12 +70,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   List<NotificationModel> get _visible {
     switch (_activeFilter) {
-      case 'Urgent':
-        return _items.where((n) => n.isPending && n.isOpen).toList();
-      case 'Nearby':
-        return _items;
+      case 'Accepted':
+        return _items.where((n) => n.isAccepted).toList();
+      case 'Denied':
+        return _items.where((n) => n.isDenied).toList();
+      case 'Ongoing':
       default:
-        return _items;
+        return _items.where((n) => n.isPending).toList();
     }
   }
 
@@ -194,9 +204,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  _activeFilter == 'All'
-                      ? 'No active requests right now.'
-                      : 'No $_activeFilter requests right now.',
+                  'No $_activeFilter requests.',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: AppColors.textSecondary,

@@ -4,6 +4,7 @@ import '../constants.dart';
 import '../services/auth_service.dart';
 import '../models/donor_model.dart';
 import '../utils/validators.dart';
+import '../utils/phone_formatter.dart';
 import '../widgets/custom_text_field.dart';
 import 'terms_policy_screen.dart';
 
@@ -128,7 +129,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       Navigator.pushNamed(
         context,
         '/otp',
-        arguments: _phoneController.text.trim(),
+        arguments: PhoneFormatter.format(_phoneController.text),
       );
     } catch (e) {
       if (!mounted) return;
@@ -160,7 +161,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               Center(
                 child: Image.asset(
-                  'lib/legash.jpg',
+                  'lib/legashicon.jpg',
                   height: 72,
                 ),
               ),
@@ -195,7 +196,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               CustomTextField(
                 controller: _phoneController,
                 label: 'Phone Number',
-                hintText: '+2519XXXXXXXX',
+                hintText: '09XXXXXXXX or +2519XXXXXXXX',
                 keyboardType: TextInputType.phone,
                 mono: true,
                 validator: Validators.validatePhone,

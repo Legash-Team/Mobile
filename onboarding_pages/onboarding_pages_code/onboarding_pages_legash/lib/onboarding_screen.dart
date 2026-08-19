@@ -1,0 +1,528 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+//design template
+
+//color style
+abstract class OnboardingColor {
+  static const ink = Color(0xFF1B1410);
+  static const inkSoft = Color(0xFF4A4038);
+  static const paper = Color(0xFFFAF6F0);
+  static const paperDim = Color(0xFFF2EBE1);
+  static const sand = Color(0xFFEAE0D0);
+  static const crimson = Color(0xFFC31F3B);
+  static const crimsonDark = Color(0xFF8F1329);
+  static const verified = Color(0xFF1F6F5C);
+}
+
+abstract class OnboardingRadius {
+  static const sm = 8.0;
+  static const md = 14.0;
+  static const lg = 18.0;
+  static const pill = 999.0;
+}
+
+abstract class OnboardingSpace {
+  static const xs = 8.0;
+  static const sm = 12.0;
+  static const md = 16.0;
+  static const lg = 24.0;
+  static const xl = 32.0;
+}
+
+//text style
+abstract class OnboardingFont {
+  static const sans = 'IBMPlexSans';
+  static const mono = 'IBMPlexMono';
+}
+
+abstract class OnboardingText {
+  static TextStyle h1({Color? color}) => TextStyle(
+    fontFamily: OnboardingFont.sans,
+    fontSize: 34,
+    height: 40 / 34,
+    fontWeight: FontWeight.w600,
+    color: color ?? OnboardingColor.ink,
+  );
+
+  static TextStyle h2({Color? color}) => TextStyle(
+    fontFamily: OnboardingFont.sans,
+    fontSize: 24,
+    height: 30 / 24,
+    fontWeight: FontWeight.w600,
+    color: color ?? OnboardingColor.ink,
+  );
+
+  static TextStyle h3({Color? color}) => TextStyle(
+    fontFamily: OnboardingFont.sans,
+    fontSize: 18,
+    height: 24 / 18,
+    fontWeight: FontWeight.w600,
+    color: color ?? OnboardingColor.ink,
+  );
+
+  static TextStyle lede({Color? color}) => TextStyle(
+    fontFamily: OnboardingFont.sans,
+    fontSize: 17,
+    height: 26 / 17,
+    fontWeight: FontWeight.w400,
+    color: color ?? OnboardingColor.inkSoft,
+  );
+
+  static TextStyle medium({Color? color}) => TextStyle(
+    fontFamily: OnboardingFont.sans,
+    fontSize: 15,
+    height: 22 / 15,
+    fontWeight: FontWeight.w400,
+    color: color ?? OnboardingColor.inkSoft,
+  );
+
+  static TextStyle small({Color? color}) => TextStyle(
+    fontFamily: OnboardingFont.sans,
+    fontSize: 13,
+    height: 20 / 13,
+    fontWeight: FontWeight.w400,
+    color: color ?? OnboardingColor.inkSoft,
+  );
+
+  static TextStyle button({Color? color}) => TextStyle(
+    fontFamily: OnboardingFont.sans,
+    fontSize: 15,
+    height: 20 / 15,
+    fontWeight: FontWeight.w600,
+    color: color ?? Colors.white,
+  );
+
+  static TextStyle monoNumeric({Color? color}) => TextStyle(
+    fontFamily: OnboardingFont.mono,
+    fontSize: 18,
+    height: 24 / 18,
+    fontWeight: FontWeight.w600,
+    color: color ?? OnboardingColor.ink,
+  );
+
+  static TextStyle monoChip({Color? color}) => TextStyle(
+    fontFamily: OnboardingFont.mono,
+    fontSize: 12,
+    height: 16 / 12,
+    fontWeight: FontWeight.w600,
+    color: color ?? OnboardingColor.inkSoft,
+  );
+}
+
+//SVGs
+abstract class OnboardingSvg {
+  static const onboardingNetwork = 'assets/svg/onboarding_network.svg';
+  static const onboardingShield = 'assets/svg/onboarding_shield.svg';
+  static const onboardingVerified = 'assets/svg/onboarding_verified.svg';
+  static const logoLegash = 'assets/svg/logo_legash.svg';
+}
+
+//main widget
+class OnboardingScreen extends StatefulWidget {
+  const OnboardingScreen({super.key});
+
+  @override
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  final _pageController = PageController();
+  int _currentPage = 0;
+  static const int _totalPages = 4;
+
+  void _goToPage(int index) {
+    if (index < 0 || index >= _totalPages) return;
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 420),
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: OnboardingColor.paper,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildSkip(),
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                physics: const BouncingScrollPhysics(),
+                onPageChanged: (i) => setState(() => _currentPage = i),
+                itemCount: _totalPages,
+                itemBuilder: (_, index) => Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: OnboardingRadius.lg,
+                  ),
+                  child: _buildSlide(index),
+                ),
+              ),
+            ),
+            _buildBottomNav(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkip() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        OnboardingRadius.md,
+        OnboardingRadius.sm,
+        OnboardingRadius.md,
+        0,
+      ),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: _currentPage < _totalPages - 1
+            ? TextButton(
+                onPressed: () => _goToPage(_totalPages - 1),
+                style: TextButton.styleFrom(
+                  foregroundColor: OnboardingColor.inkSoft,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: OnboardingRadius.sm,
+                    vertical: OnboardingSpace.xs,
+                  ),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text('Skip', style: OnboardingText.medium()),
+              )
+            : const SizedBox(height: 48),
+      ),
+    );
+  }
+
+  Widget _buildBottomNav() {
+    final isLastPage = _currentPage == _totalPages - 1;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        OnboardingSpace.lg,
+        0,
+        OnboardingSpace.lg,
+        OnboardingSpace.xl,
+      ),
+      child: isLastPage
+          ? Center(
+              child: PageIndicatorDots(
+                current: _currentPage,
+                total: _totalPages,
+                onTap: _goToPage,
+              ),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                PageIndicatorDots(
+                  current: _currentPage,
+                  total: _totalPages,
+                  onTap: _goToPage,
+                ),
+                OnboardingNavArrow(
+                  isLastPage: false,
+                  onTap: () {
+                    _goToPage(_currentPage + 1);
+                  },
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildSlide(int index) {
+    return switch (index) {
+      0 => const OnboardingScreen1(),
+      1 => const OnboardingScreen2(),
+      2 => const OnboardingScreen3(),
+      3 => const OnboardingScreen4(),
+      _ => const SizedBox.shrink(),
+    };
+  }
+}
+
+class PageIndicatorDots extends StatelessWidget {
+  final int current;
+  final int total;
+  final ValueChanged<int> onTap;
+
+  const PageIndicatorDots({
+    super.key,
+    required this.current,
+    required this.total,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(total, (i) {
+        final active = i == current;
+        return GestureDetector(
+          onTap: () => onTap(i),
+          behavior: HitTestBehavior.opaque,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            width: active ? 24 : 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: active ? OnboardingColor.crimson : OnboardingColor.sand,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class OnboardingNavArrow extends StatelessWidget {
+  final bool isLastPage;
+  final VoidCallback onTap;
+
+  const OnboardingNavArrow({
+    super.key,
+    required this.isLastPage,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: const BoxDecoration(
+          color: OnboardingColor.crimson,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          isLastPage ? Icons.check_rounded : Icons.arrow_forward_rounded,
+          color: Colors.white,
+          size: 24,
+        ),
+      ),
+    );
+  }
+}
+
+//screens
+class _ScreenScaffold extends StatelessWidget {
+  final Widget illustration;
+  final String title;
+  final String subtitle;
+  final Widget? below;
+
+  const _ScreenScaffold({
+    required this.illustration,
+    required this.title,
+    required this.subtitle,
+    this.below,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  illustration,
+
+                  const SizedBox(height: OnboardingSpace.xl),
+
+                  Text(
+                    title,
+                    style: OnboardingText.h2(),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: OnboardingSpace.md),
+
+                  Text(
+                    subtitle,
+                    style: OnboardingText.lede(),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  if (below != null) ...[
+                    const SizedBox(height: OnboardingSpace.xl),
+                    below!,
+                  ],
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+//screen1
+class OnboardingScreen1 extends StatelessWidget {
+  const OnboardingScreen1({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _ScreenScaffold(
+      illustration: SvgPicture.asset(
+        OnboardingSvg.onboardingNetwork,
+        width: 260,
+        height: 260,
+        fit: BoxFit.contain,
+      ),
+      title: "Blood, matched to where it's needed",
+      subtitle:
+          'LEGASH connects donors directly with nearby hospitals that need their blood type — no waiting rooms, no guessing.',
+    );
+  }
+}
+
+//screen2
+class OnboardingScreen2 extends StatelessWidget {
+  const OnboardingScreen2({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _ScreenScaffold(
+      illustration: SvgPicture.asset(
+        OnboardingSvg.onboardingShield,
+        width: 160,
+        height: 200,
+        fit: BoxFit.contain,
+      ),
+      title: "You decide what's shared",
+      subtitle:
+          'Your name and blood type are visible to a matching hospital. Your phone stays private until you choose to respond.',
+    );
+  }
+}
+
+//screen3
+class OnboardingScreen3 extends StatelessWidget {
+  const OnboardingScreen3({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _ScreenScaffold(
+      illustration: const Icon(
+        Icons.favorite,
+        size: 100,
+        color: OnboardingColor.crimson,
+      ),
+      title: "Every account is reviewed",
+      subtitle:
+          'Both donors and hospitals must be verified before they can post or respond to requests - so every connection is real.',
+    );
+  }
+}
+
+//screen4
+class OnboardingScreen4 extends StatelessWidget {
+  const OnboardingScreen4({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _ScreenScaffold(
+      illustration: SvgPicture.asset(
+        OnboardingSvg.logoLegash,
+        width: 160,
+        height: 200,
+        fit: BoxFit.contain,
+      ),
+      title: "Ready to be someone's match?",
+      subtitle: 'Takes about two minutes to get started.',
+      below: Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                //go to register page
+              },
+              style: ButtonStyle(
+                backgroundColor: const WidgetStatePropertyAll(
+                  OnboardingColor.crimson,
+                ),
+                foregroundColor: const WidgetStatePropertyAll(Colors.white),
+                overlayColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.pressed))
+                    return OnboardingColor.crimsonDark;
+                  return null;
+                }),
+                elevation: const WidgetStatePropertyAll(0),
+                padding: const WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(vertical: OnboardingSpace.md + 4),
+                ),
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(OnboardingRadius.md),
+                  ),
+                ),
+              ),
+              child: Text('Create an account', style: OnboardingText.button()),
+            ),
+          ),
+
+          const SizedBox(height: OnboardingSpace.md),
+
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () {
+                //go to login page
+              },
+              style: ButtonStyle(
+                foregroundColor: const WidgetStatePropertyAll(
+                  OnboardingColor.ink,
+                ),
+                overlayColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.pressed))
+                    return OnboardingColor.paperDim;
+                  return null;
+                }),
+                side: const WidgetStatePropertyAll(
+                  BorderSide(color: OnboardingColor.sand, width: 1.5),
+                ),
+                padding: const WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(vertical: OnboardingSpace.md + 4),
+                ),
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(OnboardingRadius.md),
+                  ),
+                ),
+              ),
+              child: Text(
+                'I already have an account',
+                style: OnboardingText.button(color: OnboardingColor.ink),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

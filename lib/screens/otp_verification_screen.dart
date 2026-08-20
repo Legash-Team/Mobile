@@ -127,9 +127,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       backgroundColor: AppColors.paper,
       appBar: AppBar(
         title: const Text('Verify OTP'),
-        backgroundColor: AppColors.surface,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(

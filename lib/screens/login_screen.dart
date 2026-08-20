@@ -95,7 +95,6 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: AppColors.paper,
       appBar: AppBar(
         title: const Text('Log In'),
-        backgroundColor: AppColors.surface,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
       ),

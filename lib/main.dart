@@ -35,7 +35,7 @@ class LegashApp extends StatelessWidget {
           ),
           scaffoldBackgroundColor: AppColors.paper,
           appBarTheme: const AppBarTheme(
-            backgroundColor: AppColors.surface,
+            backgroundColor: AppColors.paper,
             foregroundColor: AppColors.textPrimary,
             elevation: 0,
             centerTitle: false,

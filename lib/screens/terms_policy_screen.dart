@@ -16,6 +16,9 @@ class TermsPolicyScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          hoverColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
           onPressed: () => Navigator.pop(context),
         ),
       ),

@@ -7,9 +7,14 @@ import '../services/event_service.dart';
 import '../widgets/event_card.dart';
 
 class DonorDashboardScreen extends StatefulWidget {
+  final int pendingCount;
   final VoidCallback? onOpenRequests;
 
-  const DonorDashboardScreen({super.key, this.onOpenRequests});
+  const DonorDashboardScreen({
+    super.key,
+    this.pendingCount = 0,
+    this.onOpenRequests,
+  });
 
   @override
   State<DonorDashboardScreen> createState() => _DonorDashboardScreenState();
@@ -65,10 +70,16 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
         foregroundColor: AppColors.crimson,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.campaign_outlined),
-            tooltip: 'Requests',
-            onPressed: widget.onOpenRequests,
+          Badge(
+            isLabelVisible: widget.pendingCount > 0,
+            backgroundColor: AppColors.crimson,
+            textColor: Colors.white,
+            label: Text('${widget.pendingCount}'),
+            child: IconButton(
+              icon: const Icon(Icons.campaign_outlined),
+              tooltip: 'Requests',
+              onPressed: widget.onOpenRequests,
+            ),
           ),
           const SizedBox(width: AppSpacing.xs),
         ],

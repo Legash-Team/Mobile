@@ -27,7 +27,10 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          DonorDashboardScreen(onOpenRequests: _openRequests),
+          DonorDashboardScreen(
+            pendingCount: _pendingCount,
+            onOpenRequests: _openRequests,
+          ),
           NotificationsScreen(
             onPendingCountChanged: (count) {
               if (count != _pendingCount) {

@@ -391,6 +391,13 @@ class DonationHistoryPage extends StatelessWidget {
         ),
         backgroundColor: AppColors.paper,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          hoverColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: const Center(
         child: Padding(
@@ -443,6 +450,13 @@ class NearbyCentersPage extends StatelessWidget {
         ),
         backgroundColor: AppColors.paper,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          hoverColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: const Center(
         child: Padding(

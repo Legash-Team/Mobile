@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../models/donor_model.dart';
 import '../services/api_service.dart';
+import '../services/fcm_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   String? _token;
@@ -15,6 +16,7 @@ class AuthProvider extends ChangeNotifier {
     _donor = donor;
     ApiService.token = token;
     notifyListeners();
+    FcmService.registerDeviceToken();
   }
 
   void logout() {

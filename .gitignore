@@ -44,3 +44,11 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 android/build/
+
+# Sensitive files
+*.env
+.env*
+pushNotifications/
+doc_2026-*
+google-services.json
+GoogleService-Info.plist

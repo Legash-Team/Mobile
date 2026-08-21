@@ -2,9 +2,9 @@ import '../models/notification_model.dart';
 import 'api_service.dart';
 
 class NotificationService {
-  static Future<List<NotificationModel>> getNotifications({String? status}) async {
-    final query = status == null ? '' : '?status=$status';
-    final res = await ApiService.get('/donor/notifications$query');
+  /// Fetch list of all blood request notifications for the current donor
+  static Future<List<NotificationModel>> getNotifications() async {
+    final res = await ApiService.get('/v1/donor/notifications');
     final data = res['data'];
     if (data is! List) return [];
     return data
@@ -13,11 +13,17 @@ class NotificationService {
         .toList();
   }
 
-  static Future<Map<String, dynamic>> accept(String id) async {
-    return ApiService.post('/v2/requests/$id/accept', {});
+  /// Accept an emergency blood request
+  static Future<Map<String, dynamic>> accept(String notificationId) async {
+    return ApiService.post('/v1/donor/notifications/$notificationId/respond', {
+      'status': 'accepted',
+    });
   }
 
-  static Future<Map<String, dynamic>> decline(String id) async {
-    return ApiService.post('/v2/requests/$id/decline', {});
+  /// Decline an emergency blood request
+  static Future<Map<String, dynamic>> decline(String notificationId) async {
+    return ApiService.post('/v1/donor/notifications/$notificationId/respond', {
+      'status': 'denied',
+    });
   }
 }

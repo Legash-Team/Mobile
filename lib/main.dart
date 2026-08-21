@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'services/fcm_service.dart';
 import 'constants.dart';
 import 'providers/auth_provider.dart';
 import 'screens/register_screen.dart';
@@ -9,7 +11,16 @@ import 'screens/login_screen.dart';
 import 'screens/donor_home_shell.dart';
 import 'screens/onboarding_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    await Firebase.initializeApp();
+    await FCMService.initialize();
+  } catch (e) {
+    debugPrint('Firebase/FCM init bypassed or error: $e');
+  }
+
   runApp(const LegashApp());
 }
 

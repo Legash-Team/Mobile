@@ -61,6 +61,34 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     });
   }
 
+  /// 🔹 Trigger backend / SMS gateway to dispatch a fresh OTP code
+  Future<void> _resendOtp() async {
+    setState(() => _isLoading = true);
+    try {
+      await AuthService.forgotPassword(widget.phone);
+      _startTimer();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('A new OTP has been dispatched to your phone.'),
+            backgroundColor: AppColors.verified,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to resend OTP: $e'),
+            backgroundColor: AppColors.crimson,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   String get _otpCode => _controllers.map((c) => c.text).join();
 
   Future<void> _verify() async {
@@ -144,7 +172,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: AppSpacing.xs),
-              Icon(Icons.phone_iphone, size: 48, color: AppColors.crimson),
+              const Icon(Icons.phone_iphone, size: 48, color: AppColors.crimson),
               const SizedBox(height: AppSpacing.lg),
               Text(
                 'Verify your phone',
@@ -178,7 +206,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               const SizedBox(height: AppSpacing.sm),
               GestureDetector(
                 onTap: () => Navigator.of(context).pop(),
-                child: Text(
+                child: const Text(
                   'Wrong number?',
                   style: TextStyle(
                     color: AppColors.crimson,
@@ -217,15 +245,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       )
                     else
                       TextButton(
-                        onPressed: _startTimer,
-                        child: const Text(
-                          'Resend code',
-                          style: TextStyle(
-                            color: AppColors.crimson,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
+  onPressed: _isLoading ? null : _resendOtp,
+  child: const Text(
+    'Resend code',
+    style: TextStyle(
+      color: AppColors.crimson,
+      fontWeight: FontWeight.w600,
+    ),
+  ),
+),
                   ],
                 ),
               ),

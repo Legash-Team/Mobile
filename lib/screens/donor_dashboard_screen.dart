@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
+import 'donations_history_screen.dart';
 import '../models/event_model.dart';
 import '../providers/auth_provider.dart';
 import '../services/event_service.dart';
@@ -254,30 +255,34 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
   }
 
   Widget _buildQuickNav(BuildContext context) {
-    return Row(
-      children: [
-        _buildNavChip(
+  return Row(
+    children: [
+      _buildNavChip(
+        context,
+        icon: Icons.history_outlined,
+        label: 'Donation History',
+        onTap: () => Navigator.push(
           context,
-          icon: Icons.history_outlined,
-          label: 'Donation History',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const DonationHistoryPage()),
+          MaterialPageRoute(
+            builder: (_) => DonationsHistoryScreen(
+              onGoHome: () => Navigator.pop(context),
+            ),
           ),
         ),
-        const SizedBox(width: AppSpacing.sm),
-        _buildNavChip(
+      ),
+      const SizedBox(width: AppSpacing.sm),
+      _buildNavChip(
+        context,
+        icon: Icons.local_hospital_outlined,
+        label: 'Nearby Centers',
+        onTap: () => Navigator.push(
           context,
-          icon: Icons.local_hospital_outlined,
-          label: 'Nearby Centers',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const NearbyCentersPage()),
-          ),
+          MaterialPageRoute(builder: (_) => const NearbyCentersPage()),
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
   Widget _buildNavChip(
     BuildContext context, {

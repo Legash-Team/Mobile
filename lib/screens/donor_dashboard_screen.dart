@@ -106,10 +106,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
               const SizedBox(height: 4),
               const Text(
                 "You're eligible to donate.",
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 15,
-                ),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
               ),
               const SizedBox(height: AppSpacing.lg),
 
@@ -263,7 +260,11 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
           label: 'Donation History',
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const DonationHistoryPage()),
+            MaterialPageRoute(
+              builder: (_) => DonationsHistoryScreen(
+                onGoHome: () => Navigator.pop(context),
+              ),
+            ),
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
@@ -298,15 +299,21 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
           ),
           child: Column(
             children: [
-              Icon(icon, color: AppColors.crimson, size: 24),
-              const SizedBox(height: AppSpacing.xs),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.crimson.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: Icon(icon, color: AppColors.crimson, size: 22),
+              ),
+              const SizedBox(height: AppSpacing.sm),
               Text(
                 label,
-                textAlign: TextAlign.center,
                 style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  color: AppColors.ink,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
@@ -354,7 +361,11 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
         ),
         child: Column(
           children: [
-            Icon(Icons.event_note_outlined, size: 40, color: AppColors.textSecondary),
+            Icon(
+              Icons.event_note_outlined,
+              size: 40,
+              color: AppColors.textSecondary,
+            ),
             const SizedBox(height: AppSpacing.sm),
             const Text(
               'No events yet. Check back soon!',
@@ -367,9 +378,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
     }
 
     return Column(
-      children: [
-        for (final event in _events!) EventCard(event: event),
-      ],
+      children: [for (final event in _events!) EventCard(event: event)],
     );
   }
 }
@@ -406,7 +415,11 @@ class DonationHistoryPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.history_outlined, size: 56, color: AppColors.textSecondary),
+              Icon(
+                Icons.history_outlined,
+                size: 56,
+                color: AppColors.textSecondary,
+              ),
               SizedBox(height: AppSpacing.md),
               Text(
                 'No donation history yet.',
@@ -420,10 +433,7 @@ class DonationHistoryPage extends StatelessWidget {
               Text(
                 'Your donation records from hospitals will appear here once available.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),
             ],
           ),
@@ -465,7 +475,11 @@ class NearbyCentersPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.local_hospital_outlined, size: 56, color: AppColors.textSecondary),
+              Icon(
+                Icons.local_hospital_outlined,
+                size: 56,
+                color: AppColors.textSecondary,
+              ),
               SizedBox(height: AppSpacing.md),
               Text(
                 'No blood centers registered yet.',
@@ -479,10 +493,7 @@ class NearbyCentersPage extends StatelessWidget {
               Text(
                 'Blood centers will appear here once Super Admin registers them.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),
             ],
           ),

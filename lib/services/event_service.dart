@@ -3,8 +3,8 @@ import 'api_service.dart';
 
 class EventService {
   static Future<List<EventModel>> getEvents() async {
-    final res = await ApiService.get('/v2/events');
-    final data = res['data'];
+    final res = await ApiService.get('/api/donor/events');
+    final data = res['events'];
     if (data is! List) return [];
     return data
         .whereType<Map<String, dynamic>>()

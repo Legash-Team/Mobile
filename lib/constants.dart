@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-const String baseUrl = 'https://legash-mock.onrender.com';
+const String baseUrl = 'https://backend-qifm.onrender.com';
 
 class AppColors {
   static const Color ink = Color(0xFF1B1410);

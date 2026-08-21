@@ -1,27 +1,31 @@
 class EventModel {
   final String id;
-  final String title;
   final String description;
-  final DateTime eventDate;
-  final String? location;
+  final String? mediaUrl;
+  final String? mediaType;
+  final String? applyLink;
+  final DateTime closesAt;
+  final String status;
 
   EventModel({
     required this.id,
-    required this.title,
     required this.description,
-    required this.eventDate,
-    this.location,
+    this.mediaUrl,
+    this.mediaType,
+    this.applyLink,
+    required this.closesAt,
+    required this.status,
   });
 
   factory EventModel.fromJson(Map<String, dynamic> json) {
-    final venue = json['venueLocation'];
     return EventModel(
       id: json['id'] as String,
-      title: json['title'] as String,
       description: json['description'] as String,
-      eventDate: DateTime.parse(json['eventDate'] as String),
-      location: json['location'] as String? ??
-          (venue is Map<String, dynamic> ? venue['address'] as String? : null),
+      mediaUrl: json['mediaUrl'] as String?,
+      mediaType: json['mediaType'] as String?,
+      applyLink: json['applyLink'] as String?,
+      closesAt: DateTime.parse(json['closesAt'] as String),
+      status: json['status'] as String,
     );
   }
 }

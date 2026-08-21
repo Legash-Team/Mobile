@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'app_navigator.dart';
 import 'constants.dart';
 import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
@@ -36,6 +37,7 @@ class _LegashAppState extends State<LegashApp> {
   void initState() {
     super.initState();
     _onboardingFuture = OnboardingScreen.isCompleted();
+    FcmService.initializeNavigation();
   }
 
   @override
@@ -45,6 +47,7 @@ class _LegashAppState extends State<LegashApp> {
       child: MaterialApp(
         title: 'Legash',
         debugShowCheckedModeBanner: false,
+        navigatorKey: navigatorKey,
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(
@@ -119,7 +122,7 @@ class _LegashAppState extends State<LegashApp> {
                   );
                 }
                 if (auth.isLoggedIn) return const DonorHomeShell();
-                return const PinUnlockScreen();
+                return const RegisterScreen();
               },
             );
           },

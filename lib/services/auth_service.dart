@@ -29,8 +29,9 @@ class AuthService {
     });
   }
 
-  static Future<Map<String, dynamic>> unlock(String pin) async {
+  static Future<Map<String, dynamic>> unlock(String phone, String pin) async {
     return ApiService.post('/api/donor/unlock', {
+      'phone': PhoneFormatter.format(phone),
       'pin': pin,
     });
   }

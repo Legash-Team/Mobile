@@ -20,7 +20,7 @@ android {
 
     defaultConfig {
         applicationId = "com.egash.egash_mobile"
-        minSdk = 21
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

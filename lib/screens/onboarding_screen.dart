@@ -64,7 +64,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _complete() {
     OnboardingScreen.markCompleted();
-    Navigator.pushReplacementNamed(context, '/login');
+    Navigator.pushReplacementNamed(context, '/register');
   }
 
   @override
@@ -260,7 +260,7 @@ class _OnboardingPage extends StatelessWidget {
                       child: FilledButton(
                         onPressed: () {
                           OnboardingScreen.markCompleted();
-                          Navigator.pushReplacementNamed(context, '/login');
+                          Navigator.pushReplacementNamed(context, '/register');
                         },
                         style: FilledButton.styleFrom(
                           backgroundColor: AppColors.crimson,

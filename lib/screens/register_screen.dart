@@ -146,13 +146,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         title: const Text('Create Account'),
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          hoverColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: const SizedBox.shrink(),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.lg),

@@ -6,15 +6,24 @@ import 'notifications_screen.dart';
 import 'profile_screen.dart';
 
 class DonorHomeShell extends StatefulWidget {
-  const DonorHomeShell({super.key});
+  final int initialTab;
+  final String? requestId;
+
+  const DonorHomeShell({super.key, this.initialTab = 0, this.requestId});
 
   @override
   State<DonorHomeShell> createState() => _DonorHomeShellState();
 }
 
 class _DonorHomeShellState extends State<DonorHomeShell> {
-  int _currentIndex = 0;
+  late int _currentIndex;
   int _pendingCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialTab;
+  }
 
   void _openRequests() {
     setState(() => _currentIndex = 1);

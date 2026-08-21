@@ -19,6 +19,7 @@ class PinUnlockScreen extends StatefulWidget {
 class _PinUnlockScreenState extends State<PinUnlockScreen> {
   static const int _pinLength = 4;
 
+  final _phoneController = TextEditingController();
   final List<TextEditingController> _pinControllers =
       List.generate(_pinLength, (_) => TextEditingController());
   final List<FocusNode> _pinFocusNodes =
@@ -32,6 +33,7 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
 
   @override
   void dispose() {
+    _phoneController.dispose();
     for (final c in _pinControllers) {
       c.dispose();
     }
@@ -62,7 +64,7 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final res = await AuthService.unlock(pin);
+      final res = await AuthService.unlock(_phoneController.text, pin);
 
       if (!mounted) return;
 
@@ -152,6 +154,15 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
+              CustomTextField(
+                controller: _phoneController,
+                label: 'Phone',
+                hintText: '0XXXXXXXXX',
+                prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.textSecondary),
+                keyboardType: TextInputType.phone,
+                validator: Validators.validatePhone,
+              ),
+              const SizedBox(height: AppSpacing.lg),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(_pinLength, (index) {
@@ -226,6 +237,14 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
                 onPressed: _showForgotPinDialog,
                 child: const Text(
                   'Forgot PIN?',
+                  style: TextStyle(color: AppColors.crimson, fontWeight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              TextButton(
+                onPressed: () => Navigator.pushReplacementNamed(context, '/register'),
+                child: const Text(
+                  "Don't have an account? Create one",
                   style: TextStyle(color: AppColors.crimson, fontWeight: FontWeight.w600),
                 ),
               ),

@@ -1,6 +1,9 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../app_navigator.dart';
+import '../screens/donor_home_shell.dart';
 import 'api_service.dart';
 
 final FlutterLocalNotificationsPlugin _localNotifications =
@@ -23,7 +26,10 @@ class FcmService {
     await _localNotifications.initialize(
       settings: initSettings,
       onDidReceiveNotificationResponse: (details) {
-        if (kDebugMode) print('[FCM] Local notification tapped: ${details.payload}');
+        if (kDebugMode) {
+          print('[FCM] Local notification tapped: ${details.payload}');
+        }
+        _navigateToRequests(details.payload);
       },
     );
 
@@ -48,11 +54,6 @@ class FcmService {
       _showForegroundNotification(message);
     });
 
-    RemoteMessage? initialMessage = await _messaging.getInitialMessage();
-    if (initialMessage != null) _handleMessageTap(initialMessage);
-
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageTap);
-
     _messaging.onTokenRefresh.listen((newToken) async {
       if (ApiService.token != null && ApiService.token!.isNotEmpty) {
         try {
@@ -63,6 +64,19 @@ class FcmService {
         }
       }
     });
+  }
+
+  static Future<void> initializeNavigation() async {
+    try {
+      FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageTap);
+
+      final initialMessage = await _messaging.getInitialMessage();
+      if (initialMessage != null) {
+        _handleMessageTap(initialMessage);
+      }
+    } catch (e) {
+      if (kDebugMode) print('[FCM] Navigation init skipped: $e');
+    }
   }
 
   static Future<void> _showForegroundNotification(RemoteMessage message) async {
@@ -101,6 +115,9 @@ class FcmService {
         await ApiService.post('/api/donor/push-token', {'pushToken': token});
         if (kDebugMode) print('[FCM] Token registered with backend');
       }
+
+      await _messaging.subscribeToTopic('blood_donors');
+      if (kDebugMode) print('[FCM] Subscribed to blood_donors topic');
     } catch (e) {
       if (kDebugMode) print('[FCM] Registration failed: $e');
     }
@@ -108,5 +125,22 @@ class FcmService {
 
   static void _handleMessageTap(RemoteMessage message) {
     if (kDebugMode) print('[FCM] Notification tapped: ${message.data}');
+    final requestId = message.data['requestId'] as String?;
+    _navigateToRequests(requestId);
+  }
+
+  static void _navigateToRequests(String? requestId) {
+    final nav = navigatorKey.currentState;
+    if (nav == null) {
+      if (kDebugMode) print('[FCM] Navigator not ready, queuing');
+      return;
+    }
+
+    nav.pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => DonorHomeShell(initialTab: 1, requestId: requestId),
+      ),
+      (route) => false,
+    );
   }
 }

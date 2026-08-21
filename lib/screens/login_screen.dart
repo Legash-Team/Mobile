@@ -130,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: AppColors.textSecondary,
                   fontSize: 15,
-                  height: 22 / 15,
+                  height: 1.4,
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),

@@ -302,7 +302,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.crimson.withOpacity(0.08),
+                  color: AppColors.crimson.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(AppRadius.sm),
                 ),
                 child: Icon(icon, color: AppColors.crimson, size: 22),

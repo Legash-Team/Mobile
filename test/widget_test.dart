@@ -13,12 +13,13 @@ void main() {
     expect(find.text("Blood, matched to where it's needed"), findsOneWidget);
   });
 
-  testWidgets('App shows login when onboarding completed', (WidgetTester tester) async {
+  testWidgets('App shows PIN unlock when onboarding completed', (WidgetTester tester) async {
     SharedPreferences.setMockInitialValues({
       'onboarding_completed': true,
     });
 
     await tester.pumpWidget(const LegashApp());
+    await tester.pumpAndSettle();
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome Back'), findsOneWidget);

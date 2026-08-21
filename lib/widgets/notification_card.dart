@@ -41,6 +41,9 @@ class _NotificationCardState extends State<NotificationCard> {
           _item = _item.copyWith(myResponseStatus: response);
         });
         widget.onChanged(_item);
+        if (response == 'accepted') {
+          _showAcceptSuggestions(res);
+        }
       } else {
         final error = res['error'] as String? ?? 'Something went wrong.';
         if (mounted) {
@@ -61,6 +64,74 @@ class _NotificationCardState extends State<NotificationCard> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showAcceptSuggestions(Map<String, dynamic> res) {
+    final nextSteps = res['nextSteps'] as Map<String, dynamic>?;
+    final hospitalName = nextSteps?['hospitalName'] as String? ?? _item.hospitalName;
+    final hospitalPhone = nextSteps?['hospitalPhone'] as String?;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: AppSpacing.md),
+              decoration: BoxDecoration(
+                color: AppColors.cardBorder,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Text(
+              'Request Accepted!',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: AppColors.verified,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              'Here are some things you can do:',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ListTile(
+              leading: const Icon(Icons.call, color: AppColors.crimson),
+              title: const Text('Contact Hospital', style: TextStyle(fontSize: 14)),
+              subtitle: hospitalPhone != null
+                  ? Text(hospitalPhone, style: TextStyle(fontSize: 13, color: AppColors.textSecondary))
+                  : null,
+              onTap: () => Navigator.pop(ctx),
+            ),
+            const Divider(height: 1, indent: 16, endIndent: 16),
+            ListTile(
+              leading: const Icon(Icons.location_on, color: AppColors.crimson),
+              title: const Text('Go to Hospital Location', style: TextStyle(fontSize: 14)),
+              subtitle: Text(hospitalName, style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+              onTap: () => Navigator.pop(ctx),
+            ),
+            const Divider(height: 1, indent: 16, endIndent: 16),
+            ListTile(
+              leading: const Icon(Icons.schedule, color: AppColors.crimson),
+              title: const Text('Visit When Ready', style: TextStyle(fontSize: 14)),
+              subtitle: const Text('The hospital can also reach out to you', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+              onTap: () => Navigator.pop(ctx),
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+        ),
+      ),
+    );
   }
 
   @override

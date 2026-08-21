@@ -61,6 +61,25 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     });
   }
 
+  Future<void> _resendCode() async {
+    try {
+      await AuthService.resendOtp(widget.phone);
+      _startTimer();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('OTP resent successfully.'),
+          backgroundColor: AppColors.verified,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: AppColors.crimson),
+      );
+    }
+  }
+
   String get _otpCode => _controllers.map((c) => c.text).join();
 
   Future<void> _verify() async {
@@ -79,11 +98,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       if (res['success'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Phone verified. You can now log in.'),
+            content: Text('Phone verified. Now set your PIN.'),
             backgroundColor: AppColors.verified,
           ),
         );
-        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+        Navigator.pushReplacementNamed(
+          context,
+          '/set-pin',
+          arguments: widget.phone,
+        );
       } else {
         _onVerificationFailed(res['error'] as String? ?? 'Verification failed.');
       }
@@ -217,7 +240,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       )
                     else
                       TextButton(
-                        onPressed: _startTimer,
+                        onPressed: _resendCode,
                         child: const Text(
                           'Resend code',
                           style: TextStyle(

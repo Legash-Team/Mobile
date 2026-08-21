@@ -15,28 +15,63 @@ class AuthService {
     });
   }
 
-  static Future<Map<String, dynamic>> loginDonor(String phone, String password) async {
-    return ApiService.post('/api/donor/login', {
-      'phone': PhoneFormatter.format(phone),
-      'password': password,
-    });
-  }
-
-  static Future<Map<String, dynamic>> forgotPassword(String phone) async {
-    return ApiService.post('/api/auth/forgot-password', {
+  static Future<Map<String, dynamic>> resendOtp(String phone) async {
+    return ApiService.post('/api/donor/resend-otp', {
       'phone': PhoneFormatter.format(phone),
     });
   }
 
-  static Future<Map<String, dynamic>> resetPassword(
+  static Future<Map<String, dynamic>> setPin(String phone, String pin, String confirmPin) async {
+    return ApiService.post('/api/donor/set-pin', {
+      'phone': PhoneFormatter.format(phone),
+      'pin': pin,
+      'confirmPin': confirmPin,
+    });
+  }
+
+  static Future<Map<String, dynamic>> unlock(String pin) async {
+    return ApiService.post('/api/donor/unlock', {
+      'pin': pin,
+    });
+  }
+
+  static Future<Map<String, dynamic>> forgotPin(String phone) async {
+    return ApiService.post('/api/donor/forgot-pin', {
+      'phone': PhoneFormatter.format(phone),
+    });
+  }
+
+  static Future<Map<String, dynamic>> resetPin(
     String phone,
     String code,
-    String newPassword,
+    String pin,
+    String confirmPin,
   ) async {
-    return ApiService.post('/api/auth/reset-password', {
+    return ApiService.post('/api/donor/reset-pin', {
       'phone': PhoneFormatter.format(phone),
       'code': code,
-      'newPassword': newPassword,
+      'pin': pin,
+      'confirmPin': confirmPin,
     });
+  }
+
+  static Future<Map<String, dynamic>> changePin(
+    String currentPin,
+    String newPin,
+    String confirmNewPin,
+  ) async {
+    return ApiService.post('/api/donor/profile/change-pin', {
+      'currentPin': currentPin,
+      'newPin': newPin,
+      'confirmNewPin': confirmNewPin,
+    });
+  }
+
+  static Future<Map<String, dynamic>> getProfile() async {
+    return ApiService.get('/api/donor/profile');
+  }
+
+  static Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> data) async {
+    return ApiService.post('/api/donor/profile', data);
   }
 }

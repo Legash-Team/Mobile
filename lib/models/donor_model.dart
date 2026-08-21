@@ -1,6 +1,5 @@
 class DonorModel {
   final String name;
-  final String password;
   final String phone;
   final String fin;
   final String gender;
@@ -11,7 +10,6 @@ class DonorModel {
 
   DonorModel({
     required this.name,
-    required this.password,
     required this.phone,
     required this.fin,
     required this.gender,
@@ -24,7 +22,6 @@ class DonorModel {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'password': password,
       'phone': phone,
       'fin': fin,
       'gender': gender,

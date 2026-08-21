@@ -18,8 +18,6 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
   final _phoneController = TextEditingController();
   final _finController = TextEditingController();
 
@@ -30,6 +28,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _agreedToTerms = false;
   bool _isLoading = false;
   bool _locationCaptured = false;
+  bool _unknownBloodType = false;
   String? _locationError;
 
   static const List<String> _bloodTypes = [
@@ -39,8 +38,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
     _phoneController.dispose();
     _finController.dispose();
     super.dispose();
@@ -113,7 +110,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       final donor = DonorModel(
         name: _nameController.text.trim(),
-        password: _passwordController.text,
         phone: _phoneController.text.trim(),
         fin: _finController.text.trim(),
         gender: _gender!,
@@ -218,22 +214,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
 
-              CustomTextField(
-                controller: _passwordController,
-                label: 'Password',
-                obscureText: true,
-                validator: Validators.validatePassword,
-              ),
-              const SizedBox(height: AppSpacing.md),
-
-              CustomTextField(
-                controller: _confirmPasswordController,
-                label: 'Confirm Password',
-                obscureText: true,
-                validator: (v) => Validators.validateConfirmPassword(v, _passwordController.text),
-              ),
-              const SizedBox(height: AppSpacing.md),
-
               Text(
                 'Gender',
                 style: theme.textTheme.labelLarge?.copyWith(
@@ -270,7 +250,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               DropdownButtonFormField<String>(
                 initialValue: _bloodType,
                 decoration: InputDecoration(
-                  labelText: 'Blood Type (optional)',
+                  labelText: 'Blood Type',
                   labelStyle: theme.textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
                   filled: true,
                   fillColor: AppColors.surface,
@@ -287,9 +267,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     borderSide: BorderSide(color: AppColors.borderFocused, width: 2),
                   ),
                 ),
-                items: _bloodTypes.map((type) => DropdownMenuItem(value: type, child: Text(type))).toList(),
-                onChanged: (v) => setState(() => _bloodType = v),
+                items: _bloodTypes.where((t) => t != 'unknown').map((type) => DropdownMenuItem(value: type, child: Text(type))).toList(),
+                onChanged: _unknownBloodType ? null : (v) => setState(() => _bloodType = v),
               ),
+              const SizedBox(height: AppSpacing.xs),
+              Row(
+                children: [
+                  Checkbox(
+                    value: _unknownBloodType,
+                    activeColor: AppColors.crimson,
+                    onChanged: (v) => setState(() {
+                      _unknownBloodType = v ?? false;
+                      if (_unknownBloodType) _bloodType = null;
+                    }),
+                  ),
+                  const Expanded(
+                    child: Text(
+                      "I don't know my blood type",
+                      style: TextStyle(color: AppColors.textPrimary, fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+              if (_unknownBloodType)
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: AppColors.paperDim,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                  ),
+                  child: const Text(
+                    "Enter your blood type in your profile later to receive donation requests. You can find out your blood type at the nearest blood donation center.",
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 18 / 13),
+                  ),
+                ),
               const SizedBox(height: AppSpacing.md),
 
               Row(

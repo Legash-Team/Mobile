@@ -7,7 +7,8 @@ import 'providers/auth_provider.dart';
 import 'screens/register_screen.dart';
 import 'screens/otp_verification_screen.dart';
 import 'screens/terms_policy_screen.dart';
-import 'screens/login_screen.dart';
+import 'screens/set_pin_screen.dart';
+import 'screens/pin_unlock_screen.dart';
 import 'screens/donor_home_shell.dart';
 import 'screens/onboarding_screen.dart';
 import 'services/fcm_service.dart';
@@ -21,10 +22,21 @@ void main() async {
   runApp(const LegashApp());
 }
 
-class LegashApp extends StatelessWidget {
+class LegashApp extends StatefulWidget {
   const LegashApp({super.key});
 
-  Future<bool> _checkOnboarding() => OnboardingScreen.isCompleted();
+  @override
+  State<LegashApp> createState() => _LegashAppState();
+}
+
+class _LegashAppState extends State<LegashApp> {
+  late Future<bool> _onboardingFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _onboardingFuture = OnboardingScreen.isCompleted();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +75,7 @@ class LegashApp extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
-              borderSide: BorderSide(color: AppColors.crimson, width: 2),
+              borderSide: BorderSide(color: AppColors.borderFocused, width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
@@ -87,20 +99,33 @@ class LegashApp extends StatelessWidget {
           ),
         ),
         home: FutureBuilder<bool>(
-          future: _checkOnboarding(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
+          future: _onboardingFuture,
+          builder: (context, onboardingSnapshot) {
+            if (!onboardingSnapshot.hasData) {
               return const Scaffold(
                 backgroundColor: AppColors.paper,
                 body: Center(child: CircularProgressIndicator(color: AppColors.crimson)),
               );
             }
-            final completed = snapshot.data!;
-            return completed ? const LoginScreen() : const OnboardingScreen();
+            final onboardingDone = onboardingSnapshot.data!;
+            if (!onboardingDone) return const OnboardingScreen();
+
+            return Consumer<AuthProvider>(
+              builder: (context, auth, _) {
+                if (!auth.initialized) {
+                  return const Scaffold(
+                    backgroundColor: AppColors.paper,
+                    body: Center(child: CircularProgressIndicator(color: AppColors.crimson)),
+                  );
+                }
+                if (auth.isLoggedIn) return const DonorHomeShell();
+                return const PinUnlockScreen();
+              },
+            );
           },
         ),
         routes: {
-          '/login': (_) => const LoginScreen(),
+          '/login': (_) => const PinUnlockScreen(),
           '/register': (_) => const RegisterScreen(),
           '/terms': (_) => const TermsPolicyScreen(),
           '/dashboard': (_) => const DonorHomeShell(),
@@ -110,6 +135,12 @@ class LegashApp extends StatelessWidget {
             final phone = settings.arguments as String;
             return MaterialPageRoute(
               builder: (_) => OtpVerificationScreen(phone: phone),
+            );
+          }
+          if (settings.name == '/set-pin') {
+            final phone = settings.arguments as String;
+            return MaterialPageRoute(
+              builder: (_) => SetPinScreen(phone: phone),
             );
           }
           return null;

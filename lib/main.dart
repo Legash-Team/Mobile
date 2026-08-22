@@ -16,10 +16,14 @@ import 'services/fcm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  await FcmService.initialize();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    await FcmService.initialize();
+  } catch (e) {
+    debugPrint('[Startup] Firebase/FCM init error: $e');
+  }
   runApp(const LegashApp());
 }
 
@@ -36,7 +40,10 @@ class _LegashAppState extends State<LegashApp> {
   @override
   void initState() {
     super.initState();
-    _onboardingFuture = OnboardingScreen.isCompleted();
+    _onboardingFuture = OnboardingScreen.isCompleted().catchError((e) {
+      debugPrint('[Startup] Error reading onboarding state: $e');
+      return false;
+    });
     FcmService.initializeNavigation();
   }
 

@@ -84,7 +84,46 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      _onError();
+      final errorMsg = e.toString();
+      if (errorMsg.toLowerCase().contains('not verified') || errorMsg.toLowerCase().contains('verify')) {
+        final phone = _phoneController.text.trim();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Account is not verified yet.'),
+            backgroundColor: AppColors.crimson,
+            action: SnackBarAction(
+              label: 'Verify Now',
+              textColor: Colors.white,
+              onPressed: () {
+                if (phone.isNotEmpty) {
+                  AuthService.resendOtp(phone).catchError((_) => {});
+                  Navigator.pushNamed(context, '/otp', arguments: phone);
+                }
+              },
+            ),
+          ),
+        );
+      } else if (errorMsg.toLowerCase().contains('pin has not been set')) {
+        final phone = _phoneController.text.trim();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('PIN has not been set for this account.'),
+            backgroundColor: AppColors.crimson,
+            action: SnackBarAction(
+              label: 'Set PIN',
+              textColor: Colors.white,
+              onPressed: () {
+                if (phone.isNotEmpty) {
+                  AuthService.resendOtp(phone).catchError((_) => {});
+                  Navigator.pushNamed(context, '/otp', arguments: phone);
+                }
+              },
+            ),
+          ),
+        );
+      } else {
+        _onError();
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

@@ -21,49 +21,53 @@ class FcmService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   static Future<void> initialize() async {
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const initSettings = InitializationSettings(android: androidSettings);
-    await _localNotifications.initialize(
-      settings: initSettings,
-      onDidReceiveNotificationResponse: (details) {
+    try {
+      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const initSettings = InitializationSettings(android: androidSettings);
+      await _localNotifications.initialize(
+        settings: initSettings,
+        onDidReceiveNotificationResponse: (details) {
+          if (kDebugMode) {
+            print('[FCM] Local notification tapped: ${details.payload}');
+          }
+          _navigateToRequests(details.payload);
+        },
+      );
+
+      final settings = await _messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+        provisional: false,
+      );
+
+      if (kDebugMode) print('[FCM] Permission: ${settings.authorizationStatus}');
+
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         if (kDebugMode) {
-          print('[FCM] Local notification tapped: ${details.payload}');
+          print('[FCM] Foreground message:');
+          print('[FCM] Title: ${message.notification?.title}');
+          print('[FCM] Body: ${message.notification?.body}');
+          print('[FCM] Data: ${message.data}');
         }
-        _navigateToRequests(details.payload);
-      },
-    );
+        _showForegroundNotification(message);
+      });
 
-    final settings = await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
-    );
-
-    if (kDebugMode) print('[FCM] Permission: ${settings.authorizationStatus}');
-
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (kDebugMode) {
-        print('[FCM] Foreground message:');
-        print('[FCM] Title: ${message.notification?.title}');
-        print('[FCM] Body: ${message.notification?.body}');
-        print('[FCM] Data: ${message.data}');
-      }
-      _showForegroundNotification(message);
-    });
-
-    _messaging.onTokenRefresh.listen((newToken) async {
-      if (ApiService.token != null && ApiService.token!.isNotEmpty) {
-        try {
-          await ApiService.post('/api/donor/push-token', {'pushToken': newToken});
-          if (kDebugMode) print('[FCM] Token refreshed and registered');
-        } catch (e) {
-          if (kDebugMode) print('[FCM] Token refresh failed: $e');
+      _messaging.onTokenRefresh.listen((newToken) async {
+        if (ApiService.token != null && ApiService.token!.isNotEmpty) {
+          try {
+            await ApiService.post('/api/donor/push-token', {'pushToken': newToken});
+            if (kDebugMode) print('[FCM] Token refreshed and registered');
+          } catch (e) {
+            if (kDebugMode) print('[FCM] Token refresh failed: $e');
+          }
         }
-      }
-    });
+      });
+    } catch (e) {
+      if (kDebugMode) print('[FCM] Initialization error (non-fatal): $e');
+    }
   }
 
   static Future<void> initializeNavigation() async {

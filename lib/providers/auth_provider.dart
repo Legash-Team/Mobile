@@ -20,17 +20,32 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> restoreSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('session_token');
-    final donorJson = prefs.getString('session_donor');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('session_token');
+      final donorJson = prefs.getString('session_donor');
 
-    if (token != null && token.isNotEmpty && donorJson != null) {
-      _token = token;
-      _donor = DonorInfo.fromJson(jsonDecode(donorJson) as Map<String, dynamic>);
-      ApiService.token = token;
+      if (token != null && token.isNotEmpty && donorJson != null) {
+        _token = token;
+        _donor = DonorInfo.fromJson(jsonDecode(donorJson) as Map<String, dynamic>);
+        ApiService.token = token;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('[Auth] Error restoring session, clearing corrupted data: $e');
+      }
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('session_token');
+        await prefs.remove('session_donor');
+      } catch (_) {}
+      _token = null;
+      _donor = null;
+      ApiService.token = null;
+    } finally {
+      _initialized = true;
+      notifyListeners();
     }
-    _initialized = true;
-    notifyListeners();
   }
 
   Future<void> login(String token, DonorInfo donor) async {

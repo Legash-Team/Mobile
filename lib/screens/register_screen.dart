@@ -129,9 +129,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString()), backgroundColor: AppColors.crimson),
-      );
+      final errorMsg = e.toString();
+      if (errorMsg.toLowerCase().contains('already registered')) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Phone number is already registered.'),
+            backgroundColor: AppColors.crimson,
+            action: SnackBarAction(
+              label: 'Log In',
+              textColor: Colors.white,
+              onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMsg), backgroundColor: AppColors.crimson),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

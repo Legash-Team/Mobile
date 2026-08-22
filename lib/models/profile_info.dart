@@ -7,6 +7,10 @@ class ProfileInfo {
   final String gender;
   final String location;
   final int searchRadiusKm;
+  final String? dob;
+  final num? weightKg;
+  final num? heightCm;
+  final String? healthNotes;
 
   const ProfileInfo({
     required this.name,
@@ -17,6 +21,10 @@ class ProfileInfo {
     required this.gender,
     required this.location,
     required this.searchRadiusKm,
+    this.dob,
+    this.weightKg,
+    this.heightCm,
+    this.healthNotes,
   });
 
   String get initials {

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
 import '../models/profile_info.dart';
+import '../models/donor_model.dart';
 import '../providers/auth_provider.dart';
 import '../services/auth_service.dart';
 
@@ -24,10 +25,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       isVerified: true,
       bloodType: donor?.bloodType ?? '',
       phone: donor?.phone ?? '',
-      fin: 'ETH-8829-1029-4401',
-      gender: 'Male',
-      location: 'Addis Ababa',
+      fin: donor?.fin ?? 'Not set',
+      gender: donor?.gender ?? 'Not set',
+      location: 'Addis Ababa', // Mock location
       searchRadiusKm: 4,
+      dob: donor?.dob,
+      weightKg: donor?.weightKg,
+      heightCm: donor?.heightCm,
+      healthNotes: donor?.healthNotes,
     );
   }
 
@@ -42,9 +47,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  void _saveEditing(String field) {
-    if (_editingField != null) {
+  void _saveEditing(String field) async {
+    if (_editingField == null) return;
+    
+    final newValue = _editControllers[field]?.text.trim();
+    if (newValue == null || newValue.isEmpty) {
       setState(() => _editingField = null);
+      return;
+    }
+    
+    // Optimistically close the editor
+    setState(() => _editingField = null);
+
+    try {
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      
+      final data = <String, dynamic>{};
+      if (field == 'weight') {
+        data['weightKg'] = int.tryParse(newValue) ?? 0;
+      } else if (field == 'height') {
+        data['heightCm'] = int.tryParse(newValue) ?? 0;
+      } else {
+        data[field] = newValue; // 'name', 'healthNotes', 'bloodType', 'dob'
+      }
+
+      await AuthService.updateProfile(data);
+      
+      // Refresh profile to get updated DonorInfo
+      final res = await AuthService.getProfile();
+      if (res['success'] == true && res['profile'] != null) {
+        final updatedDonor = DonorInfo.fromJson(res['profile']);
+        auth.updateDonor(updatedDonor);
+      }
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile updated successfully'),
+            backgroundColor: AppColors.verified,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: AppColors.crimson,
+          ),
+        );
+      }
     }
   }
 
@@ -334,21 +386,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   icon: Icons.cake_outlined,
                   label: 'Date of Birth',
                   field: 'dob',
-                  value: 'Not set',
+                  value: profile.dob != null ? profile.dob!.split('T')[0] : 'Not set',
                 ),
                 _buildDivider(),
                 _buildEditableTile(
                   icon: Icons.monitor_weight_outlined,
                   label: 'Weight',
                   field: 'weight',
-                  value: 'Not set',
+                  value: profile.weightKg != null ? '${profile.weightKg} kg' : 'Not set',
                 ),
                 _buildDivider(),
                 _buildEditableTile(
                   icon: Icons.height,
                   label: 'Height',
                   field: 'height',
-                  value: 'Not set',
+                  value: profile.heightCm != null ? '${profile.heightCm} cm' : 'Not set',
                 ),
                 _buildDivider(),
                 _buildInfoTile(
@@ -368,7 +420,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   icon: Icons.favorite_outline,
                   label: 'Health Notes',
                   field: 'healthNotes',
-                  value: 'Healthy',
+                  value: profile.healthNotes?.isNotEmpty == true ? profile.healthNotes! : 'None',
                 ),
               ],
             ),

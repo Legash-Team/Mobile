@@ -64,7 +64,7 @@ class AuthService {
     return ApiService.post('/api/donor/profile/change-pin', {
       'currentPin': currentPin,
       'newPin': newPin,
-      'confirmNewPin': confirmNewPin,
+      'confirmPin': confirmNewPin,
     });
   }
 

@@ -42,12 +42,24 @@ class DonorInfo {
   final String name;
   final String phone;
   final String? bloodType;
+  final String? fin;
+  final String? gender;
+  final num? weightKg;
+  final num? heightCm;
+  final String? healthNotes;
+  final String? dob;
 
   DonorInfo({
     required this.id,
     required this.name,
     required this.phone,
     this.bloodType,
+    this.fin,
+    this.gender,
+    this.weightKg,
+    this.heightCm,
+    this.healthNotes,
+    this.dob,
   });
 
   factory DonorInfo.fromJson(Map<String, dynamic> json) {
@@ -56,6 +68,12 @@ class DonorInfo {
       name: json['name'] as String,
       phone: json['phone'] as String,
       bloodType: json['bloodType'] as String?,
+      fin: json['fin'] as String?,
+      gender: json['gender'] as String?,
+      weightKg: json['weightKg'] as num?,
+      heightCm: json['heightCm'] as num?,
+      healthNotes: json['healthNotes'] as String?,
+      dob: json['dob'] as String?,
     );
   }
 
@@ -65,6 +83,12 @@ class DonorInfo {
       'name': name,
       'phone': phone,
       if (bloodType != null) 'bloodType': bloodType,
+      if (fin != null) 'fin': fin,
+      if (gender != null) 'gender': gender,
+      if (weightKg != null) 'weightKg': weightKg,
+      if (heightCm != null) 'heightCm': heightCm,
+      if (healthNotes != null) 'healthNotes': healthNotes,
+      if (dob != null) 'dob': dob,
     };
   }
 }

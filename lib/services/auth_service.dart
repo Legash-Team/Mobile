@@ -73,6 +73,10 @@ class AuthService {
   }
 
   static Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> data) async {
-    return ApiService.post('/api/donor/profile', data);
+    return ApiService.put('/api/donor/profile', data);
+  }
+
+  static Future<Map<String, dynamic>> deleteAccount() async {
+    return ApiService.delete('/api/donor/profile');
   }
 }

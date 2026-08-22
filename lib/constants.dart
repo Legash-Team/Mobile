@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-const String baseUrl = 'https://backend-qifm.onrender.com';
+const String baseUrl = String.fromEnvironment(
+  'API_BASE_URL',
+  defaultValue: 'http://10.0.2.2:3000',
+);
 
 class AppColors {
   static const Color ink = Color(0xFF1B1410);

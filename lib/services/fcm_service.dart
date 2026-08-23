@@ -9,6 +9,15 @@ import 'api_service.dart';
 final FlutterLocalNotificationsPlugin _localNotifications =
     FlutterLocalNotificationsPlugin();
 
+const AndroidNotificationChannel _bloodRequestsChannel = AndroidNotificationChannel(
+  'legash_blood_requests',
+  'Blood Requests',
+  description: 'Alerts for nearby blood donation requests',
+  importance: Importance.high,
+  playSound: true,
+  enableVibration: true,
+);
+
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   if (kDebugMode) {
@@ -21,49 +30,62 @@ class FcmService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   static Future<void> initialize() async {
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const initSettings = InitializationSettings(android: androidSettings);
-    await _localNotifications.initialize(
-      settings: initSettings,
-      onDidReceiveNotificationResponse: (details) {
+    try {
+      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const initSettings = InitializationSettings(android: androidSettings);
+      
+      await _localNotifications.initialize(
+        settings: initSettings,
+        onDidReceiveNotificationResponse: (details) {
+          if (kDebugMode) {
+            print('[FCM] Local notification tapped: ${details.payload}');
+          }
+          _navigateToRequests(details.payload);
+        },
+      );
+
+      // Create Android Notification Channel for High Importance Alerts
+      final androidPlugin = _localNotifications
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      if (androidPlugin != null) {
+        await androidPlugin.createNotificationChannel(_bloodRequestsChannel);
+        await androidPlugin.requestNotificationsPermission();
+      }
+
+      final settings = await _messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+        provisional: false,
+      );
+
+      if (kDebugMode) print('[FCM] Permission: ${settings.authorizationStatus}');
+
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         if (kDebugMode) {
-          print('[FCM] Local notification tapped: ${details.payload}');
+          print('[FCM] Foreground message received:');
+          print('[FCM] Title: ${message.notification?.title}');
+          print('[FCM] Body: ${message.notification?.body}');
+          print('[FCM] Data: ${message.data}');
         }
-        _navigateToRequests(details.payload);
-      },
-    );
+        _showForegroundNotification(message);
+      });
 
-    final settings = await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
-    );
-
-    if (kDebugMode) print('[FCM] Permission: ${settings.authorizationStatus}');
-
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (kDebugMode) {
-        print('[FCM] Foreground message:');
-        print('[FCM] Title: ${message.notification?.title}');
-        print('[FCM] Body: ${message.notification?.body}');
-        print('[FCM] Data: ${message.data}');
-      }
-      _showForegroundNotification(message);
-    });
-
-    _messaging.onTokenRefresh.listen((newToken) async {
-      if (ApiService.token != null && ApiService.token!.isNotEmpty) {
-        try {
-          await ApiService.post('/api/donor/push-token', {'pushToken': newToken});
-          if (kDebugMode) print('[FCM] Token refreshed and registered');
-        } catch (e) {
-          if (kDebugMode) print('[FCM] Token refresh failed: $e');
+      _messaging.onTokenRefresh.listen((newToken) async {
+        if (ApiService.token != null && ApiService.token!.isNotEmpty) {
+          try {
+            await ApiService.post('/api/donor/push-token', {'pushToken': newToken});
+            if (kDebugMode) print('[FCM] Token refreshed and registered: $newToken');
+          } catch (e) {
+            if (kDebugMode) print('[FCM] Token refresh failed: $e');
+          }
         }
-      }
-    });
+      });
+    } catch (e) {
+      if (kDebugMode) print('[FCM] Initialization error (non-fatal): $e');
+    }
   }
 
   static Future<void> initializeNavigation() async {
@@ -81,7 +103,17 @@ class FcmService {
 
   static Future<void> _showForegroundNotification(RemoteMessage message) async {
     final notification = message.notification;
-    if (notification == null) return;
+    final data = message.data;
+
+    final title = notification?.title ?? 
+        (data['hospitalName'] != null 
+            ? 'Urgent: ${data['bloodType'] ?? 'Blood'} Needed' 
+            : 'Legash Blood Alert');
+            
+    final body = notification?.body ?? 
+        (data['hospitalName'] != null 
+            ? '${data['hospitalName']} requires ${data['quantityNeeded'] ?? 'units of'} ${data['bloodType'] ?? ''} blood.'
+            : 'A new emergency blood request has been posted near you.');
 
     const androidDetails = AndroidNotificationDetails(
       'legash_blood_requests',
@@ -89,16 +121,21 @@ class FcmService {
       channelDescription: 'Alerts for nearby blood donation requests',
       importance: Importance.high,
       priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+      icon: '@mipmap/ic_launcher',
       ticker: 'Blood request',
     );
     const details = NotificationDetails(android: androidDetails);
 
+    final requestId = (data['requestId'] ?? data['id'] ?? message.messageId)?.toString();
+
     await _localNotifications.show(
-      id: notification.hashCode,
-      title: notification.title,
-      body: notification.body,
+      id: message.hashCode,
+      title: title,
+      body: body,
       notificationDetails: details,
-      payload: message.data['requestId'] as String?,
+      payload: requestId,
     );
   }
 

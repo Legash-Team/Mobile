@@ -27,6 +27,8 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
 
   bool _isLoading = false;
   bool _hasError = false;
+  bool _obscurePin = true;
+  String? _errorMessage;
   int _attempts = 0;
 
   String get _pin => _pinControllers.map((c) => c.text).join();
@@ -44,13 +46,20 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
   }
 
   void _onDigitChanged(int index, String value) {
-    setState(() => _hasError = false);
+    setState(() {
+      _hasError = false;
+      _errorMessage = null;
+    });
+
     if (value.isNotEmpty) {
+      HapticFeedback.selectionClick();
       if (index < _pinLength - 1) {
         _pinFocusNodes[index + 1].requestFocus();
       } else {
         _pinFocusNodes[index].unfocus();
-        _unlock();
+        if (_phoneController.text.trim().isNotEmpty && _pin.length == _pinLength) {
+          _unlock();
+        }
       }
     } else if (value.isEmpty && index > 0) {
       _pinFocusNodes[index - 1].requestFocus();
@@ -58,13 +67,33 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
   }
 
   Future<void> _unlock() async {
+    final phone = _phoneController.text.trim();
     final pin = _pin;
-    if (pin.length < _pinLength) return;
 
-    setState(() => _isLoading = true);
+    if (phone.isEmpty) {
+      setState(() {
+        _hasError = true;
+        _errorMessage = 'Please enter your registered phone number.';
+      });
+      return;
+    }
+
+    if (pin.length < _pinLength) {
+      setState(() {
+        _hasError = true;
+        _errorMessage = 'Please enter your 4-digit PIN.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+      _errorMessage = null;
+    });
 
     try {
-      final res = await AuthService.unlock(_phoneController.text, pin);
+      final res = await AuthService.unlock(phone, pin);
 
       if (!mounted) return;
 
@@ -73,26 +102,71 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
         final donorData = res['donor'] as Map<String, dynamic>?;
         final donor = donorData != null ? DonorInfo.fromJson(donorData) : null;
 
-        context.read<AuthProvider>().login(token, donor ?? DonorInfo(
-          id: '',
-          name: 'Donor',
-          phone: '',
-        ));
+        context.read<AuthProvider>().login(
+              token,
+              donor ??
+                  DonorInfo(
+                    id: '',
+                    name: 'Donor',
+                    phone: phone,
+                  ),
+            );
         Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (route) => false);
       } else {
-        _onError();
+        _onError('Invalid PIN. Please try again.');
       }
     } catch (e) {
       if (!mounted) return;
-      _onError();
+      final errorMsg = e.toString();
+      if (errorMsg.toLowerCase().contains('not verified') || errorMsg.toLowerCase().contains('verify')) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Account is not verified yet.'),
+            backgroundColor: AppColors.crimson,
+            action: SnackBarAction(
+              label: 'Verify Now',
+              textColor: Colors.white,
+              onPressed: () {
+                if (phone.isNotEmpty) {
+                  AuthService.resendOtp(phone).catchError((_) => <String, dynamic>{});
+                  Navigator.pushNamed(context, '/otp', arguments: PhoneFormatter.format(phone));
+                }
+              },
+            ),
+          ),
+        );
+      } else if (errorMsg.toLowerCase().contains('pin has not been set')) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('PIN has not been set for this account.'),
+            backgroundColor: AppColors.crimson,
+            action: SnackBarAction(
+              label: 'Set PIN',
+              textColor: Colors.white,
+              onPressed: () {
+                if (phone.isNotEmpty) {
+                  AuthService.resendOtp(phone).catchError((_) => <String, dynamic>{});
+                  Navigator.pushNamed(context, '/otp', arguments: PhoneFormatter.format(phone));
+                }
+              },
+            ),
+          ),
+        );
+      } else {
+        _onError(errorMsg);
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  void _onError() {
+  void _onError(String message) {
+    HapticFeedback.heavyImpact();
     _attempts++;
-    setState(() => _hasError = true);
+    setState(() {
+      _hasError = true;
+      _errorMessage = message;
+    });
     for (final c in _pinControllers) {
       c.clear();
     }
@@ -100,13 +174,6 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
 
     if (_attempts >= 3) {
       _showForgotPinDialog();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Incorrect PIN. ${3 - _attempts} attempts remaining.'),
-          backgroundColor: AppColors.crimson,
-        ),
-      );
     }
   }
 
@@ -124,63 +191,169 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.paper,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 80),
-              Center(
-                child: Image.asset('lib/legashicon.jpg', height: 72),
+              const SizedBox(height: 32),
+
+              // Header Badge
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.cardBorder),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.ink.withOpacity(0.04),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.lock_person_outlined,
+                    size: 36,
+                    color: AppColors.crimson,
+                  ),
+                ),
               ),
-              const SizedBox(height: AppSpacing.xl),
+
+              const SizedBox(height: AppSpacing.lg),
+
               Text(
                 'Welcome Back',
-                style: theme.textTheme.headlineMedium?.copyWith(
+                style: theme.textTheme.headlineSmall?.copyWith(
                   color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.bold,
                   fontSize: 24,
+                  letterSpacing: -0.5,
                 ),
               ),
-              const SizedBox(height: AppSpacing.xs),
+              const SizedBox(height: 4),
               Text(
-                'Enter your 4-digit PIN to unlock',
+                'Enter your phone number and 4-digit PIN to unlock',
+                textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: AppColors.textSecondary,
-                  fontSize: 15,
+                  fontSize: 14,
                 ),
               ),
+
               const SizedBox(height: AppSpacing.xl),
+
+              // Phone Field
               CustomTextField(
                 controller: _phoneController,
-                label: 'Phone',
-                hintText: '0XXXXXXXXX',
+                label: 'Phone Number',
+                hintText: '09XXXXXXXX or +2519XXXXXXXX',
                 prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.textSecondary),
                 keyboardType: TextInputType.phone,
+                mono: true,
                 validator: Validators.validatePhone,
               ),
+
               const SizedBox(height: AppSpacing.lg),
+
+              // PIN Header & Label
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Security PIN',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => setState(() => _obscurePin = !_obscurePin),
+                    icon: Icon(
+                      _obscurePin ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      size: 16,
+                      color: AppColors.textSecondary,
+                    ),
+                    label: Text(
+                      _obscurePin ? 'Show' : 'Hide',
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: AppSpacing.xs),
+
+              // Error Message Banner
+              if (_hasError && _errorMessage != null) ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.crimson.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    border: Border.all(color: AppColors.crimson.withOpacity(0.25)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline, size: 18, color: AppColors.crimson),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _errorMessage!,
+                          style: const TextStyle(
+                            color: AppColors.crimson,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+              ],
+
+              // 4-Digit PIN Boxes
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(_pinLength, (index) {
-                  final focused = _pinFocusNodes[index].hasFocus;
+                  final hasFocus = _pinFocusNodes[index].hasFocus;
+                  final hasValue = _pinControllers[index].text.isNotEmpty;
+
                   return Container(
-                    width: 64,
-                    height: 72,
+                    width: 60,
+                    height: 68,
+                    margin: const EdgeInsets.symmetric(horizontal: 6),
                     decoration: BoxDecoration(
                       color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      borderRadius: BorderRadius.circular(AppRadius.md),
                       border: Border.all(
                         color: _hasError
                             ? AppColors.crimson
-                            : focused
+                            : hasFocus
                                 ? AppColors.crimson
-                                : AppColors.border,
-                        width: (_hasError || focused) ? 2.0 : 1.2,
+                                : hasValue
+                                    ? AppColors.crimson.withOpacity(0.5)
+                                    : AppColors.cardBorder,
+                        width: hasFocus || _hasError ? 2.0 : 1.4,
                       ),
+                      boxShadow: [
+                        if (hasFocus)
+                          BoxShadow(
+                            color: AppColors.crimson.withOpacity(0.12),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                      ],
                     ),
                     child: Center(
                       child: TextField(
@@ -188,12 +361,13 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
                         focusNode: _pinFocusNodes[index],
                         keyboardType: TextInputType.number,
                         textAlign: TextAlign.center,
-                        obscureText: true,
-                        obscuringCharacter: '•',
+                        obscureText: _obscurePin,
+                        obscuringCharacter: '●',
                         style: const TextStyle(
-                          fontSize: 24,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
+                          fontFamily: AppFonts.mono,
                         ),
                         inputFormatters: [
                           LengthLimitingTextInputFormatter(1),
@@ -202,6 +376,8 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
                         enabled: !_isLoading,
                         decoration: const InputDecoration(
                           border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
                           counterText: '',
                           contentPadding: EdgeInsets.zero,
                         ),
@@ -211,43 +387,69 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
                   );
                 }),
               ),
+
               const SizedBox(height: AppSpacing.xl),
-              FilledButton(
-                onPressed: _isLoading ? null : _unlock,
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.crimson,
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.md),
+
+              // Unlock CTA Button
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _isLoading ? null : _unlock,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.crimson,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                    ),
                   ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Text(
+                          'Unlock',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                 ),
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                      )
-                    : const Text(
-                        'Unlock',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                      ),
               ),
+
               const SizedBox(height: AppSpacing.md),
+
               TextButton(
                 onPressed: _showForgotPinDialog,
                 child: const Text(
                   'Forgot PIN?',
-                  style: TextStyle(color: AppColors.crimson, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: AppColors.crimson, fontWeight: FontWeight.bold, fontSize: 14),
                 ),
               ),
+
               const SizedBox(height: AppSpacing.sm),
-              TextButton(
-                onPressed: () => Navigator.pushReplacementNamed(context, '/register'),
-                child: const Text(
-                  "Don't have an account? Create one",
-                  style: TextStyle(color: AppColors.crimson, fontWeight: FontWeight.w600),
-                ),
+
+              // Register CTA
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "Don't have an account? ",
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pushReplacementNamed(context, '/register'),
+                    child: const Text(
+                      'Create Account',
+                      style: TextStyle(
+                        color: AppColors.crimson,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
+
+              const SizedBox(height: AppSpacing.xl),
             ],
           ),
         ),

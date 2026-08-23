@@ -15,91 +15,99 @@ class SetPinScreen extends StatefulWidget {
   State<SetPinScreen> createState() => _SetPinScreenState();
 }
 
-class _SetPinScreenState extends State<SetPinScreen> {
+class _SetPinScreenState extends State<SetPinScreen> with SingleTickerProviderStateMixin {
   static const int _pinLength = 4;
 
-  final List<TextEditingController> _pinControllers =
+  // 1 = Enter PIN, 2 = Confirm PIN
+  int _step = 1;
+
+  final List<TextEditingController> _controllers =
       List.generate(_pinLength, (_) => TextEditingController());
-  final List<FocusNode> _pinFocusNodes =
+  final List<FocusNode> _focusNodes =
       List.generate(_pinLength, (_) => FocusNode());
 
-  final List<TextEditingController> _confirmControllers =
-      List.generate(_pinLength, (_) => TextEditingController());
-  final List<FocusNode> _confirmFocusNodes =
-      List.generate(_pinLength, (_) => FocusNode());
-
+  String _firstPin = '';
   bool _isLoading = false;
   bool _hasError = false;
-  bool _confirmError = false;
-  String? _errorMsg;
+  bool _obscurePin = true;
+  String? _errorMessage;
 
-  String get _pin => _pinControllers.map((c) => c.text).join();
-  String get _confirmPin => _confirmControllers.map((c) => c.text).join();
+  String get _currentPin => _controllers.map((c) => c.text).join();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focusNodes[0].requestFocus();
+    });
+  }
 
   @override
   void dispose() {
-    for (final c in _pinControllers) {
+    for (final c in _controllers) {
       c.dispose();
     }
-    for (final f in _pinFocusNodes) {
-      f.dispose();
-    }
-    for (final c in _confirmControllers) {
-      c.dispose();
-    }
-    for (final f in _confirmFocusNodes) {
+    for (final f in _focusNodes) {
       f.dispose();
     }
     super.dispose();
   }
 
-  void _onPinDigitChanged(int index, String value, {required bool isConfirm}) {
-    final focusNodes = isConfirm ? _confirmFocusNodes : _pinFocusNodes;
+  void _clearInputs() {
+    for (final c in _controllers) {
+      c.clear();
+    }
+    _focusNodes[0].requestFocus();
+  }
 
+  void _onDigitChanged(int index, String value) {
     setState(() {
-      if (isConfirm) {
-        _confirmError = false;
-      } else {
-        _hasError = false;
-        _errorMsg = null;
-      }
+      _hasError = false;
+      _errorMessage = null;
     });
 
     if (value.isNotEmpty) {
+      HapticFeedback.selectionClick();
       if (index < _pinLength - 1) {
-        focusNodes[index + 1].requestFocus();
+        _focusNodes[index + 1].requestFocus();
       } else {
-        focusNodes[index].unfocus();
-        if (!isConfirm) {
-          _confirmFocusNodes[0].requestFocus();
+        _focusNodes[index].unfocus();
+        if (_currentPin.length == _pinLength) {
+          _onPinComplete();
         }
       }
     } else if (value.isEmpty && index > 0) {
-      focusNodes[index - 1].requestFocus();
+      _focusNodes[index - 1].requestFocus();
     }
   }
 
-  Future<void> _submit() async {
-    final pin = _pin;
-    final confirmPin = _confirmPin;
-
-    if (pin.length < _pinLength) {
-      setState(() => _hasError = true);
-      return;
-    }
-    if (confirmPin.length < _pinLength) {
-      setState(() => _confirmError = true);
-      return;
-    }
-    if (pin != confirmPin) {
+  void _onPinComplete() {
+    if (_step == 1) {
+      _firstPin = _currentPin;
       setState(() {
-        _hasError = true;
-        _confirmError = true;
-        _errorMsg = 'PINs do not match';
+        _step = 2;
+        _hasError = false;
+        _errorMessage = null;
       });
-      return;
+      _clearInputs();
+    } else {
+      final confirmPin = _currentPin;
+      if (confirmPin != _firstPin) {
+        HapticFeedback.heavyImpact();
+        setState(() {
+          _hasError = true;
+          _errorMessage = 'PINs do not match. Please try again.';
+          _step = 1;
+          _firstPin = '';
+        });
+        _clearInputs();
+      } else {
+        _submitPin(_firstPin, confirmPin);
+      }
     }
+  }
 
+  Future<void> _submitPin(String pin, String confirmPin) async {
     setState(() => _isLoading = true);
 
     try {
@@ -114,13 +122,13 @@ class _SetPinScreenState extends State<SetPinScreen> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('PIN set successfully! Welcome to Legash.'),
+            content: Text('PIN created successfully! Welcome to Legash.'),
             backgroundColor: AppColors.verified,
           ),
         );
         Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (route) => false);
       } else {
-        _onError(res['message'] as String? ?? 'Failed to set PIN.');
+        _onError(res['message'] as String? ?? 'Failed to set PIN. Please try again.');
       }
     } catch (e) {
       if (!mounted) return;
@@ -131,170 +139,353 @@ class _SetPinScreenState extends State<SetPinScreen> {
   }
 
   void _onError(String message) {
-    setState(() => _errorMsg = message);
-    for (final c in _pinControllers) {
-      c.clear();
-    }
-    for (final c in _confirmControllers) {
-      c.clear();
-    }
-    _pinFocusNodes[0].requestFocus();
+    HapticFeedback.heavyImpact();
+    setState(() {
+      _hasError = true;
+      _errorMessage = message;
+      _step = 1;
+      _firstPin = '';
+    });
+    _clearInputs();
+  }
+
+  void _goBackToStep1() {
+    setState(() {
+      _step = 1;
+      _firstPin = '';
+      _hasError = false;
+      _errorMessage = null;
+    });
+    _clearInputs();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.paper,
       appBar: AppBar(
-        title: const Text('Set PIN'),
+        title: const Text('Security PIN'),
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (_step == 2) {
+              _goBackToStep1();
+            } else {
+              Navigator.pop(context);
+            }
+          },
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: AppSpacing.xs),
-              const Icon(Icons.pin_outlined, size: 48, color: AppColors.crimson),
+              const SizedBox(height: AppSpacing.sm),
+
+              // Step Progress Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.crimson.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                  border: Border.all(color: AppColors.crimson.withOpacity(0.18)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: AppColors.crimson,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      _step == 1 ? 'Step 1 of 2: Create PIN' : 'Step 2 of 2: Confirm PIN',
+                      style: const TextStyle(
+                        color: AppColors.crimson,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
               const SizedBox(height: AppSpacing.lg),
-              Text(
-                'Set your 4-digit PIN',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 26,
-                  height: 32 / 26,
+
+              // Security Shield Icon
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.cardBorder),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.ink.withOpacity(0.04),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                'This PIN will be used to unlock the app each time you open it, like a banking app.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                  fontSize: 15,
-                  height: 22 / 15,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              Text(
-                'Enter PIN',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              _buildPinRow(_pinControllers, _pinFocusNodes, false),
-              if (_hasError && _errorMsg != null) ...[
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  _errorMsg!,
-                  style: const TextStyle(color: AppColors.crimson, fontSize: 13),
-                ),
-              ],
-              const SizedBox(height: AppSpacing.lg),
-              Text(
-                'Confirm PIN',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              _buildPinRow(_confirmControllers, _confirmFocusNodes, true),
-              if (_confirmError) ...[
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  _hasError ? '' : 'PINs do not match',
-                  style: const TextStyle(color: AppColors.crimson, fontSize: 13),
-                ),
-              ],
-              const SizedBox(height: AppSpacing.xl),
-              FilledButton(
-                onPressed: _isLoading ? null : _submit,
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.crimson,
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.md),
+                child: const Center(
+                  child: Icon(
+                    Icons.shield_outlined,
+                    size: 32,
+                    color: AppColors.crimson,
                   ),
                 ),
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                      )
-                    : const Text(
-                        'Set PIN & Continue',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              ),
+
+              const SizedBox(height: AppSpacing.lg),
+
+              // Heading & Subtitle
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                child: Column(
+                  key: ValueKey<int>(_step),
+                  children: [
+                    Text(
+                      _step == 1 ? 'Create your 4-digit PIN' : 'Confirm your PIN',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        letterSpacing: -0.5,
                       ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      _step == 1
+                          ? 'Choose a memorable 4-digit PIN to securely unlock the Legash app on this device.'
+                          : 'Please re-enter the same 4-digit PIN to confirm.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
+                        height: 1.45,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: AppSpacing.xl),
+
+              // Error Message Banner
+              if (_hasError && _errorMessage != null) ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.crimson.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    border: Border.all(color: AppColors.crimson.withOpacity(0.25)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline, size: 18, color: AppColors.crimson),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _errorMessage!,
+                          style: const TextStyle(
+                            color: AppColors.crimson,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+              ],
+
+              // 4-Digit Input Boxes
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(_pinLength, (index) {
+                  final hasFocus = _focusNodes[index].hasFocus;
+                  final hasValue = _controllers[index].text.isNotEmpty;
+
+                  return Container(
+                    width: 60,
+                    height: 68,
+                    margin: const EdgeInsets.symmetric(horizontal: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      border: Border.all(
+                        color: _hasError
+                            ? AppColors.crimson
+                            : hasFocus
+                                ? AppColors.crimson
+                                : hasValue
+                                    ? AppColors.crimson.withOpacity(0.5)
+                                    : AppColors.cardBorder,
+                        width: hasFocus || _hasError ? 2.0 : 1.4,
+                      ),
+                      boxShadow: [
+                        if (hasFocus)
+                          BoxShadow(
+                            color: AppColors.crimson.withOpacity(0.12),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                      ],
+                    ),
+                    child: Center(
+                      child: TextField(
+                        controller: _controllers[index],
+                        focusNode: _focusNodes[index],
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.center,
+                        obscureText: _obscurePin,
+                        obscuringCharacter: '●',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                          fontFamily: AppFonts.mono,
+                        ),
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(1),
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        enabled: !_isLoading,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          focusedErrorBorder: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                          counterText: '',
+                        ),
+                        onChanged: (value) => _onDigitChanged(index, value),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+
+              const SizedBox(height: AppSpacing.md),
+
+              // Visibility Peek Toggle
+              TextButton.icon(
+                onPressed: () => setState(() => _obscurePin = !_obscurePin),
+                icon: Icon(
+                  _obscurePin ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  size: 18,
+                  color: AppColors.textSecondary,
+                ),
+                label: Text(
+                  _obscurePin ? 'Show PIN' : 'Hide PIN',
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+              if (_step == 2) ...[
+                const SizedBox(height: AppSpacing.xs),
+                TextButton(
+                  onPressed: _goBackToStep1,
+                  child: const Text(
+                    'Change initial PIN',
+                    style: TextStyle(
+                      color: AppColors.crimson,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: AppSpacing.xl),
+
+              // Primary Action Button
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _isLoading
+                      ? null
+                      : () {
+                          if (_currentPin.length == _pinLength) {
+                            _onPinComplete();
+                          } else {
+                            setState(() {
+                              _hasError = true;
+                              _errorMessage = 'Please enter all 4 digits.';
+                            });
+                          }
+                        },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.crimson,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                    ),
+                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : Text(
+                          _step == 1 ? 'Continue to Confirm' : 'Confirm & Save PIN',
+                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                        ),
+                ),
+              ),
+
+              const SizedBox(height: AppSpacing.xl),
+
+              // Security Guarantee Note
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: AppColors.paperDim,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  border: Border.all(color: AppColors.cardBorder.withOpacity(0.5)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.lock_outline, size: 20, color: AppColors.verified),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Your PIN is securely hashed and protected. Never share your PIN with anyone.',
+                        style: TextStyle(
+                          color: AppColors.textSecondary.withOpacity(0.85),
+                          fontSize: 12,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildPinRow(
-    List<TextEditingController> controllers,
-    List<FocusNode> focusNodes,
-    bool isConfirm,
-  ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(_pinLength, (index) {
-        final focused = focusNodes[index].hasFocus;
-        final hasError = isConfirm ? _confirmError : (_hasError || _errorMsg != null);
-        return Container(
-          width: 64,
-          height: 72,
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-            border: Border.all(
-              color: hasError
-                  ? AppColors.crimson
-                  : focused
-                      ? AppColors.crimson
-                      : AppColors.border,
-              width: (hasError || focused) ? 2.0 : 1.2,
-            ),
-          ),
-          child: Center(
-            child: TextField(
-              controller: controllers[index],
-              focusNode: focusNodes[index],
-              keyboardType: TextInputType.number,
-              textAlign: TextAlign.center,
-              obscureText: true,
-              obscuringCharacter: '•',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(1),
-                FilteringTextInputFormatter.digitsOnly,
-              ],
-              enabled: !_isLoading,
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                counterText: '',
-                contentPadding: EdgeInsets.zero,
-              ),
-              onChanged: (value) => _onPinDigitChanged(index, value, isConfirm: isConfirm),
-            ),
-          ),
-        );
-      }),
     );
   }
 }

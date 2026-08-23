@@ -73,11 +73,11 @@ This is the same pattern Apple's and Google's own icon systems use — one mark,
 
 | Variant | Verdict | Why |
 |---|---|---|
-| Wordmark, drop as accent above "L·EGASH" | ✅ Keep | Legible at a glance; drop reads as a mark, not noise |
-| Wordmark, drop overlapping "LEG●SH" | ❌ Drop | Obscures letterforms — fails the 2-second legibility test |
-| Hexagon badge, red fill, drop inside | ✅ Keep — primary app icon candidate | Reads as a verification/safety seal, which matches the trust-driven product |
-| Hexagon badge, white outline on white | ❌ Drop | Insufficient contrast, disappears on light backgrounds |
-| Hexagon badge, dark tile, white outline | ✅ Keep — alt/dark-mode icon | Strong contrast, works as an app tile |
+| Wordmark, drop as accent above "L·EGASH" | [Keep] | Legible at a glance; drop reads as a mark, not noise |
+| Wordmark, drop overlapping "LEG●SH" | [Drop] | Obscures letterforms — fails the 2-second legibility test |
+| Hexagon badge, red fill, drop inside | [Keep] — primary app icon candidate | Reads as a verification/safety seal, which matches the trust-driven product |
+| Hexagon badge, white outline on white | [Drop] | Insufficient contrast, disappears on light backgrounds |
+| Hexagon badge, dark tile, white outline | [Keep] — alt/dark-mode icon | Strong contrast, works as an app tile |
 
 **Recommendation:** wordmark (accent-above variant) for horizontal lockups (nav, footer, marketing); solid-red hexagon badge as the app icon; dark-tile hexagon as the dark-mode/alt icon.
 
@@ -189,9 +189,9 @@ Name · Password (8+ chars, 1 uppercase, 1 special char) · Confirm password (fr
 ### Open issues carried forward from the Aug 13 critique (still valid)
 | Issue | Severity | Fix |
 |---|---|---|
-| White label/input text risks sitting on the near-white bottom of a red gradient background | 🔴 Critical | Compress any gradient so saturated red covers the full form zone, or flip to dark text in the lower half |
-| Overlapping-letter wordmark variant still present in file | 🟢 Minor | Remove per §3 |
-| Input style not yet converged (underline vs. boxed seen in early exploration) | 🟡 Moderate | Resolve as part of the Stitch prompt pass — recommend boxed, see § 11 |
+| White label/input text risks sitting on the near-white bottom of a red gradient background | [Critical] | Compress any gradient so saturated red covers the full form zone, or flip to dark text in the lower half |
+| Overlapping-letter wordmark variant still present in file | [Minor] | Remove per §3 |
+| Input style not yet converged (underline vs. boxed seen in early exploration) | [Moderate] | Resolve as part of the Stitch prompt pass — recommend boxed, see § 11 |
 
 ---
 

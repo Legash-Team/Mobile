@@ -68,4 +68,46 @@ class ApiService {
       response.statusCode,
     );
   }
+
+  static Future<Map<String, dynamic>> put(String path, Map<String, dynamic> body) async {
+    final url = Uri.parse('$baseUrl$path');
+    final response = await http.put(
+      url,
+      headers: _headers,
+      body: jsonEncode(body),
+    );
+
+    final json = jsonDecode(response.body) as Map<String, dynamic>;
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return json;
+    }
+
+    final error = json['error'] as String?;
+    throw ApiException(
+      error ?? 'Something went wrong. Please try again.',
+      response.statusCode,
+    );
+  }
+
+  static Future<Map<String, dynamic>> delete(String path) async {
+    final url = Uri.parse('$baseUrl$path');
+    final response = await http.delete(url, headers: _headers);
+
+    if (response.body.isEmpty) {
+      return <String, dynamic>{'success': true};
+    }
+
+    final json = jsonDecode(response.body) as Map<String, dynamic>;
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return json;
+    }
+
+    final error = json['error'] as String?;
+    throw ApiException(
+      error ?? 'Something went wrong. Please try again.',
+      response.statusCode,
+    );
+  }
 }

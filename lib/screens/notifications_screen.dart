@@ -122,23 +122,55 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     child: GestureDetector(
                       onTap: () => setState(() => _activeFilter = filter),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
                           color: _activeFilter == filter
                               ? AppColors.crimson
                               : AppColors.paperDim,
                           borderRadius: BorderRadius.circular(AppRadius.pill),
-                        ),
-                        child: Text(
-                          filter,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
+                          border: Border.all(
                             color: _activeFilter == filter
-                                ? Colors.white
-                                : AppColors.textPrimary,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                                ? AppColors.crimson
+                                : AppColors.cardBorder.withOpacity(0.5),
                           ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              filter,
+                              style: TextStyle(
+                                color: _activeFilter == filter
+                                    ? Colors.white
+                                    : AppColors.textPrimary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _activeFilter == filter
+                                    ? Colors.white.withOpacity(0.25)
+                                    : AppColors.cardBorder,
+                                borderRadius: BorderRadius.circular(AppRadius.pill),
+                              ),
+                              child: Text(
+                                '${_getCountForFilter(filter)}',
+                                style: TextStyle(
+                                  color: _activeFilter == filter
+                                      ? Colors.white
+                                      : AppColors.textSecondary,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -151,6 +183,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ],
       ),
     );
+  }
+
+  int _getCountForFilter(String filter) {
+    switch (filter) {
+      case 'Accepted':
+        return _items.where((n) => n.isAccepted).length;
+      case 'Denied':
+        return _items.where((n) => n.isDenied).length;
+      case 'Ongoing':
+      default:
+        return _items.where((n) => n.isPending).length;
+    }
   }
 
   Widget _buildBody(ThemeData theme) {

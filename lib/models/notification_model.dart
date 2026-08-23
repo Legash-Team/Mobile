@@ -1,6 +1,10 @@
 class NotificationModel {
   final String id;
   final String hospitalName;
+  final String? hospitalPhone;
+  final String? hospitalAddress;
+  final double? hospitalLat;
+  final double? hospitalLng;
   final String bloodType;
   final int quantityNeeded;
   final bool isEmergency;
@@ -13,6 +17,10 @@ class NotificationModel {
   NotificationModel({
     required this.id,
     required this.hospitalName,
+    this.hospitalPhone,
+    this.hospitalAddress,
+    this.hospitalLat,
+    this.hospitalLng,
     required this.bloodType,
     required this.quantityNeeded,
     this.isEmergency = false,
@@ -23,28 +31,70 @@ class NotificationModel {
     this.closesAt,
   });
 
-  factory NotificationModel.fromJson(Map<String, dynamic> json) => NotificationModel(
-        id: json['id'] as String,
-        hospitalName: json['hospitalName'] as String,
-        bloodType: json['bloodType'] as String,
-        quantityNeeded: json['quantityNeeded'] as int,
-        isEmergency: json['isEmergency'] as bool? ?? false,
-        description: json['description'] as String?,
-        myResponseStatus: json['myResponseStatus'] as String,
-        requestStatus: json['requestStatus'] as String,
-        notifiedAt: DateTime.parse(json['notifiedAt'] as String),
-        closesAt: json['closesAt'] != null
-            ? DateTime.parse(json['closesAt'] as String)
-            : null,
-      );
+  factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    String? address;
+    double? lat;
+    double? lng;
+
+    if (json['hospitalLocation'] != null && json['hospitalLocation'] is Map) {
+      final loc = json['hospitalLocation'] as Map<String, dynamic>;
+      address = loc['address'] as String?;
+      if (loc['coordinates'] is List && (loc['coordinates'] as List).length >= 2) {
+        final coords = loc['coordinates'] as List;
+        lng = (coords[0] as num?)?.toDouble();
+        lat = (coords[1] as num?)?.toDouble();
+      }
+    }
+
+    final rawMyStatus = (json['myResponseStatus'] as String? ??
+            json['status'] as String? ??
+            'pending')
+        .toLowerCase()
+        .trim();
+
+    final rawReqStatus = (json['requestStatus'] as String? ??
+            json['bloodRequestStatus'] as String? ??
+            'open')
+        .toLowerCase()
+        .trim();
+
+    return NotificationModel(
+      id: (json['id'] ?? json['_id'] ?? '').toString(),
+      hospitalName: json['hospitalName'] as String? ?? 'Blood Center / Hospital',
+      hospitalPhone: json['hospitalPhone'] as String?,
+      hospitalAddress: address,
+      hospitalLat: lat,
+      hospitalLng: lng,
+      bloodType: json['bloodType'] as String? ?? 'Any',
+      quantityNeeded: (json['quantityNeeded'] as num?)?.toInt() ?? 1,
+      isEmergency: json['isEmergency'] as bool? ?? false,
+      description: json['description'] as String?,
+      myResponseStatus: rawMyStatus,
+      requestStatus: rawReqStatus,
+      notifiedAt: json['notifiedAt'] != null
+          ? DateTime.tryParse(json['notifiedAt'] as String) ?? DateTime.now()
+          : DateTime.now(),
+      closesAt: json['closesAt'] != null
+          ? DateTime.tryParse(json['closesAt'] as String)
+          : null,
+    );
+  }
 
   NotificationModel copyWith({
     String? myResponseStatus,
     String? requestStatus,
+    String? hospitalPhone,
+    String? hospitalAddress,
+    double? hospitalLat,
+    double? hospitalLng,
   }) {
     return NotificationModel(
       id: id,
       hospitalName: hospitalName,
+      hospitalPhone: hospitalPhone ?? this.hospitalPhone,
+      hospitalAddress: hospitalAddress ?? this.hospitalAddress,
+      hospitalLat: hospitalLat ?? this.hospitalLat,
+      hospitalLng: hospitalLng ?? this.hospitalLng,
       bloodType: bloodType,
       quantityNeeded: quantityNeeded,
       isEmergency: isEmergency,
@@ -56,9 +106,19 @@ class NotificationModel {
     );
   }
 
-  bool get isPending => myResponseStatus == 'pending';
-  bool get isOpen => requestStatus == 'open';
+  bool get isPending =>
+      myResponseStatus == 'pending' ||
+      myResponseStatus == 'ongoing' ||
+      myResponseStatus == 'waiting';
+
   bool get isAccepted => myResponseStatus == 'accepted';
-  bool get isDenied => myResponseStatus == 'denied';
-  bool get isClosed => requestStatus == 'closed';
+
+  bool get isDenied =>
+      myResponseStatus == 'denied' ||
+      myResponseStatus == 'declined' ||
+      myResponseStatus == 'rejected';
+
+  bool get isOpen => requestStatus == 'open';
+
+  bool get isClosed => requestStatus == 'closed' || requestStatus == 'expired';
 }

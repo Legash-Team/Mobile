@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
 import 'donations_history_screen.dart';
+import 'nearby_centers_screen.dart';
 import '../models/event_model.dart';
 import '../providers/auth_provider.dart';
 import '../services/event_service.dart';
@@ -274,7 +275,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
           label: 'Nearby Centers',
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const NearbyCentersPage()),
+            MaterialPageRoute(builder: (_) => const NearbyCentersScreen()),
           ),
         ),
       ],
@@ -432,66 +433,6 @@ class DonationHistoryPage extends StatelessWidget {
               SizedBox(height: AppSpacing.xs),
               Text(
                 'Your donation records from hospitals will appear here once available.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class NearbyCentersPage extends StatelessWidget {
-  const NearbyCentersPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.paper,
-      appBar: AppBar(
-        title: const Text(
-          'Nearby Blood Centers',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        backgroundColor: AppColors.paper,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          hoverColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: const Center(
-        child: Padding(
-          padding: EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.local_hospital_outlined,
-                size: 56,
-                color: AppColors.textSecondary,
-              ),
-              SizedBox(height: AppSpacing.md),
-              Text(
-                'No blood centers registered yet.',
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: AppSpacing.xs),
-              Text(
-                'Blood centers will appear here once Super Admin registers them.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),

@@ -29,6 +29,7 @@ class AuthProvider extends ChangeNotifier {
         _token = token;
         _donor = DonorInfo.fromJson(jsonDecode(donorJson) as Map<String, dynamic>);
         ApiService.token = token;
+        FcmService.registerDeviceToken();
       }
     } catch (e) {
       if (kDebugMode) {

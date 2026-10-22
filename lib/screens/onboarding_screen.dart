@@ -110,7 +110,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 onPressed: () => _goToPage(_totalPages - 1),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.textSecondary,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
@@ -132,10 +135,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 _buildPageDots(),
                 const SizedBox(width: 16),
-                _buildNavCircle(
-                  icon: Icons.check_rounded,
-                  onTap: _complete,
-                ),
+                _buildNavCircle(icon: Icons.check_rounded, onTap: _complete),
               ],
             )
           : Row(
@@ -175,7 +175,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildNavCircle({required IconData icon, required VoidCallback onTap}) {
+  Widget _buildNavCircle({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -271,7 +274,10 @@ class _OnboardingPage extends StatelessWidget {
                         ),
                         child: const Text(
                           'Create an account',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
@@ -286,14 +292,20 @@ class _OnboardingPage extends StatelessWidget {
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.textPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 20),
-                          side: const BorderSide(color: AppColors.border, width: 1.5),
+                          side: const BorderSide(
+                            color: AppColors.border,
+                            width: 1.5,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(AppRadius.md),
                           ),
                         ),
                         child: const Text(
                           'I already have an account',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),

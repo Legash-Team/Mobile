@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 import 'donations_history_screen.dart';
 import 'nearby_centers_screen.dart';
 import '../models/event_model.dart';
@@ -43,17 +44,18 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
     }
   }
 
-  String _greeting() {
+  String _greeting([AppLocalizations? l10n]) {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return l10n?.goodMorning ?? 'Good morning';
+    if (hour < 17) return l10n?.goodAfternoon ?? 'Good afternoon';
+    return l10n?.goodEvening ?? 'Good evening';
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final auth = context.watch<AuthProvider>();
+    final l10n = AppLocalizations.of(context);
     final donorName = auth.donor?.name ?? 'Donor';
     final bloodType = auth.donor?.bloodType ?? 'unknown';
 
@@ -96,7 +98,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${_greeting()}, $donorName',
+                '${_greeting(l10n)}, $donorName',
                 style: theme.textTheme.headlineSmall?.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.bold,
@@ -105,9 +107,9 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                "You're eligible to donate.",
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
+              Text(
+                l10n?.eligibleToDonate ?? "You're eligible to donate.",
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 15),
               ),
               const SizedBox(height: AppSpacing.lg),
 
@@ -140,7 +142,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'How Legash works',
+                            l10n?.howLegashWorks ?? 'How Legash works',
                             style: theme.textTheme.titleSmall?.copyWith(
                               color: AppColors.textPrimary,
                               fontWeight: FontWeight.bold,
@@ -149,8 +151,9 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'When a hospital in your area needs blood, you get an alert. '
-                            'Accept and the hospital can reach out to you directly.',
+                            l10n?.howLegashWorksExplanation ??
+                                'When a hospital in your area needs blood, you get an alert. '
+                                'Accept and the hospital can reach out to you directly.',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: AppColors.textSecondary,
                               fontSize: 14,
@@ -207,10 +210,10 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                           ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Blood type',
-                            style: TextStyle(
+                            l10n?.bloodType ?? 'Blood type',
+                            style: const TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 14,
                             ),
@@ -236,7 +239,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
               const SizedBox(height: AppSpacing.lg),
 
               Text(
-                'Events',
+                l10n?.eventsTab ?? 'Events',
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.bold,

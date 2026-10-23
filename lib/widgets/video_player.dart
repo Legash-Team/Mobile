@@ -31,12 +31,19 @@ class _VideoPlayerState extends State<VideoPlayer> {
   Future<void> _initPlayer() async {
     try {
       final uri = Uri.parse(widget.videoUrl);
-      _videoPlayerController = VideoPlayerController.networkUrl(uri);
-      await _videoPlayerController!.initialize();
+      final controller = VideoPlayerController.networkUrl(uri);
+      _videoPlayerController = controller;
+      await controller.initialize();
+      if (!mounted) {
+        controller.dispose();
+        return;
+      }
 
       _chewieController = ChewieController(
-        videoPlayerController: _videoPlayerController!,
-        aspectRatio: widget.aspectRatio,
+        videoPlayerController: controller,
+        aspectRatio: controller.value.aspectRatio > 0
+            ? controller.value.aspectRatio
+            : widget.aspectRatio,
         autoPlay: false,
         looping: false,
         allowFullScreen: true,
@@ -48,9 +55,22 @@ class _VideoPlayerState extends State<VideoPlayer> {
           bufferedColor: AppColors.cardBorder,
         ),
       );
-      if (mounted) setState(() {});
+      setState(() {});
     } catch (e) {
       if (mounted) setState(() => _hasError = true);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant VideoPlayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.videoUrl != widget.videoUrl) {
+      _chewieController?.dispose();
+      _videoPlayerController?.dispose();
+      _chewieController = null;
+      _videoPlayerController = null;
+      _hasError = false;
+      _initPlayer();
     }
   }
 

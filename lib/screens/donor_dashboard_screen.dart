@@ -3,10 +3,9 @@ import 'package:provider/provider.dart';
 import '../constants.dart';
 import 'donations_history_screen.dart';
 import 'nearby_centers_screen.dart';
-import '../models/event_model.dart';
+import '../models/donor_model.dart';
 import '../providers/auth_provider.dart';
-import '../services/event_service.dart';
-import '../widgets/event_card.dart';
+import '../services/auth_service.dart';
 
 class DonorDashboardScreen extends StatefulWidget {
   final int pendingCount;
@@ -23,24 +22,21 @@ class DonorDashboardScreen extends StatefulWidget {
 }
 
 class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
-  List<EventModel>? _events;
-  String? _eventsError;
-
   @override
   void initState() {
     super.initState();
-    _loadEvents();
+    _refreshProfile();
   }
 
-  Future<void> _loadEvents() async {
+  Future<void> _refreshProfile() async {
     try {
-      final events = await EventService.getEvents();
+      final res = await AuthService.getProfile();
       if (!mounted) return;
-      setState(() => _events = events);
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _eventsError = e.toString());
-    }
+      if (res['success'] == true && res['profile'] != null) {
+        final donor = DonorInfo.fromJson(res['profile']);
+        Provider.of<AuthProvider>(context, listen: false).updateDonor(donor);
+      }
+    } catch (_) {}
   }
 
   String _greeting() {
@@ -87,7 +83,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: _loadEvents,
+        onRefresh: _refreshProfile,
         color: AppColors.crimson,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -233,18 +229,6 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
               const SizedBox(height: AppSpacing.md),
 
               _buildQuickNav(context),
-              const SizedBox(height: AppSpacing.lg),
-
-              Text(
-                'Events',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              _buildEventsSection(theme),
             ],
           ),
         ),
@@ -321,65 +305,6 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildEventsSection(ThemeData theme) {
-    if (_eventsError != null) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppColors.cardBorder),
-        ),
-        child: const Text(
-          'Could not load events.',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-        ),
-      );
-    }
-
-    if (_events == null) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(AppSpacing.lg),
-          child: CircularProgressIndicator(color: AppColors.crimson),
-        ),
-      );
-    }
-
-    if (_events!.isEmpty) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppColors.cardBorder),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              Icons.event_note_outlined,
-              size: 40,
-              color: AppColors.textSecondary,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            const Text(
-              'No events yet. Check back soon!',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Column(
-      children: [for (final event in _events!) EventCard(event: event)],
     );
   }
 }

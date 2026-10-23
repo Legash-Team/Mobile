@@ -652,12 +652,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surface,
+          Material(
+            color: AppColors.surface,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppRadius.lg),
-              border: Border.all(color: AppColors.cardBorder),
+              side: const BorderSide(color: AppColors.cardBorder),
             ),
+            clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
                 _buildActionTile(
@@ -715,12 +716,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surface,
+          Material(
+            color: AppColors.surface,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppRadius.lg),
-              border: Border.all(color: AppColors.cardBorder),
+              side: const BorderSide(color: AppColors.cardBorder),
             ),
+            clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
                 _buildActionTile(
@@ -785,12 +787,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surface,
+          Material(
+            color: AppColors.surface,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppRadius.lg),
-              border: Border.all(color: AppColors.cardBorder),
+              side: const BorderSide(color: AppColors.cardBorder),
             ),
+            clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
                 ListTile(

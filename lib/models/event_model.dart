@@ -8,6 +8,7 @@ class EventModel {
   final DateTime closesAt;
   final String status;
   final DateTime? createdAt;
+  final String? postedBy;
 
   EventModel({
     required this.id,
@@ -19,6 +20,7 @@ class EventModel {
     required this.closesAt,
     required this.status,
     this.createdAt,
+    this.postedBy,
   });
 
   factory EventModel.fromJson(Map<String, dynamic> json) {
@@ -48,6 +50,7 @@ class EventModel {
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String)
           : null,
+      postedBy: json['postedBy'] as String?,
     );
   }
 

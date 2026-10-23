@@ -211,6 +211,18 @@ class EventCard extends StatelessWidget {
                   ),
                 ),
 
+                if (event.postedBy != null && event.postedBy!.trim().isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    'Posted by ${event.postedBy!.trim()}',
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+
                 const SizedBox(height: AppSpacing.md),
 
                 // Date & Call to Action Row

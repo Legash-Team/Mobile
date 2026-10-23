@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../widgets/bottom_nav_bar.dart';
 import 'donor_dashboard_screen.dart';
+import 'events_screen.dart';
+import 'feed_screen.dart';
 import 'notifications_screen.dart';
 import 'profile_screen.dart';
 
@@ -47,6 +49,8 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
               }
             },
           ),
+          const FeedScreen(),
+          const EventsScreen(),
           const ProfileScreen(),
         ],
       ),
@@ -64,6 +68,16 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
             icon: Icons.campaign_outlined,
             activeIcon: Icons.campaign,
             pendingCount: _pendingCount,
+          ),
+          const BottomNavItem(
+            label: 'Feed',
+            icon: Icons.dynamic_feed_outlined,
+            activeIcon: Icons.dynamic_feed,
+          ),
+          const BottomNavItem(
+            label: 'Events',
+            icon: Icons.event_note_outlined,
+            activeIcon: Icons.event_note,
           ),
           const BottomNavItem(
             label: 'Profile',

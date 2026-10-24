@@ -26,16 +26,24 @@ class DonationRecord {
           json['hospitalName'] as String? ??
           json['center'] as String? ??
           'Blood Center',
-      centerAddress: json['centerAddress'] as String?,
-      bloodType: json['bloodType'] as String? ?? 'Unknown',
+      centerAddress: json['centerAddress'] as String? ?? json['address'] as String?,
+      bloodType: json['bloodType'] as String? ??
+          json['donorBloodType'] as String? ??
+          json['requestBloodType'] as String? ??
+          'Unknown',
       quantityMl: (json['quantityMl'] as num?)?.toInt() ??
           (json['quantity'] as num?)?.toInt() ??
-          0,
+          ((json['unitsCollected'] as num?)?.toInt() != null
+              ? (json['unitsCollected'] as num).toInt() * 450
+              : 450),
       donatedAt: json['donatedAt'] != null
-          ? DateTime.tryParse(json['donatedAt'] as String) ?? DateTime.now()
-          : DateTime.now(),
-      status: json['status'] as String? ?? 'completed',
-      note: json['note'] as String?,
+          ? DateTime.tryParse(json['donatedAt'].toString()) ?? DateTime.now()
+          : (json['donationDate'] != null
+              ? DateTime.tryParse(json['donationDate'].toString()) ?? DateTime.now()
+              : DateTime.now()),
+      status: json['status'] as String? ??
+          (json['outcome'] == 'donated' ? 'completed' : 'cancelled'),
+      note: json['note'] as String? ?? json['thankYouMessage'] as String?,
     );
   }
 

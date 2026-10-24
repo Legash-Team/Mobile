@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Languages supported:
 ///   - en : English
 ///   - am : Amharic (አማርኛ)
+///   - om : Afaan Oromoo
 ///
 /// Strings are hard-coded (no ARB files) as requested.
 ///
@@ -23,6 +24,7 @@ class AppLocalizations {
   static const List<Locale> supportedLocales = [
     Locale('en', ''),
     Locale('am', ''),
+    Locale('om', ''),
   ];
 
   /// Set the current locale (called by LocaleProvider).
@@ -48,6 +50,7 @@ class AppLocalizations {
   static const Map<String, Map<String, String>> _allStrings = {
     'en': _english,
     'am': _amharic,
+    'om': _afaanOromoo,
   };
 
   // -------------------------------------------------------------------------
@@ -314,6 +317,89 @@ const Map<String, String> _amharic = {
   'success': 'እረፍት',
   'loading': 'ይታወቃል...',
   'home': 'መነሻ',
+};
+
+const Map<String, String> _afaanOromoo = {
+  'appTitle': 'Legash Blood Network',
+  'legash': 'LEGASH',
+
+  'navHome': 'Mana',
+  'navRequests': 'Maqaanii',
+  'navProfile': 'Hojiin',
+
+  'greetingMorning': 'Innili',
+  'greetingAfternoon': 'Innili',
+  'greetingEvening': 'Innili',
+  'eligibleToDonate': 'Dabalateera.',
+  'howLegashWorks': 'Legash ni maali?',
+  'howLegashWorksDesc':
+      'Waaqayyo maqaanii qabaan hin qabu, dabalateera.',
+  'donorProfile': 'Dabalateera hojiin',
+  'bloodType': 'Cimnii kanaa',
+  'noEventsYet': 'Hammatti ti.',
+  'checkBackSoon': 'Yoo hin beeksisu.',
+  'events': 'Hammatti',
+  'donationHistory': 'Maqaanii deebi',
+  'nearbyCenters': 'Na barbaachisaa',
+
+  'quickNavDonationHistory': 'Maqaanii deebi',
+  'quickNavNearbyCenters': 'Na barbaachisaa',
+
+  'noDonationHistoryYet': 'Maqaanii deebi qabamu.',
+  'donationRecordsDesc':
+      'Maqaanii deebi qabaan keessaatti.',
+  'couldNotLoadDonationHistory': 'Maqaanii deebi hin qabu.',
+  'retry': 'Mana',
+  'centerName': 'Magaalaa beeksisa',
+  'bloodCenter': 'Cimnii beeksisa',
+  'date': 'Cimsaa',
+  'quantity': 'Qaama',
+
+  'nearbyBloodCenters': 'Na beeksisa qabde',
+  'searchCenterNameOrCity': 'Magaalaa deebi qabaan yoo beeksisa.',
+  'couldNotLoadNearbyBloodCenters': 'Na beeksisa hin qabu.',
+  'noBloodCentersMatching': 'Na beeksisa qabaan hin qabu.',
+  'noNearbyBloodCentersFound': 'Na beeksisa qabaan hin taane.',
+  'verifiedMedicalFacilitiesWillAppear':
+      'Na beeksisa qabaan dandeeti.',
+  'verifiedFacility': 'Qabeenya dubbachuu',
+  'call': 'Barruu',
+  'directions': 'Tajaajila',
+
+  'profile': 'HOJIIN',
+  'personalDetails': 'Hojiin dabalate',
+  'fullName': 'Magaalaa',
+  'tapToSelect': 'Dhaamu',
+  'gender': 'Dhiisoo',
+  'phoneNumber': 'Telefoonii bilbila',
+  'faydaNationalIdFin': 'FIN',
+  'medicalPhysicalDetails': 'Tajaajilaa qabaan',
+  'dateOfBirth': 'Cimsaa kanaa',
+  'weight': 'Qaama',
+  'height': 'Eegumsa',
+  'healthNotes': 'Tajaajila qabaan',
+  'none': 'Hin taane',
+  'security': 'Oltiin',
+  'changeSecurityPIN': 'PIN keessattii hin qabdu',
+  'logOut': 'Hoji',
+  'verifiedDonor': 'Qabeenya dubbachuu',
+  'bloodTypeUnset': 'Cimnii kanaa hin qabne.',
+  'totalDonations': 'Maqaanii qabaan',
+  'lastDonation': 'Maqaanii deebi',
+  'nextEligibleDonation': 'Maqaanii deebi qabde',
+
+  'welcome': 'Legashni walitti hundee.',
+  'welcomeSubtitle': 'Dabalateera.',
+  'register': 'Hoji',
+  'login': 'Hoji',
+
+  'save': 'Dhaamu',
+  'cancel': 'Hoji',
+  'ok': 'Eeyyee',
+  'error': 'Kan baayye',
+  'success': 'Dandaama',
+  'loading': 'Yaada',
+  'home': 'Mana',
 };
 
 /// Persisted locale provider.

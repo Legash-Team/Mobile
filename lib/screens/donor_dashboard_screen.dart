@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../constants.dart';
 import 'donations_history_screen.dart';
 import 'nearby_centers_screen.dart';
+import '../l10n/app_localizations.dart';
 import '../models/event_model.dart';
 import '../providers/auth_provider.dart';
 import '../services/event_service.dart';
@@ -43,15 +44,16 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
     }
   }
 
-  String _greeting() {
+  String _greeting(AppLocalizations l10n) {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return l10n.greetingMorning;
+    if (hour < 17) return l10n.greetingAfternoon;
+    return l10n.greetingEvening;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final auth = context.watch<AuthProvider>();
     final donorName = auth.donor?.name ?? 'Donor';
@@ -60,9 +62,9 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
     return Scaffold(
       backgroundColor: AppColors.paper,
       appBar: AppBar(
-        title: const Text(
-          'LEGASH',
-          style: TextStyle(
+        title: Text(
+          l10n.legash,
+          style: const TextStyle(
             color: AppColors.crimson,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
@@ -79,7 +81,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
             label: Text('${widget.pendingCount}'),
             child: IconButton(
               icon: const Icon(Icons.campaign_outlined),
-              tooltip: 'Requests',
+              tooltip: l10n.navRequests,
               onPressed: widget.onOpenRequests,
             ),
           ),
@@ -96,7 +98,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${_greeting()}, $donorName',
+                '${_greeting(l10n)}, $donorName',
                 style: theme.textTheme.headlineSmall?.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.bold,
@@ -105,9 +107,9 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                "You're eligible to donate.",
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
+              Text(
+                l10n.eligibleToDonate,
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 15),
               ),
               const SizedBox(height: AppSpacing.lg),
 
@@ -140,7 +142,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'How Legash works',
+                            l10n.howLegashWorks,
                             style: theme.textTheme.titleSmall?.copyWith(
                               color: AppColors.textPrimary,
                               fontWeight: FontWeight.bold,
@@ -149,8 +151,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'When a hospital in your area needs blood, you get an alert. '
-                            'Accept and the hospital can reach out to you directly.',
+                            l10n.howLegashWorksDesc,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: AppColors.textSecondary,
                               fontSize: 14,
@@ -177,7 +178,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Your donor profile',
+                      l10n.donorProfile,
                       style: theme.textTheme.titleSmall?.copyWith(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.bold,
@@ -232,11 +233,11 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
 
-              _buildQuickNav(context),
+              _buildQuickNav(context, l10n),
               const SizedBox(height: AppSpacing.lg),
 
               Text(
-                'Events',
+                l10n.events,
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.bold,
@@ -252,13 +253,13 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
     );
   }
 
-  Widget _buildQuickNav(BuildContext context) {
+  Widget _buildQuickNav(BuildContext context, AppLocalizations l10n) {
     return Row(
       children: [
         _buildNavChip(
           context,
           icon: Icons.history_outlined,
-          label: 'Donation History',
+          label: l10n.quickNavDonationHistory,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
@@ -272,7 +273,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
         _buildNavChip(
           context,
           icon: Icons.local_hospital_outlined,
-          label: 'Nearby Centers',
+          label: l10n.quickNavNearbyCenters,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const NearbyCentersScreen()),
@@ -389,57 +390,6 @@ class DonationHistoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.paper,
-      appBar: AppBar(
-        title: const Text(
-          'Donation History',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        backgroundColor: AppColors.paper,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          hoverColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: const Center(
-        child: Padding(
-          padding: EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.history_outlined,
-                size: 56,
-                color: AppColors.textSecondary,
-              ),
-              SizedBox(height: AppSpacing.md),
-              Text(
-                'No donation history yet.',
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: AppSpacing.xs),
-              Text(
-                'Your donation records from hospitals will appear here once available.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    return const DonationsHistoryScreen();
   }
 }

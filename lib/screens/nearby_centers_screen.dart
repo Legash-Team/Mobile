@@ -220,7 +220,7 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
         children: [
           const SizedBox(height: 100),
           const Icon(
-            Icons.local_hospital_outlined,
+            Icons.bloodtype,
             size: 56,
             color: AppColors.textSecondary,
           ),
@@ -240,7 +240,7 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Text(
-              'Verified medical facilities and donation centers will appear here.',
+              'Verified blood donation centers will appear here.',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
             ),
@@ -296,7 +296,7 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
-                  Icons.local_hospital_rounded,
+                  Icons.bloodtype,
                   color: AppColors.crimson,
                   size: 24,
                 ),

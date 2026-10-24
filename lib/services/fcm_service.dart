@@ -123,7 +123,7 @@ class FcmService {
       priority: Priority.high,
       playSound: true,
       enableVibration: true,
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_notification',
       ticker: 'Blood request',
     );
     const details = NotificationDetails(android: androidDetails);

@@ -2,9 +2,12 @@
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 import '../models/donor_model.dart';
+import '../models/donation_record.dart';
 import '../providers/auth_provider.dart';
 import '../services/auth_service.dart';
+import '../services/donation_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -17,6 +20,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   static const List<String> _bloodTypes = [
     'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-',
   ];
+
+  List<DonationRecord> _donations = [];
+  bool _donationsLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDonations();
+  }
+
+  Future<void> _loadDonations() async {
+    setState(() => _donationsLoading = true);
+    try {
+      final donations = await DonationService.getDonationHistory();
+      if (!mounted) return;
+      setState(() {
+        _donations = donations..sort(
+              (a, b) => b.donatedAt.compareTo(a.donatedAt),
+            );
+        _donationsLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _donationsLoading = false);
+    }
+  }
 
   String _getInitials(String name) {
     if (name.trim().isEmpty) return 'D';
@@ -489,6 +518,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final auth = context.watch<AuthProvider>();
+    final l10n = AppLocalizations.of(context);
     final donor = auth.donor;
 
     final name = donor?.name ?? 'Donor';
@@ -775,6 +805,85 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           const SizedBox(height: AppSpacing.xl),
 
+          // Section: Donation Stats
+          const Text(
+            'Donation Stats',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: Column(
+              children: [
+                if (_donationsLoading)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(AppSpacing.lg),
+                      child: CircularProgressIndicator(color: AppColors.crimson),
+                    ),
+                  )
+                else ...[
+                  _buildStatRow(
+                    icon: Icons.bloodtype,
+                    label: l10n.totalDonations,
+                    value: '${_donations.length}',
+                  ),
+                  const Divider(height: 1, color: AppColors.cardBorder),
+                  _buildStatRow(
+                    icon: Icons.schedule,
+                    label: l10n.lastDonation,
+                    value: _donations.isNotEmpty
+                        ? _donations.first.formattedDate
+                        : l10n.none,
+                  ),
+                  const Divider(height: 1, color: AppColors.cardBorder),
+                  _buildStatRow(
+                    icon: Icons.local_drink,
+                    label: 'Total Volume',
+                    value: '${_donations.fold<int>(0, (sum, d) => sum + d.quantityMl)} ml',
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          const SizedBox(height: AppSpacing.xl),
+
+          // Section: Language
+          const Text(
+            'Language',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: Column(
+              children: [
+                _buildLanguageTile('English', 'en', 'en'),
+                const Divider(height: 1, color: AppColors.cardBorder),
+                _buildLanguageTile('Amharic (አማርኛ)', 'am', 'am'),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: AppSpacing.xl),
+
           // Section 3: Security & Actions
           const Text(
             'Security',
@@ -879,6 +988,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
           color: AppColors.textPrimary,
         ),
       ),
+    );
+  }
+
+  Widget _buildStatRow({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      leading: Icon(icon, color: AppColors.crimson, size: 22),
+      title: Text(
+        label,
+        style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+      ),
+      trailing: Text(
+        value,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+          color: AppColors.textPrimary,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageTile(String label, String code, String localeCode) {
+    final current = AppLocalizations.of(context).locale.languageCode;
+    final isSelected = current == localeCode;
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      leading: const Icon(Icons.language, color: AppColors.textSecondary),
+      title: Text(
+        label,
+        style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
+      ),
+      trailing: isSelected
+          ? const Icon(Icons.check, color: AppColors.crimson)
+          : null,
+      onTap: () async {
+        final provider =
+            Provider.of<LocaleProvider>(context, listen: false);
+        await provider.setLocale(code);
+      },
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'app_navigator.dart';
 import 'constants.dart';
 import 'firebase_options.dart';
+import 'l10n/app_localizations.dart';
 import 'providers/auth_provider.dart';
 import 'screens/register_screen.dart';
 import 'screens/otp_verification_screen.dart';
@@ -49,13 +50,17 @@ class _LegashAppState extends State<LegashApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthProvider(),
-      child: MaterialApp(
-        title: 'Legash',
-        debugShowCheckedModeBanner: false,
-        navigatorKey: navigatorKey,
-        theme: ThemeData(
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+      ],
+      child: Consumer<LocaleProvider>(
+        builder: (context, localeProvider, _) => MaterialApp(
+          title: AppLocalizations.of(context).appTitle,
+          debugShowCheckedModeBanner: false,
+          navigatorKey: navigatorKey,
+          theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(
             seedColor: AppColors.crimson,
@@ -156,6 +161,7 @@ class _LegashAppState extends State<LegashApp> {
           return null;
         },
       ),
-    );
-  }
+    ),
+  );
+}
 }

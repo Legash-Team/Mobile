@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'app_navigator.dart';
 import 'constants.dart';
 import 'firebase_options.dart';
-import 'l10n/app_localizations.dart';
 import 'providers/auth_provider.dart';
 import 'screens/register_screen.dart';
 import 'screens/otp_verification_screen.dart';

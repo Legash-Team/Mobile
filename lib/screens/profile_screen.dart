@@ -923,8 +923,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const Divider(height: 1, color: AppColors.cardBorder),
-                _buildActionTile(
-                  icon: Icons.notes_outlined,
+                _buildHealthNotesTile(
                   label: l10n?.healthNotes ?? 'Health Notes',
                   value: healthNotes,
                   onTap: () => _showTextEditDialog(
@@ -1097,6 +1096,81 @@ class _ProfileScreenState extends State<ProfileScreen> {
   );
   }
 
+  Widget _buildHealthNotesTile({
+    required String label,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    final isNone = value == 'None' || value.trim().isEmpty;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 2),
+                child: Icon(Icons.notes_outlined, color: AppColors.crimson, size: 22),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          label,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Edit',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.crimson,
+                              ),
+                            ),
+                            SizedBox(width: 2),
+                            Icon(
+                              Icons.edit_outlined,
+                              color: AppColors.crimson,
+                              size: 14,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: isNone ? FontWeight.normal : FontWeight.w600,
+                        color: isNone ? AppColors.textSecondary : AppColors.textPrimary,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildActionTile({
     required IconData icon,
     required String label,
@@ -1114,12 +1188,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: isHighlight ? AppColors.crimson : AppColors.textPrimary,
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 160),
+              child: Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: isHighlight ? AppColors.crimson : AppColors.textPrimary,
+                ),
               ),
             ),
             const SizedBox(width: 4),

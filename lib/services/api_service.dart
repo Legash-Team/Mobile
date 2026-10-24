@@ -32,82 +32,118 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> post(String path, Map<String, dynamic> body) async {
-    final url = Uri.parse('$baseUrl$path');
-    final response = await http.post(
-      url,
-      headers: _headers,
-      body: jsonEncode(body),
-    );
+    try {
+      final url = Uri.parse('$baseUrl$path');
+      final response = await http.post(
+        url,
+        headers: _headers,
+        body: jsonEncode(body),
+      );
 
-    final json = jsonDecode(response.body) as Map<String, dynamic>;
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return json;
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return json;
+      }
+
+      final error = json['error'] as String?;
+      throw ApiException(
+        error ?? 'Something went wrong. Please try again.',
+        response.statusCode,
+      );
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(
+        'Cannot connect to server at $baseUrl. Ensure your local server is running (e.g. node tool/mock_server.js).',
+        0,
+      );
     }
-
-    final error = json['error'] as String?;
-    throw ApiException(
-      error ?? 'Something went wrong. Please try again.',
-      response.statusCode,
-    );
   }
 
   static Future<Map<String, dynamic>> get(String path) async {
-    final url = Uri.parse('$baseUrl$path');
-    final response = await http.get(url, headers: _headers);
+    try {
+      final url = Uri.parse('$baseUrl$path');
+      final response = await http.get(url, headers: _headers);
 
-    final json = jsonDecode(response.body) as Map<String, dynamic>;
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return json;
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return json;
+      }
+
+      final error = json['error'] as String?;
+      throw ApiException(
+        error ?? 'Something went wrong. Please try again.',
+        response.statusCode,
+      );
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(
+        'Cannot connect to server at $baseUrl. Ensure your local server is running (e.g. node tool/mock_server.js).',
+        0,
+      );
     }
-
-    final error = json['error'] as String?;
-    throw ApiException(
-      error ?? 'Something went wrong. Please try again.',
-      response.statusCode,
-    );
   }
 
   static Future<Map<String, dynamic>> put(String path, Map<String, dynamic> body) async {
-    final url = Uri.parse('$baseUrl$path');
-    final response = await http.put(
-      url,
-      headers: _headers,
-      body: jsonEncode(body),
-    );
+    try {
+      final url = Uri.parse('$baseUrl$path');
+      final response = await http.put(
+        url,
+        headers: _headers,
+        body: jsonEncode(body),
+      );
 
-    final json = jsonDecode(response.body) as Map<String, dynamic>;
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return json;
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return json;
+      }
+
+      final error = json['error'] as String?;
+      throw ApiException(
+        error ?? 'Something went wrong. Please try again.',
+        response.statusCode,
+      );
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(
+        'Cannot connect to server at $baseUrl. Ensure your local server is running (e.g. node tool/mock_server.js).',
+        0,
+      );
     }
-
-    final error = json['error'] as String?;
-    throw ApiException(
-      error ?? 'Something went wrong. Please try again.',
-      response.statusCode,
-    );
   }
 
   static Future<Map<String, dynamic>> delete(String path) async {
-    final url = Uri.parse('$baseUrl$path');
-    final response = await http.delete(url, headers: _headers);
+    try {
+      final url = Uri.parse('$baseUrl$path');
+      final response = await http.delete(url, headers: _headers);
 
-    if (response.body.isEmpty) {
-      return <String, dynamic>{'success': true};
+      if (response.body.isEmpty) {
+        return <String, dynamic>{'success': true};
+      }
+
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return json;
+      }
+
+      final error = json['error'] as String?;
+      throw ApiException(
+        error ?? 'Something went wrong. Please try again.',
+        response.statusCode,
+      );
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(
+        'Cannot connect to server at $baseUrl. Ensure your local server is running (e.g. node tool/mock_server.js).',
+        0,
+      );
     }
-
-    final json = jsonDecode(response.body) as Map<String, dynamic>;
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return json;
-    }
-
-    final error = json['error'] as String?;
-    throw ApiException(
-      error ?? 'Something went wrong. Please try again.',
-      response.statusCode,
-    );
   }
 }

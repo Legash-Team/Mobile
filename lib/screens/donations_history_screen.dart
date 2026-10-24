@@ -58,9 +58,9 @@ class _DonationsHistoryScreenState extends State<DonationsHistoryScreen> {
           tooltip: 'Home',
           onPressed: widget.onGoHome ?? () => Navigator.pop(context),
         ),
-        title: Text(
-          l10n.donationHistory,
-          style: const TextStyle(
+        title: const Text(
+          'Donation History',
+          style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -77,7 +77,7 @@ class _DonationsHistoryScreenState extends State<DonationsHistoryScreen> {
     );
   }
 
-  Widget _buildBody(AppLocalizations l10n) {
+  Widget _buildBody(AppLocalizations? l10n) {
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(color: AppColors.crimson),
@@ -93,7 +93,7 @@ class _DonationsHistoryScreenState extends State<DonationsHistoryScreen> {
           const Icon(Icons.error_outline, size: 48, color: AppColors.crimson),
           const SizedBox(height: AppSpacing.md),
           Text(
-            l10n.couldNotLoadDonationHistory,
+            'Could not load donation history.',
             textAlign: TextAlign.center,
             style: themeText(context).bodyMedium?.copyWith(
                   color: AppColors.textSecondary,
@@ -105,7 +105,7 @@ class _DonationsHistoryScreenState extends State<DonationsHistoryScreen> {
             child: FilledButton(
               onPressed: _load,
               style: FilledButton.styleFrom(backgroundColor: AppColors.crimson),
-              child: Text(l10n.retry),
+              child: const Text('Retry'),
             ),
           ),
         ],
@@ -121,7 +121,7 @@ class _DonationsHistoryScreenState extends State<DonationsHistoryScreen> {
           const Icon(Icons.history_outlined, size: 56, color: AppColors.textSecondary),
           const SizedBox(height: AppSpacing.md),
           Text(
-            l10n.noDonationHistoryYet,
+            'No donation history yet',
             textAlign: TextAlign.center,
             style: themeText(context).titleMedium?.copyWith(
                   color: AppColors.textPrimary,
@@ -130,10 +130,10 @@ class _DonationsHistoryScreenState extends State<DonationsHistoryScreen> {
                 ),
           ),
           const SizedBox(height: AppSpacing.xs),
-          Text(
-            l10n.donationRecordsDesc,
+          const Text(
+            'Your past blood donation records will appear here.',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
         ],
       );
@@ -152,7 +152,7 @@ class _DonationsHistoryScreenState extends State<DonationsHistoryScreen> {
 
   TextTheme themeText(BuildContext context) => Theme.of(context).textTheme;
 
-  Widget _buildDonationCard(DonationRecord d, AppLocalizations l10n) {
+  Widget _buildDonationCard(DonationRecord d, [AppLocalizations? l10n]) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -200,7 +200,7 @@ class _DonationsHistoryScreenState extends State<DonationsHistoryScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      d.centerAddress ?? l10n.bloodCenter,
+                      d.centerAddress ?? 'Blood Center',
                       style: themeText(context).bodySmall?.copyWith(
                             color: AppColors.textSecondary,
                             fontSize: 12,
@@ -231,12 +231,12 @@ class _DonationsHistoryScreenState extends State<DonationsHistoryScreen> {
           const SizedBox(height: AppSpacing.md),
           Row(
             children: [
-              _buildDetailItem(Icons.water_drop, l10n.bloodType, d.bloodType),
+              _buildDetailItem(Icons.water_drop, 'Blood Type', d.bloodType),
               const SizedBox(width: AppSpacing.lg),
-              _buildDetailItem(Icons.schedule, l10n.date, d.formattedDate),
+              _buildDetailItem(Icons.schedule, 'Date', d.formattedDate),
               const SizedBox(width: AppSpacing.lg),
               _buildDetailItem(
-                  Icons.local_drink, l10n.quantity, d.formattedQuantity),
+                  Icons.local_drink, 'Quantity', d.formattedQuantity),
             ],
           ),
           if (d.note != null && d.note!.isNotEmpty) ...[

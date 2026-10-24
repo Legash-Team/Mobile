@@ -58,11 +58,10 @@ class BottomNavBar extends StatelessWidget {
               children: List.generate(items.length, (index) {
                 final item = items[index];
                 final active = index == currentIndex;
-                return GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => onTap(index),
-                  child: SizedBox(
-                    width: 60,
+                return Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => onTap(index),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [

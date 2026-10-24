@@ -1,7 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
 import '../models/event_model.dart';
+import 'video_player.dart';
 
 class EventCard extends StatelessWidget {
   final EventModel event;
@@ -35,7 +36,7 @@ class EventCard extends StatelessWidget {
         .replaceAll(RegExp(r'<br\s*/?>', caseSensitive: false), '\n')
         .replaceAll(RegExp(r'</p>', caseSensitive: false), '\n\n')
         .replaceAll(RegExp(r'</li>', caseSensitive: false), '\n')
-        .replaceAll(RegExp(r'<li>', caseSensitive: false), 'â€¢ ')
+        .replaceAll(RegExp(r'<li>', caseSensitive: false), '• ')
         .replaceAll(RegExp(r'<[^>]*>'), '')
         .replaceAll('&nbsp;', ' ')
         .replaceAll('&amp;', '&')
@@ -78,11 +79,11 @@ class EventCard extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isOpen ? AppColors.cardBorder : AppColors.cardBorder.withValues(alpha: 0.5),
+          color: isOpen ? AppColors.cardBorder : AppColors.cardBorder.withOpacity(0.5),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -94,80 +95,46 @@ class EventCard extends StatelessWidget {
         children: [
           // Media Banner (if available)
           if (event.hasMedia)
-            GestureDetector(
-              onTap: event.hasApplyLink
-                  ? () => _launchUrl(context, event.applyLink!)
-                  : null,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Image.network(
-                      event.mediaUrl!,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, progress) {
-                        if (progress == null) return child;
-                        return Container(
-                          color: AppColors.paperDim,
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              color: AppColors.crimson,
-                              strokeWidth: 2,
+                if (event.isVideo)
+                  VideoPlayer(videoUrl: event.mediaUrl!)
+                else
+                  GestureDetector(
+                    onTap: event.hasApplyLink
+                        ? () => _launchUrl(context, event.applyLink!)
+                        : null,
+                    child: AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: Image.network(
+                        event.mediaUrl!,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return Container(
+                            color: AppColors.paperDim,
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.crimson,
+                                strokeWidth: 2,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: AppColors.paperDim,
-                          child: const Center(
-                            child: Icon(
-                              Icons.broken_image_outlined,
-                              color: AppColors.textSecondary,
-                              size: 40,
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: AppColors.paperDim,
+                            child: const Center(
+                              child: Icon(
+                                Icons.broken_image_outlined,
+                                color: AppColors.textSecondary,
+                                size: 40,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  if (event.isVideo)
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.6),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.play_arrow_rounded,
-                        color: Colors.white,
-                        size: 36,
-                      ),
-                    ),
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.65),
-                        borderRadius: BorderRadius.circular(AppRadius.pill),
-                      ),
-                      child: Text(
-                        event.isVideo ? 'VIDEO' : 'EVENT',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
+                          );
+                        },
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
+
 
           // Content Details
           Padding(
@@ -244,6 +211,18 @@ class EventCard extends StatelessWidget {
                   ),
                 ),
 
+                if (event.postedBy != null && event.postedBy!.trim().isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    'Posted by ${event.postedBy!.trim()}',
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+
                 const SizedBox(height: AppSpacing.md),
 
                 // Date & Call to Action Row
@@ -304,5 +283,3 @@ class EventCard extends StatelessWidget {
     );
   }
 }
-
-

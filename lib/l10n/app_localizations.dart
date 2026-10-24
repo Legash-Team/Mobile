@@ -1,438 +1,594 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 
-/// Hard-coded localization for Legash Blood Network.
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations_am.dart';
+import 'app_localizations_en.dart';
+import 'app_localizations_om.dart';
+
+// ignore_for_file: type=lint
+
+/// Callers can lookup localized strings with an instance of AppLocalizations
+/// returned by `AppLocalizations.of(context)`.
 ///
-/// Languages supported:
-///   - en : English
-///   - am : Amharic (አማርኛ)
-///   - om : Afaan Oromoo
+/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// `localizationDelegates` list, and the locales they support in the app's
+/// `supportedLocales` list. For example:
 ///
-/// Strings are hard-coded (no ARB files) as requested.
+/// ```dart
+/// import 'l10n/app_localizations.dart';
 ///
-/// This version uses a static locale holder instead of Flutter's
-/// Localizations system (which isn't available in this SDK).
-class AppLocalizations {
-  final Locale locale;
+/// return MaterialApp(
+///   localizationsDelegates: AppLocalizations.localizationsDelegates,
+///   supportedLocales: AppLocalizations.supportedLocales,
+///   home: MyApplicationHome(),
+/// );
+/// ```
+///
+/// ## Update pubspec.yaml
+///
+/// Please make sure to update your pubspec.yaml to include the following
+/// packages:
+///
+/// ```yaml
+/// dependencies:
+///   # Internationalization support.
+///   flutter_localizations:
+///     sdk: flutter
+///   intl: any # Use the pinned version from flutter_localizations
+///
+///   # Rest of dependencies
+/// ```
+///
+/// ## iOS Applications
+///
+/// iOS applications define key application metadata, including supported
+/// locales, in an Info.plist file that is built into the application bundle.
+/// To configure the locales supported by your app, you’ll need to edit this
+/// file.
+///
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// Then, in the Project Navigator, open the Info.plist file under the Runner
+/// project’s Runner folder.
+///
+/// Next, select the Information Property List item, select Add Item from the
+/// Editor menu, then select Localizations from the pop-up menu.
+///
+/// Select and expand the newly-created Localizations item then, for each
+/// locale your application supports, add a new item and select the locale
+/// you wish to add from the pop-up menu in the Value field. This list should
+/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// property.
+abstract class AppLocalizations {
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
-  const AppLocalizations(this.locale);
+  final String localeName;
 
-  /// Current locale, updated by [LocaleProvider].
-  static Locale _current = const Locale('en', '');
+  static AppLocalizations? of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  }
 
-  /// Supported locales.
-  static const List<Locale> supportedLocales = [
-    Locale('en', ''),
-    Locale('am', ''),
-    Locale('om', ''),
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
+
+  /// A list of this localizations delegate along with the default localizations
+  /// delegates.
+  ///
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
+  ///
+  /// Additional delegates can be added by appending to this list in
+  /// MaterialApp. This list does not have to be used at all if a custom list
+  /// of delegates is preferred or required.
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
+
+  /// A list of this localizations delegate's supported locales.
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('am'),
+    Locale('en'),
+    Locale('om'),
   ];
 
-  /// Set the current locale (called by LocaleProvider).
-  static void setLocale(Locale locale) {
-    _current = locale;
-  }
+  /// No description provided for @appTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Legash'**
+  String get appTitle;
 
-  /// Get localizations for the current static locale.
-  static AppLocalizations of(BuildContext context) {
-    return AppLocalizations(_current);
-  }
+  /// No description provided for @homeTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get homeTab;
 
-  // -------------------------------------------------------------------------
-  // Helpers
-  // -------------------------------------------------------------------------
+  /// No description provided for @requestsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests'**
+  String get requestsTab;
 
-  String _get(String key) {
-    final strings = _allStrings[locale.languageCode];
-    if (strings == null) return _allStrings['en']![key] ?? key;
-    return strings[key] ?? _allStrings['en']![key] ?? key;
-  }
+  /// No description provided for @feedTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Feed'**
+  String get feedTab;
 
-  static const Map<String, Map<String, String>> _allStrings = {
-    'en': _english,
-    'am': _amharic,
-    'om': _afaanOromoo,
-  };
+  /// No description provided for @eventsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get eventsTab;
 
-  // -------------------------------------------------------------------------
-  // App shell
-  // -------------------------------------------------------------------------
-  String get appTitle => _get('appTitle');
-  String get legash => _get('legash');
+  /// No description provided for @profileTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTab;
 
-  // Bottom nav
-  String get navHome => _get('navHome');
-  String get navRequests => _get('navRequests');
-  String get navProfile => _get('navProfile');
+  /// No description provided for @goodMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get goodMorning;
 
-  // Dashboard
-  String get greetingMorning => _get('greetingMorning');
-  String get greetingAfternoon => _get('greetingAfternoon');
-  String get greetingEvening => _get('greetingEvening');
-  String get eligibleToDonate => _get('eligibleToDonate');
-  String get howLegashWorks => _get('howLegashWorks');
-  String get howLegashWorksDesc => _get('howLegashWorksDesc');
-  String get donorProfile => _get('donorProfile');
-  String get bloodType => _get('bloodType');
-  String get noEventsYet => _get('noEventsYet');
-  String get checkBackSoon => _get('checkBackSoon');
-  String get events => _get('events');
-  String get donationHistory => _get('donationHistory');
-  String get nearbyCenters => _get('nearbyCenters');
+  /// No description provided for @goodAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get goodAfternoon;
 
-  // Quick nav
-  String get quickNavDonationHistory => _get('quickNavDonationHistory');
-  String get quickNavNearbyCenters => _get('quickNavNearbyCenters');
+  /// No description provided for @goodEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get goodEvening;
 
-  // Donation history
-  String get noDonationHistoryYet => _get('noDonationHistoryYet');
-  String get donationRecordsDesc => _get('donationRecordsDesc');
-  String get couldNotLoadDonationHistory => _get('couldNotLoadDonationHistory');
-  String get retry => _get('retry');
-  String get centerName => _get('centerName');
-  String get bloodCenter => _get('bloodCenter');
-  String get date => _get('date');
-  String get quantity => _get('quantity');
+  /// No description provided for @eligibleToDonate.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re eligible to donate.'**
+  String get eligibleToDonate;
 
-  // Nearby centers
-  String get nearbyBloodCenters => _get('nearbyBloodCenters');
-  String get searchCenterNameOrCity => _get('searchCenterNameOrCity');
-  String get couldNotLoadNearbyBloodCenters =>
-      _get('couldNotLoadNearbyBloodCenters');
-  String get noBloodCentersMatching => _get('noBloodCentersMatching');
-  String get noNearbyBloodCentersFound => _get('noNearbyBloodCentersFound');
-  String get verifiedMedicalFacilitiesWillAppear =>
-      _get('verifiedMedicalFacilitiesWillAppear');
-  String get verifiedFacility => _get('verifiedFacility');
-  String get call => _get('call');
-  String get directions => _get('directions');
+  /// No description provided for @howLegashWorks.
+  ///
+  /// In en, this message translates to:
+  /// **'How Legash works'**
+  String get howLegashWorks;
 
-  // Profile
-  String get profile => _get('profile');
-  String get personalDetails => _get('personalDetails');
-  String get fullName => _get('fullName');
-  String get tapToSelect => _get('tapToSelect');
-  String get gender => _get('gender');
-  String get phoneNumber => _get('phoneNumber');
-  String get faydaNationalIdFin => _get('faydaNationalIdFin');
-  String get medicalPhysicalDetails => _get('medicalPhysicalDetails');
-  String get dateOfBirth => _get('dateOfBirth');
-  String get weight => _get('weight');
-  String get height => _get('height');
-  String get healthNotes => _get('healthNotes');
-  String get none => _get('none');
-  String get security => _get('security');
-  String get changeSecurityPIN => _get('changeSecurityPIN');
-  String get logOut => _get('logOut');
-  String get verifiedDonor => _get('verifiedDonor');
-  String get bloodTypeUnset => _get('bloodTypeUnset');
-  String get totalDonations => _get('totalDonations');
-  String get lastDonation => _get('lastDonation');
-  String get nextEligibleDonation => _get('nextEligibleDonation');
+  /// No description provided for @howLegashWorksExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'When a hospital in your area needs blood, you get an alert. Accept and the hospital can reach out to you directly.'**
+  String get howLegashWorksExplanation;
 
-  // Onboarding
-  String get welcome => _get('welcome');
-  String get welcomeSubtitle => _get('welcomeSubtitle');
-  String get register => _get('register');
-  String get login => _get('login');
+  /// No description provided for @recentEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Events'**
+  String get recentEvents;
 
-  // Common
-  String get save => _get('save');
-  String get cancel => _get('cancel');
-  String get ok => _get('ok');
-  String get error => _get('error');
-  String get success => _get('success');
-  String get loading => _get('loading');
-  String get home => _get('home');
+  /// No description provided for @noEventsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No events yet'**
+  String get noEventsYet;
+
+  /// No description provided for @yourDonorProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Your donor profile'**
+  String get yourDonorProfile;
+
+  /// No description provided for @bloodType.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood Type'**
+  String get bloodType;
+
+  /// No description provided for @personalDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Details'**
+  String get personalDetails;
+
+  /// No description provided for @personalAndIdentityDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal & Identity Details'**
+  String get personalAndIdentityDetails;
+
+  /// No description provided for @medicalDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical & Physical Details'**
+  String get medicalDetails;
+
+  /// No description provided for @healthNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Notes'**
+  String get healthNotes;
+
+  /// No description provided for @editHealthNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Health Notes'**
+  String get editHealthNotes;
+
+  /// No description provided for @tapToSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to select'**
+  String get tapToSelect;
+
+  /// No description provided for @genderMale.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get genderMale;
+
+  /// No description provided for @genderFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get genderFemale;
+
+  /// No description provided for @selectGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Gender'**
+  String get selectGender;
+
+  /// No description provided for @security.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get security;
+
+  /// No description provided for @securityAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Security & Account'**
+  String get securityAccount;
+
+  /// No description provided for @preferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get preferences;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @selectLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Language'**
+  String get selectLanguage;
+
+  /// No description provided for @chooseLanguageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select your preferred app language'**
+  String get chooseLanguageSubtitle;
+
+  /// No description provided for @english.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get english;
+
+  /// No description provided for @amharic.
+  ///
+  /// In en, this message translates to:
+  /// **'Amharic'**
+  String get amharic;
+
+  /// No description provided for @oromo.
+  ///
+  /// In en, this message translates to:
+  /// **'Afaan Oromoo'**
+  String get oromo;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get fullName;
+
+  /// No description provided for @gender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get gender;
+
+  /// No description provided for @phoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get phoneNumber;
+
+  /// No description provided for @finLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fayda National ID (FIN)'**
+  String get finLabel;
+
+  /// No description provided for @donorId.
+  ///
+  /// In en, this message translates to:
+  /// **'Donor ID'**
+  String get donorId;
+
+  /// No description provided for @donorShortId.
+  ///
+  /// In en, this message translates to:
+  /// **'Short ID'**
+  String get donorShortId;
+
+  /// No description provided for @copyShortId.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Short ID'**
+  String get copyShortId;
+
+  /// No description provided for @shortIdCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Donor Short ID copied to clipboard'**
+  String get shortIdCopied;
+
+  /// No description provided for @dateOfBirth.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of Birth'**
+  String get dateOfBirth;
+
+  /// No description provided for @weight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get weight;
+
+  /// No description provided for @height.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get height;
+
+  /// No description provided for @changePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Security PIN'**
+  String get changePin;
+
+  /// No description provided for @logOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get logOut;
+
+  /// No description provided for @logoutConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get logoutConfirmTitle;
+
+  /// No description provided for @logoutConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to log out of your Legash account?'**
+  String get logoutConfirmMessage;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account'**
+  String get createAccount;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'I already have an account'**
+  String get alreadyHaveAccount;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get saveChanges;
+
+  /// No description provided for @selectBloodType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Blood Type'**
+  String get selectBloodType;
+
+  /// No description provided for @chooseBloodTypeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your confirmed blood type'**
+  String get chooseBloodTypeSubtitle;
+
+  /// No description provided for @editFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Full Name'**
+  String get editFullName;
+
+  /// No description provided for @enterFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name'**
+  String get enterFullName;
+
+  /// No description provided for @editWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Weight (kg)'**
+  String get editWeight;
+
+  /// No description provided for @enterWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter weight in kg'**
+  String get enterWeight;
+
+  /// No description provided for @editHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Height (cm)'**
+  String get editHeight;
+
+  /// No description provided for @enterHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter height in cm'**
+  String get enterHeight;
+
+  /// No description provided for @currentPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Current PIN'**
+  String get currentPin;
+
+  /// No description provided for @newPin.
+  ///
+  /// In en, this message translates to:
+  /// **'New PIN'**
+  String get newPin;
+
+  /// No description provided for @confirmNewPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm New PIN'**
+  String get confirmNewPin;
+
+  /// No description provided for @pinChangedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Security PIN updated successfully'**
+  String get pinChangedSuccess;
+
+  /// No description provided for @pinMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'New PINs do not match'**
+  String get pinMismatch;
+
+  /// No description provided for @pinLengthError.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN must be 4 digits'**
+  String get pinLengthError;
+
+  /// No description provided for @currentPinRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Current PIN is required'**
+  String get currentPinRequired;
+
+  /// No description provided for @profileUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully'**
+  String get profileUpdated;
+
+  /// No description provided for @welcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get welcomeBack;
+
+  /// No description provided for @enterYourPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your 4-digit PIN'**
+  String get enterYourPin;
+
+  /// No description provided for @unlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get unlock;
+
+  /// No description provided for @failedToUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update'**
+  String get failedToUpdate;
 }
 
-// ===========================================================================
-// English
-// ===========================================================================
-const Map<String, String> _english = {
-  'appTitle': 'Legash Blood Network',
-  'legash': 'LEGASH',
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
+  const _AppLocalizationsDelegate();
 
-  'navHome': 'Home',
-  'navRequests': 'Requests',
-  'navProfile': 'Profile',
-
-  'greetingMorning': 'Good morning',
-  'greetingAfternoon': 'Good afternoon',
-  'greetingEvening': 'Good evening',
-  'eligibleToDonate': "You're eligible to donate.",
-  'howLegashWorks': 'How Legash works',
-  'howLegashWorksDesc':
-      'When a hospital in your area needs blood, you get an alert. '
-      'Accept and the hospital can reach out to you directly.',
-  'donorProfile': 'Your donor profile',
-  'bloodType': 'Blood type',
-  'noEventsYet': 'No events yet.',
-  'checkBackSoon': 'Check back soon!',
-  'events': 'Events',
-  'donationHistory': 'Donation History',
-  'nearbyCenters': 'Nearby Centers',
-
-  'quickNavDonationHistory': 'Donation History',
-  'quickNavNearbyCenters': 'Nearby Centers',
-
-  'noDonationHistoryYet': 'No donation history yet.',
-  'donationRecordsDesc':
-      'Your donation records from blood centers will appear here once available.',
-  'couldNotLoadDonationHistory': 'Could not load donation history.',
-  'retry': 'Retry',
-  'centerName': 'Center Name',
-  'bloodCenter': 'Blood Center',
-  'date': 'Date',
-  'quantity': 'Quantity',
-
-  'nearbyBloodCenters': 'Nearby Blood Centers',
-  'searchCenterNameOrCity': 'Search center name or city...',
-  'couldNotLoadNearbyBloodCenters': 'Could not load nearby blood centers.',
-  'noBloodCentersMatching': 'No blood centers matching "{query}".',
-  'noNearbyBloodCentersFound': 'No nearby blood centers found.',
-  'verifiedMedicalFacilitiesWillAppear':
-      'Verified blood donation centers will appear here.',
-  'verifiedFacility': 'Verified Facility',
-  'call': 'Call',
-  'directions': 'Directions',
-
-  'profile': 'PROFILE',
-  'personalDetails': 'Personal Details',
-  'fullName': 'Full Name',
-  'tapToSelect': 'Tap to select',
-  'gender': 'Gender',
-  'phoneNumber': 'Phone Number',
-  'faydaNationalIdFin': 'Fayda National ID (FIN)',
-  'medicalPhysicalDetails': 'Medical & Physical Details',
-  'dateOfBirth': 'Date of Birth',
-  'weight': 'Weight',
-  'height': 'Height',
-  'healthNotes': 'Health Notes',
-  'none': 'None',
-  'security': 'Security',
-  'changeSecurityPIN': 'Change Security PIN',
-  'logOut': 'Log Out',
-  'verifiedDonor': 'Verified Donor',
-  'bloodTypeUnset': 'Blood Type Unset',
-  'totalDonations': 'Total Donations',
-  'lastDonation': 'Last Donation',
-  'nextEligibleDonation': 'Next Eligible Donation',
-
-  'welcome': 'Welcome to Legash',
-  'welcomeSubtitle': 'Save lives. Donate blood.',
-  'register': 'Register',
-  'login': 'Login',
-
-  'save': 'Save',
-  'cancel': 'Cancel',
-  'ok': 'OK',
-  'error': 'Error',
-  'success': 'Success',
-  'loading': 'Loading...',
-  'home': 'Home',
-};
-
-// ===========================================================================
-// Amharic (አማርኛ)
-// ===========================================================================
-const Map<String, String> _amharic = {
-  'appTitle': 'ሌጋሽ የዝማኔነት ድምር',
-  'legash': 'ሌጋሽ',
-
-  'navHome': 'መነሻ',
-  'navRequests': 'ጥያቄዎች',
-  'navProfile': 'ሕግታቱ',
-
-  'greetingMorning': 'እንደምን እደላለሁ',
-  'greetingAfternoon': 'እንደምስከረም እደላለሁ',
-  'greetingEvening': 'እንደምንቀበል እደላለሁ',
-  'eligibleToDonate': 'መተዋዋልን ይችላሉ።',
-  'howLegashWorks': 'እንዴት ሌጋሽ ይሰራል',
-  'howLegashWorksDesc':
-      'በአካባቢዎ ላይ መተዋዋዢ የፍርድ ፀሐይ ሲሆን እንደሚነግረው ይመልከታሉ፤ '
-      'አቀረቡ ፡ መተዋዋዢው በመንገድ ይዘጋውዋል።',
-  'donorProfile': 'የዝማኔው መዝሙራት',
-  'bloodType': 'የፍርድ ዓይነት',
-  'noEventsYet': 'አይነት ዕድሎች የለም።',
-  'checkBackSoon': 'በቀላሉ መ on回/',
-  'events': 'ዕድሎች',
-  'donationHistory': 'የዝማኔነት ታሪክ',
-  'nearbyCenters': 'ቀላሉ መረጃ ማኅበረሰቦች',
-
-  'quickNavDonationHistory': 'የዝማኔነት ታሪክ',
-  'quickNavNearbyCenters': 'ቀላሉ መረጃ ማኅበረሰቦች',
-
-  'noDonationHistoryYet': 'አሁን የዝማኔነት ታሪክ የለም።',
-  'donationRecordsDesc':
-      'የማኅበረሰቦች መዝሙር የዝማኔነት ባለፌ ተማሪ የሆኑት በመጫን ይገኛሉ።',
-  'couldNotLoadDonationHistory': 'የዝማኔነት ታሪክ አልተቀመጠም።',
-  'retry': 'ይዘዋውሮ',
-  'centerName': 'ስም መረጃ',
-  'bloodCenter': 'የፍርድ መረጃ',
-  'date': 'ቀን',
-  'quantity': 'መጠን',
-
-  'nearbyBloodCenters': 'ቀላሉ የፍርድ መረጃዎች',
-  'searchCenterNameOrCity': 'ስም ወይም ከተማ ይፈልጋሉ...',
-  'couldNotLoadNearbyBloodCenters': 'የቀላሉ የፍርድ መረጃዎች አልተቀመጠም።',
-  'noBloodCentersMatching': '"{query}" ውስጥ የፍርድ መረጃ አልተቀመጠም።',
-  'noNearbyBloodCentersFound': 'ቀላሉ የፍርድ መረጃ አልተገኘም።',
-  'verifiedMedicalFacilitiesWillAppear':
-      'ተረኝቷል የፍርድ ዝማኔ መረጃ ይገኛሉ።',
-  'verifiedFacility': 'ተረኝቷል መረጃ',
-  'call': 'ይደውሉ',
-  'directions': 'መንገዶች',
-
-  'profile': 'ሕግታት',
-  'personalDetails': 'የግል መረጃ',
-  'fullName': 'ሙሉ ስም',
-  'tapToSelect': 'ይጫኑ ይምረጡ',
-  'gender': 'ፍጹም',
-  'phoneNumber': 'ስልክ ቁጥር',
-  'faydaNationalIdFin': 'ፋይዳ ብልጽግና መታወክን (FIN)',
-  'medicalPhysicalDetails': 'የጤና እና የሥራ ጥቅሶች',
-  'dateOfBirth': 'የልደት ቀን',
-  'weight': 'ክብር',
-  'height': 'ሕያዊ',
-  'healthNotes': 'የጤና አስተያየቶች',
-  'none': 'የለም',
-  'security': 'አីቲንግ',
-  'changeSecurityPIN': 'የአስተያየት PIN ቀድሞ ውጣል',
-  'logOut': 'ውጣ',
-  'verifiedDonor': 'ተረኝቷል ዝማኔ',
-  'bloodTypeUnset': 'የፍርድ ዓይነት አልተዘላገቁም',
-  'totalDonations': 'ጠቅላይ ዝማኔነት',
-  'lastDonation': 'የቀድሞ ዝማኔነት',
-  'nextEligibleDonation': 'የቀጣይ ይችላል ዝማኔነት',
-
-  'welcome': 'እንኳን በደህና መጣህ። ሌጋሽ',
-  'welcomeSubtitle': 'ሕይወትን ይዝቱ፡ ፍርድ ይዝቱ።',
-  'register': 'ዝርዝር',
-  'login': 'ግባ',
-
-  'save': 'ዝርዝር',
-  'cancel': 'አቁሙ',
-  'ok': 'እሺ',
-  'error': 'ስህተት',
-  'success': 'እረፍት',
-  'loading': 'ይታወቃል...',
-  'home': 'መነሻ',
-};
-
-const Map<String, String> _afaanOromoo = {
-  'appTitle': 'Legash Blood Network',
-  'legash': 'LEGASH',
-
-  'navHome': 'Mana',
-  'navRequests': 'Maqaanii',
-  'navProfile': 'Hojiin',
-
-  'greetingMorning': 'Innili',
-  'greetingAfternoon': 'Innili',
-  'greetingEvening': 'Innili',
-  'eligibleToDonate': 'Dabalateera.',
-  'howLegashWorks': 'Legash ni maali?',
-  'howLegashWorksDesc':
-      'Waaqayyo maqaanii qabaan hin qabu, dabalateera.',
-  'donorProfile': 'Dabalateera hojiin',
-  'bloodType': 'Cimnii kanaa',
-  'noEventsYet': 'Hammatti ti.',
-  'checkBackSoon': 'Yoo hin beeksisu.',
-  'events': 'Hammatti',
-  'donationHistory': 'Maqaanii deebi',
-  'nearbyCenters': 'Na barbaachisaa',
-
-  'quickNavDonationHistory': 'Maqaanii deebi',
-  'quickNavNearbyCenters': 'Na barbaachisaa',
-
-  'noDonationHistoryYet': 'Maqaanii deebi qabamu.',
-  'donationRecordsDesc':
-      'Maqaanii deebi qabaan keessaatti.',
-  'couldNotLoadDonationHistory': 'Maqaanii deebi hin qabu.',
-  'retry': 'Mana',
-  'centerName': 'Magaalaa beeksisa',
-  'bloodCenter': 'Cimnii beeksisa',
-  'date': 'Cimsaa',
-  'quantity': 'Qaama',
-
-  'nearbyBloodCenters': 'Na beeksisa qabde',
-  'searchCenterNameOrCity': 'Magaalaa deebi qabaan yoo beeksisa.',
-  'couldNotLoadNearbyBloodCenters': 'Na beeksisa hin qabu.',
-  'noBloodCentersMatching': 'Na beeksisa qabaan hin qabu.',
-  'noNearbyBloodCentersFound': 'Na beeksisa qabaan hin taane.',
-  'verifiedMedicalFacilitiesWillAppear':
-      'Na beeksisa qabaan dandeeti.',
-  'verifiedFacility': 'Qabeenya dubbachuu',
-  'call': 'Barruu',
-  'directions': 'Tajaajila',
-
-  'profile': 'HOJIIN',
-  'personalDetails': 'Hojiin dabalate',
-  'fullName': 'Magaalaa',
-  'tapToSelect': 'Dhaamu',
-  'gender': 'Dhiisoo',
-  'phoneNumber': 'Telefoonii bilbila',
-  'faydaNationalIdFin': 'FIN',
-  'medicalPhysicalDetails': 'Tajaajilaa qabaan',
-  'dateOfBirth': 'Cimsaa kanaa',
-  'weight': 'Qaama',
-  'height': 'Eegumsa',
-  'healthNotes': 'Tajaajila qabaan',
-  'none': 'Hin taane',
-  'security': 'Oltiin',
-  'changeSecurityPIN': 'PIN keessattii hin qabdu',
-  'logOut': 'Hoji',
-  'verifiedDonor': 'Qabeenya dubbachuu',
-  'bloodTypeUnset': 'Cimnii kanaa hin qabne.',
-  'totalDonations': 'Maqaanii qabaan',
-  'lastDonation': 'Maqaanii deebi',
-  'nextEligibleDonation': 'Maqaanii deebi qabde',
-
-  'welcome': 'Legashni walitti hundee.',
-  'welcomeSubtitle': 'Dabalateera.',
-  'register': 'Hoji',
-  'login': 'Hoji',
-
-  'save': 'Dhaamu',
-  'cancel': 'Hoji',
-  'ok': 'Eeyyee',
-  'error': 'Kan baayye',
-  'success': 'Dandaama',
-  'loading': 'Yaada',
-  'home': 'Mana',
-};
-
-/// Persisted locale provider.
-class LocaleProvider extends ChangeNotifier {
-  Locale _locale = const Locale('en', '');
-
-  Locale get locale => _locale;
-
-  LocaleProvider() {
-    _loadSaved();
+  @override
+  Future<AppLocalizations> load(Locale locale) {
+    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
   }
 
-  Future<void> _loadSaved() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final code = prefs.getString('app_locale');
-      if (code != null && code.isNotEmpty) {
-        _locale = Locale(code, '');
-        AppLocalizations.setLocale(_locale);
-      }
-    } catch (_) {}
-    notifyListeners();
+  @override
+  bool isSupported(Locale locale) =>
+      <String>['am', 'en', 'om'].contains(locale.languageCode);
+
+  @override
+  bool shouldReload(_AppLocalizationsDelegate old) => false;
+}
+
+AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when only language code is specified.
+  switch (locale.languageCode) {
+    case 'am':
+      return AppLocalizationsAm();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'om':
+      return AppLocalizationsOm();
   }
 
-  Future<void> setLocale(String languageCode) async {
-    final newLocale = Locale(languageCode, '');
-    if (_locale == newLocale) return;
-    _locale = newLocale;
-    AppLocalizations.setLocale(_locale);
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('app_locale', languageCode);
-    } catch (_) {}
-    notifyListeners();
-  }
+  throw FlutterError(
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

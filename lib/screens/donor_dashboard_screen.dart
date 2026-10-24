@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 import 'donations_history_screen.dart';
 import 'nearby_centers_screen.dart';
-import '../l10n/app_localizations.dart';
-import '../models/event_model.dart';
+import '../models/donor_model.dart';
 import '../providers/auth_provider.dart';
-import '../services/event_service.dart';
-import '../widgets/event_card.dart';
+import '../services/auth_service.dart';
 
 class DonorDashboardScreen extends StatefulWidget {
   final int pendingCount;
@@ -24,47 +23,44 @@ class DonorDashboardScreen extends StatefulWidget {
 }
 
 class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
-  List<EventModel>? _events;
-  String? _eventsError;
-
   @override
   void initState() {
     super.initState();
-    _loadEvents();
+    _refreshProfile();
   }
 
-  Future<void> _loadEvents() async {
+  Future<void> _refreshProfile() async {
     try {
-      final events = await EventService.getEvents();
+      final res = await AuthService.getProfile();
       if (!mounted) return;
-      setState(() => _events = events);
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _eventsError = e.toString());
-    }
+      if (res['success'] == true && res['profile'] != null) {
+        final donor = DonorInfo.fromJson(res['profile']);
+        Provider.of<AuthProvider>(context, listen: false).updateDonor(donor);
+      }
+    } catch (_) {}
   }
 
-  String _greeting(AppLocalizations l10n) {
+  String _greeting([AppLocalizations? l10n]) {
     final hour = DateTime.now().hour;
-    if (hour < 12) return l10n.greetingMorning;
-    if (hour < 17) return l10n.greetingAfternoon;
-    return l10n.greetingEvening;
+    if (hour < 12) return l10n?.goodMorning ?? 'Good morning';
+    if (hour < 17) return l10n?.goodAfternoon ?? 'Good afternoon';
+    return l10n?.goodEvening ?? 'Good evening';
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final auth = context.watch<AuthProvider>();
+    final l10n = AppLocalizations.of(context);
     final donorName = auth.donor?.name ?? 'Donor';
     final bloodType = auth.donor?.bloodType ?? 'unknown';
 
     return Scaffold(
       backgroundColor: AppColors.paper,
       appBar: AppBar(
-        title: Text(
-          l10n.legash,
-          style: const TextStyle(
+        title: const Text(
+          'LEGASH',
+          style: TextStyle(
             color: AppColors.crimson,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
@@ -81,7 +77,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
             label: Text('${widget.pendingCount}'),
             child: IconButton(
               icon: const Icon(Icons.campaign_outlined),
-              tooltip: l10n.navRequests,
+              tooltip: l10n?.requestsTab ?? 'Requests',
               onPressed: widget.onOpenRequests,
             ),
           ),
@@ -89,7 +85,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: _loadEvents,
+        onRefresh: _refreshProfile,
         color: AppColors.crimson,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -108,7 +104,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                l10n.eligibleToDonate,
+                l10n?.eligibleToDonate ?? "You're eligible to donate.",
                 style: const TextStyle(color: AppColors.textSecondary, fontSize: 15),
               ),
               const SizedBox(height: AppSpacing.lg),
@@ -142,7 +138,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            l10n.howLegashWorks,
+                            l10n?.howLegashWorks ?? 'How Legash works',
                             style: theme.textTheme.titleSmall?.copyWith(
                               color: AppColors.textPrimary,
                               fontWeight: FontWeight.bold,
@@ -151,7 +147,9 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            l10n.howLegashWorksDesc,
+                            l10n?.howLegashWorksExplanation ??
+                                'When a hospital in your area needs blood, you get an alert. '
+                                'Accept and the hospital can reach out to you directly.',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: AppColors.textSecondary,
                               fontSize: 14,
@@ -178,7 +176,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      l10n.donorProfile,
+                      l10n?.profileTab ?? 'Donor Profile',
                       style: theme.textTheme.titleSmall?.copyWith(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.bold,
@@ -208,10 +206,10 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                           ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Blood type',
-                            style: TextStyle(
+                            l10n?.bloodType ?? 'Blood type',
+                            style: const TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 14,
                             ),
@@ -233,19 +231,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
 
-              _buildQuickNav(context, l10n),
-              const SizedBox(height: AppSpacing.lg),
-
-              Text(
-                l10n.events,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              _buildEventsSection(theme),
+              _buildQuickNav(context),
             ],
           ),
         ),
@@ -253,13 +239,13 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
     );
   }
 
-  Widget _buildQuickNav(BuildContext context, AppLocalizations l10n) {
+  Widget _buildQuickNav(BuildContext context) {
     return Row(
       children: [
         _buildNavChip(
           context,
           icon: Icons.history_outlined,
-          label: l10n.quickNavDonationHistory,
+          label: 'Donation History',
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
@@ -273,7 +259,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
         _buildNavChip(
           context,
           icon: Icons.local_hospital_outlined,
-          label: l10n.quickNavNearbyCenters,
+          label: 'Nearby Centers',
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const NearbyCentersScreen()),
@@ -322,65 +308,6 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildEventsSection(ThemeData theme) {
-    if (_eventsError != null) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppColors.cardBorder),
-        ),
-        child: const Text(
-          'Could not load events.',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-        ),
-      );
-    }
-
-    if (_events == null) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(AppSpacing.lg),
-          child: CircularProgressIndicator(color: AppColors.crimson),
-        ),
-      );
-    }
-
-    if (_events!.isEmpty) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppColors.cardBorder),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              Icons.event_note_outlined,
-              size: 40,
-              color: AppColors.textSecondary,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            const Text(
-              'No events yet. Check back soon!',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Column(
-      children: [for (final event in _events!) EventCard(event: event)],
     );
   }
 }

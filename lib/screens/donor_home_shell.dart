@@ -3,6 +3,8 @@ import '../constants.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/bottom_nav_bar.dart';
 import 'donor_dashboard_screen.dart';
+import 'events_screen.dart';
+import 'feed_screen.dart';
 import 'notifications_screen.dart';
 import 'profile_screen.dart';
 
@@ -49,6 +51,8 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
               }
             },
           ),
+          const FeedScreen(),
+          const EventsScreen(),
           const ProfileScreen(),
         ],
       ),
@@ -57,18 +61,28 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
         onTap: (index) => setState(() => _currentIndex = index),
         items: [
           BottomNavItem(
-            label: l10n.navHome,
+            label: l10n?.homeTab ?? 'Home',
             icon: Icons.home_outlined,
             activeIcon: Icons.home,
           ),
           BottomNavItem(
-            label: l10n.navRequests,
+            label: l10n?.requestsTab ?? 'Requests',
             icon: Icons.campaign_outlined,
             activeIcon: Icons.campaign,
             pendingCount: _pendingCount,
           ),
           BottomNavItem(
-            label: l10n.navProfile,
+            label: l10n?.feedTab ?? 'Feed',
+            icon: Icons.dynamic_feed_outlined,
+            activeIcon: Icons.dynamic_feed,
+          ),
+          BottomNavItem(
+            label: l10n?.eventsTab ?? 'Events',
+            icon: Icons.event_note_outlined,
+            activeIcon: Icons.event_note,
+          ),
+          BottomNavItem(
+            label: l10n?.profileTab ?? 'Profile',
             icon: Icons.person_outline,
             activeIcon: Icons.person,
           ),

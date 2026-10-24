@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 const String baseUrl = String.fromEnvironment(
   'API_BASE_URL',
-  defaultValue: 'http://10.0.2.2:3000',
+  defaultValue: 'https://legash-xcfc.onrender.com',
 );
 
 class AppColors {

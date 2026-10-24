@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 import '../models/donor_model.dart';
 import '../providers/auth_provider.dart';
+import '../providers/locale_provider.dart';
 import '../services/auth_service.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -60,6 +62,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showBloodTypePicker(String? currentType) {
+    final l10n = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.paper,
@@ -77,13 +80,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.water_drop, color: AppColors.crimson, size: 24),
-                        SizedBox(width: 8),
+                        const Icon(Icons.water_drop, color: AppColors.crimson, size: 24),
+                        const SizedBox(width: 8),
                         Text(
-                          'Select Blood Type',
-                          style: TextStyle(
+                          l10n?.selectBloodType ?? 'Select Blood Type',
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: AppColors.textPrimary,
@@ -98,9 +101,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Choose your certified ABO and Rh blood group.',
-                  style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                Text(
+                  l10n?.chooseBloodTypeSubtitle ?? 'Choose your confirmed blood type',
+                  style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 GridView.builder(
@@ -164,6 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showGenderPicker(String? currentGender) {
+    final l10n = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.paper,
@@ -181,9 +185,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Select Gender',
-                      style: TextStyle(
+                    Text(
+                      l10n?.selectGender ?? 'Select Gender',
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textPrimary,
@@ -197,7 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 _buildChoiceTile(
-                  title: 'Male',
+                  title: l10n?.genderMale ?? 'Male',
                   icon: Icons.male_rounded,
                   isSelected: (currentGender ?? '').toLowerCase() == 'male',
                   onTap: () {
@@ -207,7 +211,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 _buildChoiceTile(
-                  title: 'Female',
+                  title: l10n?.genderFemale ?? 'Female',
                   icon: Icons.female_rounded,
                   isSelected: (currentGender ?? '').toLowerCase() == 'female',
                   onTap: () {
@@ -236,7 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.crimson.withOpacity(0.08) : AppColors.surface,
+          color: isSelected ? AppColors.crimson.withValues(alpha: 0.08) : AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
             color: isSelected ? AppColors.crimson : AppColors.cardBorder,
@@ -449,21 +453,114 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  void _showLanguagePicker() {
+    final localeProvider = Provider.of<LocaleProvider?>(context, listen: false);
+    final currentCode = localeProvider?.locale.languageCode ?? 'en';
+    final l10n = AppLocalizations.of(context);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.paper,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.language_rounded, color: AppColors.crimson, size: 24),
+                        const SizedBox(width: 8),
+                        Text(
+                          l10n?.selectLanguage ?? 'Select Language',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n?.chooseLanguageSubtitle ?? 'Select your preferred app language',
+                  style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                ...LocaleProvider.supportedLocales.map((loc) {
+                  final isSelected = loc.languageCode == currentCode;
+                  final name = LocaleProvider.getLanguageName(loc.languageCode);
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppColors.crimson.withValues(alpha: 0.08) : AppColors.surface,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      border: Border.all(
+                        color: isSelected ? AppColors.crimson : AppColors.cardBorder,
+                        width: isSelected ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: ListTile(
+                        title: Text(
+                          name,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                            color: isSelected ? AppColors.crimson : AppColors.textPrimary,
+                          ),
+                        ),
+                        trailing: isSelected
+                            ? const Icon(Icons.check_circle_rounded, color: AppColors.crimson)
+                            : null,
+                        onTap: () async {
+                          Navigator.pop(ctx);
+                          await localeProvider?.setLocale(loc);
+                        },
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _showLogoutDialog(AuthProvider auth) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
-        title: const Text('Log Out', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        content: const Text(
-          'Are you sure you want to log out of your account on this device?',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+        title: Text(l10n?.logoutConfirmTitle ?? 'Log Out', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        content: Text(
+          l10n?.logoutConfirmMessage ?? 'Are you sure you want to log out of your account on this device?',
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+            child: Text(l10n?.cancel ?? 'Cancel', style: const TextStyle(color: AppColors.textSecondary)),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -471,7 +568,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               backgroundColor: AppColors.crimson,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
             ),
-            child: const Text('Log Out'),
+            child: Text(l10n?.logOut ?? 'Log Out'),
           ),
         ],
       ),
@@ -489,6 +586,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final auth = context.watch<AuthProvider>();
+    final l10n = AppLocalizations.of(context);
+    final localeProvider = Provider.of<LocaleProvider?>(context);
+    final currentLangName =
+        LocaleProvider.getLanguageName(localeProvider?.locale.languageCode ?? 'en');
     final donor = auth.donor;
 
     final name = donor?.name ?? 'Donor';
@@ -504,9 +605,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: AppColors.paper,
       appBar: AppBar(
-        title: const Text(
-          'PROFILE',
-          style: TextStyle(
+        title: Text(
+          (l10n?.profileTab ?? 'PROFILE').toUpperCase(),
+          style: const TextStyle(
             color: AppColors.crimson,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.2,
@@ -643,9 +744,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: AppSpacing.xl),
 
           // Section 1: Personal Details
-          const Text(
-            'Personal Details',
-            style: TextStyle(
+          Text(
+            l10n?.personalDetails ?? 'Personal Details',
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
@@ -663,10 +764,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 _buildActionTile(
                   icon: Icons.person_outline,
-                  label: 'Full Name',
+                  label: l10n?.fullName ?? 'Full Name',
                   value: name,
                   onTap: () => _showTextEditDialog(
-                    title: 'Full Name',
+                    title: l10n?.fullName ?? 'Full Name',
                     field: 'name',
                     currentValue: name,
                   ),
@@ -674,29 +775,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const Divider(height: 1, color: AppColors.cardBorder),
                 _buildActionTile(
                   icon: Icons.water_drop_outlined,
-                  label: 'Blood Type',
-                  value: bloodType.isEmpty || bloodType == 'unknown' ? 'Tap to select' : bloodType,
+                  label: l10n?.bloodType ?? 'Blood Type',
+                  value: bloodType.isEmpty || bloodType == 'unknown' ? (l10n?.tapToSelect ?? 'Tap to select') : bloodType,
                   isHighlight: bloodType.isEmpty || bloodType == 'unknown',
                   onTap: () => _showBloodTypePicker(bloodType),
                 ),
                 const Divider(height: 1, color: AppColors.cardBorder),
                 _buildActionTile(
                   icon: Icons.wc_outlined,
-                  label: 'Gender',
+                  label: l10n?.gender ?? 'Gender',
                   value: gender.toUpperCase(),
                   onTap: () => _showGenderPicker(gender),
                 ),
                 const Divider(height: 1, color: AppColors.cardBorder),
                 _buildReadOnlyTile(
                   icon: Icons.phone_outlined,
-                  label: 'Phone Number',
+                  label: l10n?.phoneNumber ?? 'Phone Number',
                   value: phone,
                   mono: true,
                 ),
                 const Divider(height: 1, color: AppColors.cardBorder),
                 _buildReadOnlyTile(
                   icon: Icons.badge_outlined,
-                  label: 'Fayda National ID (FIN)',
+                  label: l10n?.finLabel ?? 'Fayda National ID (FIN)',
                   value: fin,
                   mono: true,
                 ),
@@ -707,9 +808,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: AppSpacing.xl),
 
           // Section 2: Medical & Physical Details
-          const Text(
-            'Medical & Physical Details',
-            style: TextStyle(
+          Text(
+            l10n?.medicalDetails ?? 'Medical & Physical Details',
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
@@ -727,17 +828,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 _buildActionTile(
                   icon: Icons.cake_outlined,
-                  label: 'Date of Birth',
+                  label: l10n?.dateOfBirth ?? 'Date of Birth',
                   value: dob,
                   onTap: () => _showDatePickerDialog(donor?.dob),
                 ),
                 const Divider(height: 1, color: AppColors.cardBorder),
                 _buildActionTile(
                   icon: Icons.monitor_weight_outlined,
-                  label: 'Weight',
+                  label: l10n?.weight ?? 'Weight',
                   value: weight,
                   onTap: () => _showNumberInputDialog(
-                    title: 'Weight',
+                    title: l10n?.weight ?? 'Weight',
                     field: 'weightKg',
                     unit: 'kg',
                     currentValue: donor?.weightKg,
@@ -748,10 +849,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const Divider(height: 1, color: AppColors.cardBorder),
                 _buildActionTile(
                   icon: Icons.height,
-                  label: 'Height',
+                  label: l10n?.height ?? 'Height',
                   value: height,
                   onTap: () => _showNumberInputDialog(
-                    title: 'Height',
+                    title: l10n?.height ?? 'Height',
                     field: 'heightCm',
                     unit: 'cm',
                     currentValue: donor?.heightCm,
@@ -762,10 +863,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const Divider(height: 1, color: AppColors.cardBorder),
                 _buildActionTile(
                   icon: Icons.notes_outlined,
-                  label: 'Health Notes',
+                  label: l10n?.healthNotes ?? 'Health Notes',
                   value: healthNotes,
                   onTap: () => _showTextEditDialog(
-                    title: 'Health Notes',
+                    title: l10n?.healthNotes ?? 'Health Notes',
                     field: 'healthNotes',
                     currentValue: donor?.healthNotes ?? '',
                     maxLines: 3,
@@ -777,10 +878,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           const SizedBox(height: AppSpacing.xl),
 
-          // Section 3: Security & Actions
-          const Text(
-            'Security',
-            style: TextStyle(
+          // Section 3: Preferences
+          Text(
+            l10n?.preferences ?? 'Preferences',
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
@@ -796,12 +897,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
             clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
-                ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-                  leading: const Icon(Icons.lock_outline, color: AppColors.crimson, size: 22),
-                  title: const Text('Change Security PIN', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
-                  onTap: _showChangePinDialog,
+                Material(
+                  color: Colors.transparent,
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                    leading: const Icon(Icons.language_rounded, color: AppColors.crimson, size: 22),
+                    title: Text(l10n?.language ?? 'Language', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          currentLangName,
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
+                      ],
+                    ),
+                    onTap: _showLanguagePicker,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: AppSpacing.xl),
+
+          // Section 4: Security & Actions
+          Text(
+            l10n?.security ?? 'Security',
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: Column(
+              children: [
+                Material(
+                  color: Colors.transparent,
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                    leading: const Icon(Icons.lock_outline, color: AppColors.crimson, size: 22),
+                    title: Text(l10n?.changePin ?? 'Change Security PIN', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                    trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
+                    onTap: _showChangePinDialog,
+                  ),
                 ),
               ],
             ),
@@ -815,9 +963,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: OutlinedButton.icon(
               onPressed: () => _showLogoutDialog(auth),
               icon: const Icon(Icons.logout_rounded, color: AppColors.crimson, size: 20),
-              label: const Text(
-                'Log Out',
-                style: TextStyle(color: AppColors.crimson, fontSize: 15, fontWeight: FontWeight.bold),
+              label: Text(
+                l10n?.logOut ?? 'Log Out',
+                style: const TextStyle(color: AppColors.crimson, fontSize: 15, fontWeight: FontWeight.bold),
               ),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.crimson, width: 1.5),
@@ -840,25 +988,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback onTap,
     bool isHighlight = false,
   }) {
-    return ListTile(
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-      leading: Icon(icon, color: AppColors.crimson, size: 22),
-      title: Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textSecondary)),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: isHighlight ? AppColors.crimson : AppColors.textPrimary,
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+        leading: Icon(icon, color: AppColors.crimson, size: 22),
+        title: Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textSecondary)),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: isHighlight ? AppColors.crimson : AppColors.textPrimary,
+              ),
             ),
-          ),
-          const SizedBox(width: 4),
-          const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary, size: 20),
-        ],
+            const SizedBox(width: 4),
+            const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary, size: 20),
+          ],
+        ),
       ),
     );
   }
@@ -869,17 +1020,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String value,
     bool mono = false,
   }) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-      leading: Icon(icon, color: AppColors.crimson, size: 22),
-      title: Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textSecondary)),
-      trailing: Text(
-        value,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          fontFamily: mono ? AppFonts.mono : AppFonts.sans,
-          color: AppColors.textPrimary,
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+        leading: Icon(icon, color: AppColors.crimson, size: 22),
+        title: Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textSecondary)),
+        trailing: Text(
+          value,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            fontFamily: mono ? AppFonts.mono : AppFonts.sans,
+            color: AppColors.textPrimary,
+          ),
         ),
       ),
     );

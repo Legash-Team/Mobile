@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 import '../widgets/bottom_nav_bar.dart';
 import 'donor_dashboard_screen.dart';
 import 'events_screen.dart';
@@ -33,6 +34,7 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.paper,
       body: IndexedStack(
@@ -58,29 +60,29 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
         items: [
-          const BottomNavItem(
-            label: 'Home',
+          BottomNavItem(
+            label: l10n?.homeTab ?? 'Home',
             icon: Icons.home_outlined,
             activeIcon: Icons.home,
           ),
           BottomNavItem(
-            label: 'Requests',
+            label: l10n?.requestsTab ?? 'Requests',
             icon: Icons.campaign_outlined,
             activeIcon: Icons.campaign,
             pendingCount: _pendingCount,
           ),
-          const BottomNavItem(
-            label: 'Feed',
+          BottomNavItem(
+            label: l10n?.feedTab ?? 'Feed',
             icon: Icons.dynamic_feed_outlined,
             activeIcon: Icons.dynamic_feed,
           ),
-          const BottomNavItem(
-            label: 'Events',
+          BottomNavItem(
+            label: l10n?.eventsTab ?? 'Events',
             icon: Icons.event_note_outlined,
             activeIcon: Icons.event_note,
           ),
-          const BottomNavItem(
-            label: 'Profile',
+          BottomNavItem(
+            label: l10n?.profileTab ?? 'Profile',
             icon: Icons.person_outline,
             activeIcon: Icons.person,
           ),

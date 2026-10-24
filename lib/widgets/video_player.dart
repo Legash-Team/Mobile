@@ -21,6 +21,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
   VideoPlayerController? _videoPlayerController;
   ChewieController? _chewieController;
   bool _hasError = false;
+  bool _isPlaying = false;
 
   @override
   void initState() {
@@ -28,11 +29,22 @@ class _VideoPlayerState extends State<VideoPlayer> {
     _initPlayer();
   }
 
+  void _onPlayerStateChanged() {
+    if (!mounted || _videoPlayerController == null) return;
+    final isPlaying = _videoPlayerController!.value.isPlaying;
+    if (isPlaying != _isPlaying) {
+      setState(() {
+        _isPlaying = isPlaying;
+      });
+    }
+  }
+
   Future<void> _initPlayer() async {
     try {
       final uri = Uri.parse(widget.videoUrl);
       final controller = VideoPlayerController.networkUrl(uri);
       _videoPlayerController = controller;
+      controller.addListener(_onPlayerStateChanged);
       await controller.initialize();
       if (!mounted) {
         controller.dispose();
@@ -65,10 +77,12 @@ class _VideoPlayerState extends State<VideoPlayer> {
   void didUpdateWidget(covariant VideoPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.videoUrl != widget.videoUrl) {
+      _videoPlayerController?.removeListener(_onPlayerStateChanged);
       _chewieController?.dispose();
       _videoPlayerController?.dispose();
       _chewieController = null;
       _videoPlayerController = null;
+      _isPlaying = false;
       _hasError = false;
       _initPlayer();
     }
@@ -76,6 +90,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   void dispose() {
+    _videoPlayerController?.removeListener(_onPlayerStateChanged);
     _chewieController?.dispose();
     _videoPlayerController?.dispose();
     super.dispose();
@@ -106,17 +121,58 @@ class _VideoPlayerState extends State<VideoPlayer> {
         _videoPlayerController!.value.isInitialized) {
       return AspectRatio(
         aspectRatio: widget.aspectRatio,
-        child: Chewie(controller: _chewieController!),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Chewie(controller: _chewieController!),
+            if (!_isPlaying)
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    _videoPlayerController?.play();
+                  },
+                  child: Container(
+                    color: Colors.black.withValues(alpha: 0.25),
+                    child: Center(
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: AppColors.crimson.withValues(alpha: 0.92),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.35),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.play_arrow_rounded,
+                          color: Colors.white,
+                          size: 38,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       );
     }
 
-    return Container(
-      height: 200,
-      color: AppColors.paperDim,
-      child: const Center(
-        child: CircularProgressIndicator(
-          color: AppColors.crimson,
-          strokeWidth: 2,
+    return AspectRatio(
+      aspectRatio: widget.aspectRatio,
+      child: Container(
+        color: AppColors.paperDim,
+        child: const Center(
+          child: CircularProgressIndicator(
+            color: AppColors.crimson,
+            strokeWidth: 2,
+          ),
         ),
       ),
     );

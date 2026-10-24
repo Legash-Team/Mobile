@@ -1,8 +1,18 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-const String baseUrl = String.fromEnvironment(
-  'API_BASE_URL',
-  defaultValue: 'http://10.0.2.2:3000',
-);
+
+String get _defaultBaseUrl {
+  if (kIsWeb) return 'http://localhost:3000';
+  switch (defaultTargetPlatform) {
+    case TargetPlatform.android:
+      return 'http://10.0.2.2:3000';
+    default:
+      return 'http://localhost:3000';
+  }
+}
+
+const String _envBaseUrl = String.fromEnvironment('API_BASE_URL');
+final String baseUrl = _envBaseUrl.isNotEmpty ? _envBaseUrl : _defaultBaseUrl;
 
 class AppColors {
   static const Color ink = Color(0xFF1B1410);

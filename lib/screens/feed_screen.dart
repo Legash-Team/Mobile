@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../models/post_model.dart';
 import '../services/post_service.dart';
-import '../widgets/video_player.dart';
+import '../widgets/post_card.dart';
 
 class FeedScreen extends StatefulWidget {
   final List<PostModel>? initialPosts;
@@ -94,27 +94,6 @@ class _FeedScreenState extends State<FeedScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() => _isLoadingMore = false);
-    }
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inMinutes < 1) {
-      return 'Just now';
-    } else if (diff.inHours < 1) {
-      return '${diff.inMinutes}m ago';
-    } else if (diff.inDays < 1) {
-      return '${diff.inHours}h ago';
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays}d ago';
-    } else {
-      const months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-      ];
-      return '${months[date.month - 1]} ${date.day}, ${date.year}';
     }
   }
 
@@ -225,133 +204,8 @@ class _FeedScreenState extends State<FeedScreen> {
         }
 
         final post = _posts[index];
-        return _buildPostCard(post);
+        return PostCard(post: post);
       },
-    );
-  }
-
-  Widget _buildPostCard(PostModel post) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.cardBorder),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Author Header
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 18,
-                  backgroundColor: AppColors.paperDim,
-                  child: Text(
-                    post.authorName.isNotEmpty
-                        ? post.authorName[0].toUpperCase()
-                        : 'A',
-                    style: const TextStyle(
-                      color: AppColors.crimson,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        post.authorName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      Text(
-                        _formatDate(post.createdAt),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Content Text
-          if (post.content.trim().isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.md,
-                0,
-                AppSpacing.md,
-                AppSpacing.md,
-              ),
-              child: Text(
-                post.content,
-                style: const TextStyle(
-                  fontSize: 14,
-                  height: 1.45,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ),
-
-          // Media (Image or Video)
-          if (post.hasMedia)
-            if (post.isVideo)
-              VideoPlayer(videoUrl: post.mediaUrl!)
-            else
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Image.network(
-                  post.mediaUrl!,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, progress) {
-                    if (progress == null) return child;
-                    return Container(
-                      color: AppColors.paperDim,
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.crimson,
-                          strokeWidth: 2,
-                        ),
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: AppColors.paperDim,
-                      child: const Center(
-                        child: Icon(
-                          Icons.broken_image_outlined,
-                          color: AppColors.textSecondary,
-                          size: 40,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-        ],
-      ),
     );
   }
 }

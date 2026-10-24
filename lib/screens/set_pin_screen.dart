@@ -354,7 +354,7 @@ class _SetPinScreenState extends State<SetPinScreen> with SingleTickerProviderSt
                         keyboardType: TextInputType.number,
                         textAlign: TextAlign.center,
                         obscureText: _obscurePin,
-                        obscuringCharacter: 'â—',
+                        obscuringCharacter: '\u2022',
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,

@@ -60,6 +60,14 @@ void main() {
       });
       expect(eventWithAttribution.postedBy, 'Dr. Sara');
 
+      final eventWithMapAttribution = EventModel.fromJson({
+        'id': 'e1-map',
+        'title': 'Community Drive Map',
+        'description': 'Description',
+        'postedBy': {'type': 'admin', 'name': 'Red Cross Ethiopia'},
+      });
+      expect(eventWithMapAttribution.postedBy, 'Red Cross Ethiopia');
+
       final eventSuperAdmin = EventModel.fromJson({
         'id': 'e2',
         'title': 'National Drive',

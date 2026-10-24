@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../models/event_model.dart';
@@ -28,6 +29,7 @@ class _EventsScreenState extends State<EventsScreen> {
       if (!mounted) return;
       setState(() => _events = events);
     } catch (e) {
+      debugPrint('[EventsScreen] Failed to load events: $e');
       if (!mounted) return;
       setState(() => _error = e.toString());
     }
@@ -69,6 +71,20 @@ class _EventsScreenState extends State<EventsScreen> {
               fontSize: 15,
             ),
           ),
+          if (_error != null && kDebugMode) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              child: Text(
+                _error!,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: AppColors.crimson,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.sm),
           Center(
             child: FilledButton(

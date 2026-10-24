@@ -595,6 +595,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final name = donor?.name ?? 'Donor';
     final phone = donor?.phone ?? 'Not set';
     final fin = donor?.fin ?? 'Not set';
+    final donorShortId = donor?.shortId;
+    final shortId = (donorShortId != null && donorShortId.trim().isNotEmpty)
+        ? donorShortId
+        : 'Not assigned';
     final bloodType = donor?.bloodType ?? '';
     final gender = donor?.gender ?? 'male';
     final dob = donor?.dob != null ? donor!.dob!.split('T')[0] : 'Not set';
@@ -801,6 +805,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   value: fin,
                   mono: true,
                 ),
+                const Divider(height: 1, color: AppColors.cardBorder),
+                _buildReadOnlyTile(
+                  icon: Icons.tag,
+                  label: 'Donor ID',
+                  value: shortId,
+                  mono: true,
+                  copyable: donor?.shortId != null && donor!.shortId!.trim().isNotEmpty,
+                ),
               ],
             ),
           ),
@@ -933,12 +945,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surface,
+          Material(
+            color: AppColors.surface,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppRadius.lg),
-              border: Border.all(color: AppColors.cardBorder),
+              side: const BorderSide(color: AppColors.cardBorder),
             ),
+            clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
                 Material(
@@ -1019,6 +1032,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String label,
     required String value,
     bool mono = false,
+    bool copyable = false,
   }) {
     return Material(
       color: Colors.transparent,
@@ -1026,14 +1040,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
         leading: Icon(icon, color: AppColors.crimson, size: 22),
         title: Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textSecondary)),
-        trailing: Text(
-          value,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            fontFamily: mono ? AppFonts.mono : AppFonts.sans,
-            color: AppColors.textPrimary,
-          ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                fontFamily: mono ? AppFonts.mono : AppFonts.sans,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            if (copyable) ...[
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: value));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('$label copied to clipboard'),
+                      duration: const Duration(seconds: 2),
+                      backgroundColor: AppColors.verified,
+                    ),
+                  );
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(4.0),
+                  child: Icon(
+                    Icons.copy_rounded,
+                    size: 18,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

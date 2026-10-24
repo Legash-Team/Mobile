@@ -39,6 +39,7 @@ class DonorModel {
 
 class DonorInfo {
   final String id;
+  final String? shortId;
   final String name;
   final String phone;
   final String? bloodType;
@@ -51,6 +52,7 @@ class DonorInfo {
 
   DonorInfo({
     required this.id,
+    this.shortId,
     required this.name,
     required this.phone,
     this.bloodType,
@@ -64,9 +66,10 @@ class DonorInfo {
 
   factory DonorInfo.fromJson(Map<String, dynamic> json) {
     return DonorInfo(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      phone: json['phone'] as String,
+      id: (json['id'] ?? json['_id'] ?? '').toString(),
+      shortId: json['shortId'] as String?,
+      name: json['name'] as String? ?? '',
+      phone: json['phone'] as String? ?? '',
       bloodType: json['bloodType'] as String?,
       fin: json['fin'] as String?,
       gender: json['gender'] as String?,
@@ -80,6 +83,7 @@ class DonorInfo {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      if (shortId != null) 'shortId': shortId,
       'name': name,
       'phone': phone,
       if (bloodType != null) 'bloodType': bloodType,

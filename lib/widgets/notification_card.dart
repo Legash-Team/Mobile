@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
 import '../models/notification_model.dart';
@@ -163,7 +163,7 @@ class _NotificationCardState extends State<NotificationCard> {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.crimson.withOpacity(0.1),
+                    color: AppColors.crimson.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.call, color: AppColors.crimson, size: 20),
@@ -183,7 +183,7 @@ class _NotificationCardState extends State<NotificationCard> {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.crimson.withOpacity(0.1),
+                  color: AppColors.crimson.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.location_on, color: AppColors.crimson, size: 20),
@@ -231,7 +231,7 @@ class _NotificationCardState extends State<NotificationCard> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -252,7 +252,7 @@ class _NotificationCardState extends State<NotificationCard> {
                       ? AppColors.pillGreen
                       : _item.isDenied
                           ? AppColors.paperDim
-                          : AppColors.crimson.withOpacity(0.1),
+                          : AppColors.crimson.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
@@ -285,7 +285,7 @@ class _NotificationCardState extends State<NotificationCard> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Needed: ${_item.quantityNeeded} unit${_item.quantityNeeded > 1 ? 's' : ''} • ${_item.bloodType} blood',
+                      'Needed: ${_item.quantityNeeded} unit${_item.quantityNeeded > 1 ? 's' : ''} â€¢ ${_item.bloodType} blood',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: AppColors.textSecondary,
                         fontSize: 13,
@@ -455,7 +455,7 @@ class _NotificationCardState extends State<NotificationCard> {
             Container(
               padding: const EdgeInsets.all(AppSpacing.sm),
               decoration: BoxDecoration(
-                color: AppColors.pillGreen.withOpacity(0.4),
+                color: AppColors.pillGreen.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(AppRadius.md),
               ),
               child: Column(
@@ -467,7 +467,7 @@ class _NotificationCardState extends State<NotificationCard> {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          'You accepted — the hospital can see your contact info.',
+                          'You accepted â€” the hospital can see your contact info.',
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: AppColors.verified,
                             fontWeight: FontWeight.w600,
@@ -553,3 +553,5 @@ class _NotificationCardState extends State<NotificationCard> {
     );
   }
 }
+
+

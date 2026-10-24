@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
 import '../models/notification_model.dart';
@@ -131,7 +131,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           border: Border.all(
                             color: _activeFilter == filter
                                 ? AppColors.crimson
-                                : AppColors.cardBorder.withOpacity(0.5),
+                                : AppColors.cardBorder.withValues(alpha: 0.5),
                           ),
                         ),
                         child: Row(
@@ -155,7 +155,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: _activeFilter == filter
-                                    ? Colors.white.withOpacity(0.25)
+                                    ? Colors.white.withValues(alpha: 0.25)
                                     : AppColors.cardBorder,
                                 borderRadius: BorderRadius.circular(AppRadius.pill),
                               ),
@@ -276,3 +276,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 }
+
+
+

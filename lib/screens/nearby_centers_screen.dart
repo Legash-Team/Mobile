@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
 import '../models/blood_center_model.dart';
@@ -129,7 +129,7 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
                 border: Border.all(color: AppColors.cardBorder),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -275,7 +275,7 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
         border: Border.all(color: AppColors.cardBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -292,7 +292,7 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.crimson.withOpacity(0.1),
+                  color: AppColors.crimson.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -417,3 +417,6 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
     );
   }
 }
+
+
+

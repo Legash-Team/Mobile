@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
@@ -212,7 +212,7 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
                   border: Border.all(color: AppColors.cardBorder),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.ink.withOpacity(0.04),
+                      color: AppColors.ink.withValues(alpha: 0.04),
                       blurRadius: 16,
                       offset: const Offset(0, 4),
                     ),
@@ -298,9 +298,9 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: AppColors.crimson.withOpacity(0.08),
+                    color: AppColors.crimson.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(AppRadius.md),
-                    border: Border.all(color: AppColors.crimson.withOpacity(0.25)),
+                    border: Border.all(color: AppColors.crimson.withValues(alpha: 0.25)),
                   ),
                   child: Row(
                     children: [
@@ -342,14 +342,14 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
                             : hasFocus
                                 ? AppColors.crimson
                                 : hasValue
-                                    ? AppColors.crimson.withOpacity(0.5)
+                                    ? AppColors.crimson.withValues(alpha: 0.5)
                                     : AppColors.cardBorder,
                         width: hasFocus || _hasError ? 2.0 : 1.4,
                       ),
                       boxShadow: [
                         if (hasFocus)
                           BoxShadow(
-                            color: AppColors.crimson.withOpacity(0.12),
+                            color: AppColors.crimson.withValues(alpha: 0.12),
                             blurRadius: 10,
                             offset: const Offset(0, 2),
                           ),
@@ -362,7 +362,7 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
                         keyboardType: TextInputType.number,
                         textAlign: TextAlign.center,
                         obscureText: _obscurePin,
-                        obscuringCharacter: '●',
+                        obscuringCharacter: 'â—',
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -722,3 +722,6 @@ class _ForgotPinDialogState extends State<ForgotPinDialog> {
     );
   }
 }
+
+
+

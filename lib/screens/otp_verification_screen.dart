@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../constants.dart';
@@ -201,7 +201,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   border: Border.all(color: AppColors.cardBorder),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.ink.withOpacity(0.04),
+                      color: AppColors.ink.withValues(alpha: 0.04),
                       blurRadius: 16,
                       offset: const Offset(0, 4),
                     ),
@@ -275,9 +275,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: AppColors.crimson.withOpacity(0.08),
+                    color: AppColors.crimson.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(AppRadius.md),
-                    border: Border.all(color: AppColors.crimson.withOpacity(0.25)),
+                    border: Border.all(color: AppColors.crimson.withValues(alpha: 0.25)),
                   ),
                   child: Row(
                     children: [
@@ -396,7 +396,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.paperDim,
                   borderRadius: BorderRadius.circular(AppRadius.md),
-                  border: Border.all(color: AppColors.cardBorder.withOpacity(0.5)),
+                  border: Border.all(color: AppColors.cardBorder.withValues(alpha: 0.5)),
                 ),
                 child: Row(
                   children: [
@@ -406,7 +406,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       child: Text(
                         'Your OTP is confidential. Never forward or share this code with anyone.',
                         style: TextStyle(
-                          color: AppColors.textSecondary.withOpacity(0.85),
+                          color: AppColors.textSecondary.withValues(alpha: 0.85),
                           fontSize: 12,
                           height: 1.4,
                         ),
@@ -438,14 +438,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               : hasFocus
                   ? AppColors.crimson
                   : hasValue
-                      ? AppColors.crimson.withOpacity(0.4)
+                      ? AppColors.crimson.withValues(alpha: 0.4)
                       : AppColors.cardBorder,
           width: hasFocus || _hasError ? 2.0 : 1.3,
         ),
         boxShadow: [
           if (hasFocus)
             BoxShadow(
-              color: AppColors.crimson.withOpacity(0.12),
+              color: AppColors.crimson.withValues(alpha: 0.12),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -483,3 +483,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     );
   }
 }
+
+
+

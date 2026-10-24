@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
@@ -134,7 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           boxShadow: [
                             if (isSelected)
                               BoxShadow(
-                                color: AppColors.crimson.withOpacity(0.25),
+                                color: AppColors.crimson.withValues(alpha: 0.25),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -236,7 +236,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.crimson.withOpacity(0.08) : AppColors.surface,
+          color: isSelected ? AppColors.crimson.withValues(alpha: 0.08) : AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
             color: isSelected ? AppColors.crimson : AppColors.cardBorder,
@@ -529,7 +529,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               border: Border.all(color: AppColors.cardBorder),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.ink.withOpacity(0.04),
+                  color: AppColors.ink.withValues(alpha: 0.04),
                   blurRadius: 16,
                   offset: const Offset(0, 4),
                 ),
@@ -539,7 +539,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 CircleAvatar(
                   radius: 38,
-                  backgroundColor: AppColors.crimson.withOpacity(0.1),
+                  backgroundColor: AppColors.crimson.withValues(alpha: 0.1),
                   child: Text(
                     _getInitials(name),
                     style: const TextStyle(
@@ -599,7 +599,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppColors.crimson.withOpacity(0.1),
+                          color: AppColors.crimson.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(AppRadius.pill),
                         ),
                         child: Row(
@@ -622,7 +622,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppColors.sand.withOpacity(0.6),
+                          color: AppColors.sand.withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(AppRadius.pill),
                         ),
                         child: const Text(
@@ -1014,7 +1014,7 @@ class _ChangePinDialogState extends State<ChangePinDialog> {
           controller: controller,
           keyboardType: TextInputType.number,
           obscureText: true,
-          obscuringCharacter: '●',
+          obscuringCharacter: 'â—',
           maxLength: 4,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: AppFonts.mono),
           inputFormatters: [
@@ -1048,5 +1048,8 @@ class _ChangePinDialogState extends State<ChangePinDialog> {
     );
   }
 }
+
+
+
 
 

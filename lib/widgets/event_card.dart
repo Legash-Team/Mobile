@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
 import '../models/event_model.dart';
+import 'video_player.dart';
 
 class EventCard extends StatelessWidget {
   final EventModel event;
@@ -94,80 +95,46 @@ class EventCard extends StatelessWidget {
         children: [
           // Media Banner (if available)
           if (event.hasMedia)
-            GestureDetector(
-              onTap: event.hasApplyLink
-                  ? () => _launchUrl(context, event.applyLink!)
-                  : null,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Image.network(
-                      event.mediaUrl!,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, progress) {
-                        if (progress == null) return child;
-                        return Container(
-                          color: AppColors.paperDim,
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              color: AppColors.crimson,
-                              strokeWidth: 2,
+                if (event.isVideo)
+                  VideoPlayer(videoUrl: event.mediaUrl!)
+                else
+                  GestureDetector(
+                    onTap: event.hasApplyLink
+                        ? () => _launchUrl(context, event.applyLink!)
+                        : null,
+                    child: AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: Image.network(
+                        event.mediaUrl!,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return Container(
+                            color: AppColors.paperDim,
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.crimson,
+                                strokeWidth: 2,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: AppColors.paperDim,
-                          child: const Center(
-                            child: Icon(
-                              Icons.broken_image_outlined,
-                              color: AppColors.textSecondary,
-                              size: 40,
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: AppColors.paperDim,
+                            child: const Center(
+                              child: Icon(
+                                Icons.broken_image_outlined,
+                                color: AppColors.textSecondary,
+                                size: 40,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  if (event.isVideo)
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.play_arrow_rounded,
-                        color: Colors.white,
-                        size: 36,
-                      ),
-                    ),
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.65),
-                        borderRadius: BorderRadius.circular(AppRadius.pill),
-                      ),
-                      child: Text(
-                        event.isVideo ? 'VIDEO' : 'EVENT',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
+                          );
+                        },
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
+
 
           // Content Details
           Padding(

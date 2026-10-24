@@ -12,6 +12,7 @@ import 'screens/set_pin_screen.dart';
 import 'screens/pin_unlock_screen.dart';
 import 'screens/donor_home_shell.dart';
 import 'screens/onboarding_screen.dart';
+import 'providers/locale_provider.dart';
 import 'services/fcm_service.dart';
 
 void main() async {
@@ -24,11 +25,13 @@ void main() async {
   } catch (e) {
     debugPrint('[Startup] Firebase/FCM init error: $e');
   }
-  runApp(const LegashApp());
+  final savedLocale = await LocaleProvider.getSavedLocaleCode();
+  runApp(LegashApp(initialLocaleCode: savedLocale));
 }
 
 class LegashApp extends StatefulWidget {
-  const LegashApp({super.key});
+  final String? initialLocaleCode;
+  const LegashApp({super.key, this.initialLocaleCode});
 
   @override
   State<LegashApp> createState() => _LegashAppState();
@@ -49,12 +52,22 @@ class _LegashAppState extends State<LegashApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthProvider(),
-      child: MaterialApp(
-        title: 'Legash',
-        debugShowCheckedModeBanner: false,
-        navigatorKey: navigatorKey,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(
+          create: (_) => LocaleProvider(widget.initialLocaleCode),
+        ),
+      ],
+      child: Consumer<LocaleProvider>(
+        builder: (context, localeProvider, _) {
+          return MaterialApp(
+            title: 'Legash',
+            debugShowCheckedModeBanner: false,
+            navigatorKey: navigatorKey,
+            locale: localeProvider.locale,
+            localizationsDelegates: LocaleProvider.localizationsDelegates,
+            supportedLocales: LocaleProvider.supportedLocales,
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(
@@ -155,7 +168,9 @@ class _LegashAppState extends State<LegashApp> {
           }
           return null;
         },
-      ),
-    );
+      );
+    },
+  ),
+);
   }
 }

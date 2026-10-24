@@ -1167,7 +1167,7 @@ class _ChangePinDialogState extends State<ChangePinDialog> {
           controller: controller,
           keyboardType: TextInputType.number,
           obscureText: true,
-          obscuringCharacter: 'â—',
+          obscuringCharacter: '\u2022',
           maxLength: 4,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: AppFonts.mono),
           inputFormatters: [

@@ -24,31 +24,49 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _pageController = PageController();
   int _currentPage = 0;
-  static const int _totalPages = 4;
+  static int get _totalPages => _pages.length;
 
   static const _pages = [
     _OnboardingPage(
-      icon: Icons.share_rounded,
+      icon: Icons.water_drop_rounded,
       title: "Blood, matched to where it's needed",
       subtitle:
           "Legash connects donors directly with nearby hospitals that need their blood type \u2014 no waiting rooms, no guessing.",
     ),
     _OnboardingPage(
-      icon: Icons.shield_rounded,
-      title: "You decide what's shared",
+      icon: Icons.dynamic_feed_rounded,
+      title: "Community Feed & Events",
       subtitle:
-          "Your name and blood type are visible to a matching hospital. Your phone stays private until you choose to respond.",
+          "Follow live hospital updates and announcements on the Feed tab, and discover upcoming blood donation drives on the Events tab.",
     ),
     _OnboardingPage(
-      icon: Icons.verified_rounded,
-      title: "Every account is reviewed",
+      icon: Icons.share_rounded,
+      title: "Share urgent requests",
       subtitle:
-          "Both donors and hospitals must be verified before they can post or respond to requests \u2014 so every connection is real.",
+          "Multiply your impact by generating instant referral links for critical blood requests to share with fellow registered donors.",
+    ),
+    _OnboardingPage(
+      icon: Icons.health_and_safety_rounded,
+      title: "Your Health & Compatibility",
+      subtitle:
+          "Visualize your blood compatibility directly on your dashboard, and explore personalized wellness and nutrition tips.",
+    ),
+    _OnboardingPage(
+      icon: Icons.smart_toy_rounded,
+      title: "24/7 AI Health Assistant",
+      subtitle:
+          "Tap the floating assistant anytime to get quick answers on donation eligibility, post-donation recovery, and wellness.",
+    ),
+    _OnboardingPage(
+      icon: Icons.verified_user_rounded,
+      title: "Verified, secure, and private",
+      subtitle:
+          "Every hospital and donor is verified before connecting. Your phone number stays private until you choose to respond.",
     ),
     _OnboardingPage(
       icon: Icons.favorite_rounded,
-      title: "Ready to be someone\u2019s match?",
-      subtitle: "Takes about two minutes to get started.",
+      title: "Ready to save a life?",
+      subtitle: "Takes about two minutes to set up your profile and get matched.",
       isLast: true,
     ),
   ];

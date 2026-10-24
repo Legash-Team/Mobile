@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
 import '../models/event_model.dart';
+import '../screens/event_detail_screen.dart';
 import 'video_player.dart';
 
 class EventCard extends StatelessWidget {
@@ -79,34 +80,41 @@ class EventCard extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isOpen ? AppColors.cardBorder : AppColors.cardBorder.withOpacity(0.5),
+          color: isOpen ? AppColors.cardBorder : AppColors.cardBorder.withValues(alpha: 0.5),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
         ],
       ),
       clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Media Banner (if available)
-          if (event.hasMedia)
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => EventDetailScreen(event: event),
+              ),
+            );
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Media Banner (if available)
+              if (event.hasMedia)
                 if (event.isVideo)
                   VideoPlayer(videoUrl: event.mediaUrl!)
                 else
-                  GestureDetector(
-                    onTap: event.hasApplyLink
-                        ? () => _launchUrl(context, event.applyLink!)
-                        : null,
-                    child: AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Image.network(
-                        event.mediaUrl!,
-                        fit: BoxFit.cover,
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Image.network(
+                      event.mediaUrl!,
+                      fit: BoxFit.cover,
                         loadingBuilder: (context, child, progress) {
                           if (progress == null) return child;
                           return Container(
@@ -133,7 +141,6 @@ class EventCard extends StatelessWidget {
                         },
                       ),
                     ),
-                  ),
 
 
           // Content Details
@@ -280,6 +287,8 @@ class EventCard extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ),
+  ),
+);
   }
 }

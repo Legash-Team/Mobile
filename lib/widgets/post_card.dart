@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../models/post_model.dart';
+import '../screens/post_detail_screen.dart';
 import 'video_player.dart';
 
 class PostCard extends StatelessWidget {
@@ -42,16 +43,27 @@ class PostCard extends StatelessWidget {
         border: Border.all(color: AppColors.cardBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
         ],
       ),
       clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PostDetailScreen(post: post),
+              ),
+            );
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
           // Media Banner (if available) - identical to EventCard
           if (post.hasMedia)
             if (post.isVideo)
@@ -102,7 +114,7 @@ class PostCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.crimson.withOpacity(0.08),
+                        color: AppColors.crimson.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(AppRadius.pill),
                       ),
                       child: Row(
@@ -201,6 +213,8 @@ class PostCard extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ),
+  ),
+);
   }
 }

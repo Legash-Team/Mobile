@@ -51,11 +51,11 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDlIlZJe6d9suIJyyU-0Ai3opACRycO8dI',
-    appId: '1:586482140272:android:189e0299748d6ccc24a0b5',
-    messagingSenderId: '586482140272',
-    projectId: 'legash-fb879',
-    storageBucket: 'legash-fb879.firebasestorage.app',
+    apiKey: 'AIzaSyAsHCT53rQAy3Z6ZZRQ_jxM6ua_t8TvmqM',
+    appId: '1:944776114443:android:72159be25bae39208a720e',
+    messagingSenderId: '944776114443',
+    projectId: 'legash-aa602',
+    storageBucket: 'legash-aa602.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(

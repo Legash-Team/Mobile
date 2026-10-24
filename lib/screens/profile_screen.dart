@@ -28,7 +28,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+    _loadProfile();
     _loadDonations();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final res = await AuthService.getProfile();
+      if (res['success'] == true && res['profile'] != null) {
+        if (!mounted) return;
+        final updatedDonor = DonorInfo.fromJson(res['profile']);
+        Provider.of<AuthProvider>(context, listen: false).updateDonor(updatedDonor);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _handleRefresh() async {
+    await Future.wait([
+      _loadProfile(),
+      _loadDonations(),
+    ]);
   }
 
   Future<void> _loadDonations() async {
@@ -650,9 +669,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         foregroundColor: AppColors.crimson,
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-        children: [
+      body: RefreshIndicator(
+        color: AppColors.crimson,
+        onRefresh: _handleRefresh,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+          children: [
           // Donor Profile Header Card
           Container(
             padding: const EdgeInsets.all(AppSpacing.lg),
@@ -1071,7 +1093,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: AppSpacing.xl),
         ],
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildActionTile({

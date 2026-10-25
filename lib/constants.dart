@@ -11,8 +11,11 @@ String get _defaultBaseUrl {
   }
 }
 
+/// The backend base URL loaded from the environment ('API_BASE_URL')
+/// with platform-aware fallback for local development.
 const String _envBaseUrl = String.fromEnvironment('API_BASE_URL');
-final String baseUrl = _envBaseUrl.isNotEmpty ? _envBaseUrl : _defaultBaseUrl;
+final String baseUrl = (_envBaseUrl.isNotEmpty ? _envBaseUrl : _defaultBaseUrl).replaceAll(RegExp(r'/+$'), '');
+final String apiBaseUrl = baseUrl;
 
 class AppColors {
   static const Color ink = Color(0xFF1B1410);

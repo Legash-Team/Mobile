@@ -31,9 +31,18 @@ class ApiService {
     return headers;
   }
 
+  static Uri _buildUri(String path) {
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return Uri.parse(path);
+    }
+    final cleanBase = baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl;
+    final cleanPath = path.startsWith('/') ? path : '/$path';
+    return Uri.parse('$cleanBase$cleanPath');
+  }
+
   static Future<Map<String, dynamic>> post(String path, Map<String, dynamic> body) async {
     try {
-      final url = Uri.parse('$baseUrl$path');
+      final url = _buildUri(path);
       final response = await http.post(
         url,
         headers: _headers,
@@ -63,7 +72,7 @@ class ApiService {
 
   static Future<Map<String, dynamic>> get(String path) async {
     try {
-      final url = Uri.parse('$baseUrl$path');
+      final url = _buildUri(path);
       final response = await http.get(url, headers: _headers);
 
       final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -89,7 +98,7 @@ class ApiService {
 
   static Future<Map<String, dynamic>> put(String path, Map<String, dynamic> body) async {
     try {
-      final url = Uri.parse('$baseUrl$path');
+      final url = _buildUri(path);
       final response = await http.put(
         url,
         headers: _headers,
@@ -119,7 +128,7 @@ class ApiService {
 
   static Future<Map<String, dynamic>> delete(String path) async {
     try {
-      final url = Uri.parse('$baseUrl$path');
+      final url = _buildUri(path);
       final response = await http.delete(url, headers: _headers);
 
       if (response.body.isEmpty) {

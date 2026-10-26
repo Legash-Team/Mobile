@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 import '../models/post_model.dart';
 import '../widgets/video_player.dart';
 
@@ -41,9 +42,10 @@ class PostDetailScreen extends StatelessWidget {
   void _copySharePost(BuildContext context) {
     final text = 'Community Update from ${post.authorName} on Legash:\n\n${post.content}';
     Clipboard.setData(ClipboardData(text: text));
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Update copied to clipboard!'),
+      SnackBar(
+        content: Text(l10n?.updateCopied ?? 'Update copied to clipboard!'),
         backgroundColor: AppColors.verified,
       ),
     );
@@ -52,6 +54,7 @@ class PostDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: AppColors.paper,
@@ -64,9 +67,9 @@ class PostDetailScreen extends StatelessWidget {
           tooltip: 'Back',
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Community Update',
-          style: TextStyle(
+        title: Text(
+          l10n?.communityUpdate ?? 'Community Update',
+          style: const TextStyle(
             color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -159,9 +162,9 @@ class PostDetailScreen extends StatelessWidget {
                     color: AppColors.crimson.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(AppRadius.pill),
                   ),
-                  child: const Text(
-                    'UPDATE',
-                    style: TextStyle(
+                  child: Text(
+                    l10n?.updateBadge ?? 'UPDATE',
+                    style: const TextStyle(
                       color: AppColors.crimson,
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -298,9 +301,9 @@ class PostDetailScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Verified Community Notice',
-                        style: TextStyle(
+                      Text(
+                        l10n?.verifiedNotice ?? 'Verified Community Notice',
+                        style: const TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
@@ -328,9 +331,9 @@ class PostDetailScreen extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: () => _copySharePost(context),
             icon: const Icon(Icons.share_outlined, color: AppColors.crimson, size: 18),
-            label: const Text(
-              'Share Update with Friends & Family',
-              style: TextStyle(
+            label: Text(
+              l10n?.shareUpdate ?? 'Share Update with Friends & Family',
+              style: const TextStyle(
                 color: AppColors.crimson,
                 fontSize: 14,
                 fontWeight: FontWeight.bold,

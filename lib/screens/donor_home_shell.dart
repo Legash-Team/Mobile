@@ -4,7 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/bottom_nav_bar.dart';
 import 'donor_dashboard_screen.dart';
 import 'events_screen.dart';
-import 'feed_screen.dart';
+import 'health_screen.dart';
 import 'notifications_screen.dart';
 import 'profile_screen.dart';
 
@@ -51,7 +51,7 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
               }
             },
           ),
-          const FeedScreen(),
+          HealthScreen(isActive: _currentIndex == 2),
           const EventsScreen(),
           const ProfileScreen(),
         ],
@@ -72,9 +72,9 @@ class _DonorHomeShellState extends State<DonorHomeShell> {
             pendingCount: _pendingCount,
           ),
           BottomNavItem(
-            label: l10n?.feedTab ?? 'Feed',
-            icon: Icons.dynamic_feed_outlined,
-            activeIcon: Icons.dynamic_feed,
+            label: l10n?.healthTab ?? 'Health',
+            icon: Icons.health_and_safety_outlined,
+            activeIcon: Icons.health_and_safety,
           ),
           BottomNavItem(
             label: l10n?.eventsTab ?? 'Events',

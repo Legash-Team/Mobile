@@ -1,6 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 import '../models/blood_center_model.dart';
 import '../services/blood_center_service.dart';
 
@@ -58,8 +59,9 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
       await launchUrl(uri);
     } else {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not start phone call.')),
+          SnackBar(content: Text(l10n?.callFailed ?? 'Could not start phone call.')),
         );
       }
     }
@@ -71,8 +73,9 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open map directions.')),
+          SnackBar(content: Text(l10n?.directionsFailed ?? 'Could not open map directions.')),
         );
       }
     }
@@ -92,14 +95,15 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final filtered = _filteredCenters;
 
     return Scaffold(
       backgroundColor: AppColors.paper,
       appBar: AppBar(
-        title: const Text(
-          'Nearby Blood Centers',
-          style: TextStyle(
+        title: Text(
+          l10n?.nearbyCenters ?? 'Nearby Blood Centers',
+          style: const TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -139,7 +143,7 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
                 controller: _searchController,
                 onChanged: (val) => setState(() => _searchQuery = val),
                 decoration: InputDecoration(
-                  hintText: 'Search center name or city...',
+                  hintText: l10n?.searchCenterHint ?? 'Search center name or city...',
                   hintStyle: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 14,
@@ -171,7 +175,7 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
             child: RefreshIndicator(
               onRefresh: _load,
               color: AppColors.crimson,
-              child: _buildContent(theme, filtered),
+              child: _buildContent(theme, l10n, filtered),
             ),
           ),
         ],
@@ -179,7 +183,7 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
     );
   }
 
-  Widget _buildContent(ThemeData theme, List<BloodCenterModel> filtered) {
+  Widget _buildContent(ThemeData theme, AppLocalizations? l10n, List<BloodCenterModel> filtered) {
     if (_isLoading && _centers == null) {
       return const Center(
         child: CircularProgressIndicator(color: AppColors.crimson),
@@ -195,7 +199,7 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
           const Icon(Icons.cloud_off, size: 48, color: AppColors.textSecondary),
           const SizedBox(height: AppSpacing.md),
           Text(
-            'Could not load nearby blood centers.',
+            l10n?.couldNotLoadCenters ?? 'Could not load nearby blood centers.',
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: AppColors.textSecondary,
@@ -207,7 +211,7 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
             child: FilledButton(
               onPressed: _load,
               style: FilledButton.styleFrom(backgroundColor: AppColors.crimson),
-              child: const Text('Retry'),
+              child: Text(l10n?.retry ?? 'Retry'),
             ),
           ),
         ],
@@ -228,7 +232,7 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
           Text(
             _searchQuery.isNotEmpty
                 ? 'No blood centers matching "$_searchQuery".'
-                : 'No nearby blood centers found.',
+                : (l10n?.noCentersFound ?? 'No nearby blood centers found.'),
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: AppColors.textPrimary,
@@ -237,12 +241,12 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Text(
-              'Verified blood donation centers will appear here.',
+              l10n?.verifiedCentersAppear ?? 'Verified blood donation centers will appear here.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
             ),
           ),
         ],
@@ -260,12 +264,12 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
       itemCount: filtered.length,
       itemBuilder: (context, index) {
         final center = filtered[index];
-        return _buildCenterCard(theme, center);
+        return _buildCenterCard(theme, l10n, center);
       },
     );
   }
 
-  Widget _buildCenterCard(ThemeData theme, BloodCenterModel center) {
+  Widget _buildCenterCard(ThemeData theme, AppLocalizations? l10n, BloodCenterModel center) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -367,9 +371,9 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
                       ),
                     ),
                     const SizedBox(width: 5),
-                    const Text(
-                      'Verified Facility',
-                      style: TextStyle(
+                    Text(
+                      l10n?.verifiedFacility ?? 'Verified Facility',
+                      style: const TextStyle(
                         color: AppColors.verified,
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
@@ -383,7 +387,7 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
                 OutlinedButton.icon(
                   onPressed: () => _callPhone(center.phone),
                   icon: const Icon(Icons.call, size: 15, color: AppColors.crimson),
-                  label: const Text('Call'),
+                  label: Text(l10n?.callButton ?? 'Call'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.crimson,
                     side: const BorderSide(color: AppColors.crimson),
@@ -399,7 +403,7 @@ class _NearbyCentersScreenState extends State<NearbyCentersScreen> {
               FilledButton.icon(
                 onPressed: () => _openDirections(center.lat, center.lng, center.name),
                 icon: const Icon(Icons.directions, size: 15),
-                label: const Text('Directions'),
+                label: Text(l10n?.directions ?? 'Directions'),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.ink,
                   foregroundColor: Colors.white,

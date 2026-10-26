@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../models/donor_model.dart';
 import '../utils/validators.dart';
@@ -123,18 +124,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (!_locationCaptured || _lat == null || _lng == null) {
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please capture your current location to match with nearby blood requests.'),
+        SnackBar(
+          content: Text(l10n?.locationMatchNotice ?? 'Please capture your current location to match with nearby blood requests.'),
           backgroundColor: AppColors.crimson,
         ),
       );
       return;
     }
     if (!_agreedToTerms) {
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please agree to the Terms & Privacy Policy to continue.'),
+        SnackBar(
+          content: Text(l10n?.agreeToTermsNotice ?? 'Please agree to the Terms & Privacy Policy to continue.'),
           backgroundColor: AppColors.crimson,
         ),
       );
@@ -167,12 +170,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!mounted) return;
       final errorMsg = e.toString();
       if (errorMsg.toLowerCase().contains('already registered')) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Phone number is already registered.'),
+            content: Text(l10n?.phoneAlreadyRegistered ?? 'Phone number is already registered.'),
             backgroundColor: AppColors.crimson,
             action: SnackBarAction(
-              label: 'Log In',
+              label: l10n?.logIn ?? 'Log In',
               textColor: Colors.white,
               onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
             ),
@@ -191,11 +195,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: AppColors.paper,
       appBar: AppBar(
-        title: const Text('Create Account'),
+        title: Text(l10n?.createAccount ?? 'Create Account'),
         foregroundColor: AppColors.textPrimary,
         backgroundColor: AppColors.paper,
         elevation: 0,
@@ -231,7 +236,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           border: Border.all(color: AppColors.cardBorder),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.ink.withOpacity(0.04),
+                              color: AppColors.ink.withValues(alpha: 0.04),
                               blurRadius: 16,
                               offset: const Offset(0, 4),
                             ),
@@ -243,7 +248,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       Text(
-                        'Join Legash',
+                        l10n?.joinLegash ?? 'Join Legash',
                         style: theme.textTheme.headlineSmall?.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.bold,
@@ -252,7 +257,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Register as a verified blood donor and save lives.',
+                        l10n?.registerSubtitle ?? 'Register as a verified blood donor and save lives.',
                         textAlign: TextAlign.center,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondary,
@@ -268,7 +273,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // Full Name Field
                 CustomTextField(
                   controller: _nameController,
-                  label: 'Full Name',
+                  label: l10n?.fullName ?? 'Full Name',
                   hintText: 'Abebe Bikila',
                   prefixIcon: const Icon(Icons.person_outline, color: AppColors.textSecondary),
                   validator: (v) => Validators.validateRequired(v, 'Name'),
@@ -279,7 +284,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // Phone Number Field
                 CustomTextField(
                   controller: _phoneController,
-                  label: 'Phone Number',
+                  label: l10n?.phoneNumber ?? 'Phone Number',
                   hintText: '09XXXXXXXX or +2519XXXXXXXX',
                   prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.textSecondary),
                   keyboardType: TextInputType.phone,
@@ -292,7 +297,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // Fayda National ID (FIN)
                 CustomTextField(
                   controller: _finController,
-                  label: 'Fayda National ID (FIN)',
+                  label: l10n?.finLabel ?? 'Fayda National ID (FIN)',
                   hintText: 'Enter your 16-digit Fayda FIN',
                   prefixIcon: const Icon(Icons.badge_outlined, color: AppColors.textSecondary),
                   keyboardType: TextInputType.text,
@@ -304,7 +309,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 // Gender Selection (Modern Segmented Cards)
                 Text(
-                  'Gender',
+                  l10n?.gender ?? 'Gender',
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
@@ -317,7 +322,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Expanded(
                       child: _buildGenderCard(
                         value: 'male',
-                        label: 'Male',
+                        label: l10n?.genderMale ?? 'Male',
                         icon: Icons.male_rounded,
                       ),
                     ),
@@ -325,7 +330,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Expanded(
                       child: _buildGenderCard(
                         value: 'female',
-                        label: 'Female',
+                        label: l10n?.genderFemale ?? 'Female',
                         icon: Icons.female_rounded,
                       ),
                     ),
@@ -336,7 +341,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 // Blood Type Selection
                 Text(
-                  'Blood Type',
+                  l10n?.bloodType ?? 'Blood Type',
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
@@ -360,7 +365,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const Icon(Icons.water_drop_outlined, color: AppColors.crimson, size: 20),
                           const SizedBox(width: 10),
                           Text(
-                            _unknownBloodType ? 'Unknown (Set later in profile)' : 'Select Blood Type',
+                            _unknownBloodType ? 'Unknown (Set later in profile)' : (l10n?.selectBloodType ?? 'Select Blood Type'),
                             style: TextStyle(
                               color: _unknownBloodType ? AppColors.textSecondary : AppColors.textSecondary,
                               fontSize: 15,
@@ -377,7 +382,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: AppColors.crimson.withOpacity(0.1),
+                                  color: AppColors.crimson.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(AppRadius.sm),
                                 ),
                                 child: Text(
@@ -439,10 +444,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             });
                           },
                         ),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            "I don't know my blood type yet",
-                            style: TextStyle(
+                            l10n?.unknownBloodTypeCheckbox ?? "I don't know my blood type yet",
+                            style: const TextStyle(
                               color: AppColors.textPrimary,
                               fontSize: 13.5,
                               fontWeight: FontWeight.w500,
@@ -459,18 +464,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     margin: const EdgeInsets.only(top: 4),
                     padding: const EdgeInsets.all(AppSpacing.sm),
                     decoration: BoxDecoration(
-                      color: AppColors.sand.withOpacity(0.35),
+                      color: AppColors.sand.withValues(alpha: 0.35),
                       borderRadius: BorderRadius.circular(AppRadius.md),
                       border: Border.all(color: AppColors.cardBorder),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.info_outline, size: 18, color: AppColors.inkSoft),
-                        SizedBox(width: 8),
+                        const Icon(Icons.info_outline, size: 18, color: AppColors.inkSoft),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            "You can find your blood type at your nearest hospital or donation center and update it in your profile anytime.",
-                            style: TextStyle(color: AppColors.inkSoft, fontSize: 12, height: 1.4),
+                            l10n?.bloodTypeInfoNotice ?? "You can find your blood type at your nearest hospital or donation center and update it in your profile anytime.",
+                            style: const TextStyle(color: AppColors.inkSoft, fontSize: 12, height: 1.4),
                           ),
                         ),
                       ],
@@ -481,7 +486,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 // Location Capture Card
                 Text(
-                  'Current Location',
+                  l10n?.currentLocation ?? 'Current Location',
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w600,
@@ -492,10 +497,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
-                    color: _locationCaptured ? AppColors.pillGreen.withOpacity(0.3) : AppColors.surface,
+                    color: _locationCaptured ? AppColors.pillGreen.withValues(alpha: 0.3) : AppColors.surface,
                     borderRadius: BorderRadius.circular(AppRadius.md),
                     border: Border.all(
-                      color: _locationCaptured ? AppColors.verified.withOpacity(0.5) : AppColors.cardBorder,
+                      color: _locationCaptured ? AppColors.verified.withValues(alpha: 0.5) : AppColors.cardBorder,
                       width: 1.2,
                     ),
                   ),
@@ -505,8 +510,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: _locationCaptured
-                              ? AppColors.verified.withOpacity(0.12)
-                              : AppColors.crimson.withOpacity(0.08),
+                              ? AppColors.verified.withValues(alpha: 0.12)
+                              : AppColors.crimson.withValues(alpha: 0.08),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -521,7 +526,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _locationCaptured ? 'Location Acquired' : 'GPS Location Required',
+                              _locationCaptured
+                                  ? (l10n?.locationAcquired ?? 'Location Acquired')
+                                  : (l10n?.gpsRequired ?? 'GPS Location Required'),
                               style: TextStyle(
                                 color: _locationCaptured ? AppColors.verified : AppColors.textPrimary,
                                 fontWeight: FontWeight.bold,
@@ -553,7 +560,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 height: 16,
                                 child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.crimson),
                               )
-                            : Text(_locationCaptured ? 'Update' : 'Capture'),
+                            : Text(_locationCaptured
+                                ? (l10n?.updateLocation ?? 'Update')
+                                : (l10n?.captureLocation ?? 'Capture')),
                       ),
                     ],
                   ),
@@ -593,11 +602,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 color: AppColors.textPrimary,
                                 fontSize: 13.5,
                               ),
-                              children: const [
-                                TextSpan(text: 'I agree to the '),
+                              children: [
+                                TextSpan(text: l10n?.agreeToTerms ?? 'I agree to the '),
                                 TextSpan(
-                                  text: 'Terms of Service & Privacy Policy',
-                                  style: TextStyle(
+                                  text: l10n?.termsOfService ?? 'Terms of Service & Privacy Policy',
+                                  style: const TextStyle(
                                     color: AppColors.crimson,
                                     decoration: TextDecoration.underline,
                                     fontWeight: FontWeight.bold,
@@ -632,9 +641,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             width: 20,
                             child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                           )
-                        : const Text(
-                            'Create Account',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        : Text(
+                            l10n?.createAccount ?? 'Create Account',
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                   ),
                 ),
@@ -646,9 +655,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        'Already have an account? ',
-                        style: TextStyle(color: AppColors.inkSoft, fontSize: 14),
+                      Text(
+                        l10n?.alreadyHaveAccount ?? 'Already have an account? ',
+                        style: const TextStyle(color: AppColors.inkSoft, fontSize: 14),
                       ),
                       GestureDetector(
                         onTap: () {
@@ -658,9 +667,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             Navigator.pushReplacementNamed(context, '/login');
                           }
                         },
-                        child: const Text(
-                          'Log In',
-                          style: TextStyle(
+                        child: Text(
+                          l10n?.logIn ?? 'Log In',
+                          style: const TextStyle(
                             color: AppColors.crimson,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -693,7 +702,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.crimson.withOpacity(0.08) : AppColors.surface,
+          color: isSelected ? AppColors.crimson.withValues(alpha: 0.08) : AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
             color: isSelected ? AppColors.crimson : AppColors.cardBorder,

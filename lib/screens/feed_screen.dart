@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 import '../models/post_model.dart';
 import '../services/post_service.dart';
 import '../widgets/post_card.dart';
@@ -99,12 +100,14 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.paper,
       appBar: AppBar(
-        title: const Text(
-          'COMMUNITY FEED',
-          style: TextStyle(
+        title: Text(
+          l10n?.communityFeed ?? 'COMMUNITY FEED',
+          style: const TextStyle(
             color: AppColors.crimson,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.2,
@@ -119,12 +122,12 @@ class _FeedScreenState extends State<FeedScreen> {
       body: RefreshIndicator(
         onRefresh: _loadInitial,
         color: AppColors.crimson,
-        child: _buildBody(),
+        child: _buildBody(l10n),
       ),
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(AppLocalizations? l10n) {
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(color: AppColors.crimson),
@@ -139,17 +142,17 @@ class _FeedScreenState extends State<FeedScreen> {
           const SizedBox(height: 80),
           const Icon(Icons.cloud_off, size: 48, color: AppColors.textSecondary),
           const SizedBox(height: AppSpacing.md),
-          const Text(
-            'Could not load feed posts.',
+          Text(
+            l10n?.couldNotLoadFeed ?? 'Could not load feed posts.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 15),
           ),
           const SizedBox(height: AppSpacing.md),
           Center(
             child: FilledButton(
               onPressed: _loadInitial,
               style: FilledButton.styleFrom(backgroundColor: AppColors.crimson),
-              child: const Text('Retry'),
+              child: Text(l10n?.retry ?? 'Retry'),
             ),
           ),
         ],
@@ -159,24 +162,24 @@ class _FeedScreenState extends State<FeedScreen> {
     if (_posts.isEmpty) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        children: const [
-          SizedBox(height: 120),
-          Icon(Icons.dynamic_feed_outlined, size: 56, color: AppColors.textSecondary),
-          SizedBox(height: AppSpacing.md),
+        children: [
+          const SizedBox(height: 120),
+          const Icon(Icons.dynamic_feed_outlined, size: 56, color: AppColors.textSecondary),
+          const SizedBox(height: AppSpacing.md),
           Text(
-            'No feed posts yet.',
+            l10n?.noFeedPostsYet ?? 'No feed posts yet.',
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
             ),
           ),
-          SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: AppSpacing.xs),
           Text(
-            'Check back soon for community updates.',
+            l10n?.checkBackSoonUpdates ?? 'Check back soon for community updates.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
         ],
       );

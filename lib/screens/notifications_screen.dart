@@ -1,6 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 import '../models/notification_model.dart';
 import '../providers/auth_provider.dart';
 import '../services/api_service.dart';
@@ -23,6 +24,34 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   bool _loaded = false;
   bool _hasError = false;
   String _activeFilter = 'Ongoing';
+
+  String _getDateHeader(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final notifDay = DateTime(date.year, date.month, date.day);
+
+    if (notifDay == today) {
+      return 'Today';
+    } else if (notifDay == today.subtract(const Duration(days: 1))) {
+      return 'Yesterday';
+    } else {
+      const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      final monthName = months[date.month - 1];
+      return '$monthName ${date.day}, ${date.year}';
+    }
+  }
+
+  Map<String, List<NotificationModel>> _groupByDate(List<NotificationModel> list) {
+    final Map<String, List<NotificationModel>> groups = {};
+    for (final item in list) {
+      final header = _getDateHeader(item.notifiedAt);
+      groups.putIfAbsent(header, () => []).add(item);
+    }
+    return groups;
+  }
 
   @override
   void initState() {
@@ -89,15 +118,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     _reportPending(_items);
   }
 
+  String _getFilterLabel(String filter, AppLocalizations? l10n) {
+    switch (filter) {
+      case 'Ongoing':
+        return l10n?.ongoingFilter ?? 'Ongoing';
+      case 'Accepted':
+        return l10n?.acceptedFilter ?? 'Accepted';
+      case 'Denied':
+        return l10n?.deniedFilter ?? 'Declined';
+      default:
+        return filter;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.paper,
       appBar: AppBar(
-        title: const Text(
-          'Requests',
-          style: TextStyle(
+        title: Text(
+          l10n?.requestsTab ?? 'Requests',
+          style: const TextStyle(
             color: AppColors.crimson,
             fontWeight: FontWeight.bold,
           ),
@@ -138,7 +182,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              filter,
+                              _getFilterLabel(filter, l10n),
                               style: TextStyle(
                                 color: _activeFilter == filter
                                     ? Colors.white
@@ -179,7 +223,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ],
             ),
           ),
-          Expanded(child: _buildBody(theme)),
+          Expanded(child: _buildBody(theme, l10n)),
         ],
       ),
     );
@@ -187,6 +231,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   int _getCountForFilter(String filter) {
     switch (filter) {
+      case 'All':
+        return _items.length;
       case 'Accepted':
         return _items.where((n) => n.isAccepted).length;
       case 'Denied':
@@ -197,7 +243,41 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
-  Widget _buildBody(ThemeData theme) {
+  Widget _buildDateHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.md, bottom: AppSpacing.xs),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: title == 'Today'
+                  ? AppColors.crimson.withValues(alpha: 0.1)
+                  : AppColors.paperDim,
+              borderRadius: BorderRadius.circular(AppRadius.pill),
+              border: Border.all(
+                color: title == 'Today'
+                    ? AppColors.crimson.withValues(alpha: 0.3)
+                    : AppColors.cardBorder,
+              ),
+            ),
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: title == 'Today' ? AppColors.crimson : AppColors.textSecondary,
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          const Expanded(child: Divider(color: AppColors.cardBorder, height: 1)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody(ThemeData theme, AppLocalizations? l10n) {
     if (!_loaded) {
       return const Center(
         child: CircularProgressIndicator(color: AppColors.crimson),
@@ -213,7 +293,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           const Icon(Icons.cloud_off, size: 48, color: AppColors.textSecondary),
           const SizedBox(height: AppSpacing.md),
           Text(
-            'Could not load requests.',
+            l10n?.couldNotLoadRequests ?? 'Could not load requests.',
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: AppColors.textSecondary,
@@ -225,7 +305,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             child: FilledButton(
               onPressed: _load,
               style: FilledButton.styleFrom(backgroundColor: AppColors.crimson),
-              child: const Text('Retry'),
+              child: Text(l10n?.retry ?? 'Retry'),
             ),
           ),
         ],
@@ -233,22 +313,26 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
 
     final visible = _visible;
+    final sorted = List<NotificationModel>.from(visible)
+      ..sort((a, b) => b.notifiedAt.compareTo(a.notifiedAt));
+    final grouped = _groupByDate(sorted);
+
     return RefreshIndicator(
       onRefresh: _load,
       color: AppColors.crimson,
-      child: visible.isEmpty
+      child: sorted.isEmpty
           ? ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
                 const SizedBox(height: 120),
                 const Icon(
-                  Icons.campaign_outlined,
+                  Icons.notifications_none_outlined,
                   size: 56,
                   color: AppColors.textSecondary,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  'No $_activeFilter requests.',
+                  l10n?.noRequestsForFilter ?? 'No notifications in this category.',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: AppColors.textSecondary,
@@ -266,16 +350,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 AppSpacing.lg,
               ),
               children: [
-                for (final item in visible)
-                  NotificationCard(
-                    notification: item,
-                    onChanged: _onCardChanged,
-                  ),
+                for (final entry in grouped.entries) ...[
+                  _buildDateHeader(entry.key),
+                  for (final item in entry.value)
+                    NotificationCard(
+                      notification: item,
+                      onChanged: _onCardChanged,
+                    ),
+                ],
               ],
             ),
     );
   }
 }
-
-
-

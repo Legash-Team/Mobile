@@ -1,7 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 import '../models/donor_model.dart';
 import '../providers/auth_provider.dart';
 import '../services/auth_service.dart';
@@ -92,11 +93,12 @@ class _SetPinScreenState extends State<SetPinScreen> with SingleTickerProviderSt
       _clearInputs();
     } else {
       final confirmPin = _currentPin;
+      final l10n = AppLocalizations.of(context);
       if (confirmPin != _firstPin) {
         HapticFeedback.heavyImpact();
         setState(() {
           _hasError = true;
-          _errorMessage = 'PINs do not match. Please try again.';
+          _errorMessage = l10n?.pinsDoNotMatch ?? 'PINs do not match. Please try again.';
           _step = 1;
           _firstPin = '';
         });
@@ -120,9 +122,10 @@ class _SetPinScreenState extends State<SetPinScreen> with SingleTickerProviderSt
         final donor = DonorInfo.fromJson(res['donor'] as Map<String, dynamic>);
         context.read<AuthProvider>().login(token, donor);
 
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('PIN created successfully! Welcome to Legash.'),
+          SnackBar(
+            content: Text(l10n?.pinCreatedSuccess ?? 'PIN created successfully! Welcome to Legash.'),
             backgroundColor: AppColors.verified,
           ),
         );
@@ -162,11 +165,12 @@ class _SetPinScreenState extends State<SetPinScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: AppColors.paper,
       appBar: AppBar(
-        title: const Text('Security PIN'),
+        title: Text(l10n?.security ?? 'Security PIN'),
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         leading: IconButton(
@@ -209,7 +213,9 @@ class _SetPinScreenState extends State<SetPinScreen> with SingleTickerProviderSt
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      _step == 1 ? 'Step 1 of 2: Create PIN' : 'Step 2 of 2: Confirm PIN',
+                      _step == 1
+                          ? (l10n?.step1Of2 ?? 'Step 1 of 2: Create PIN')
+                          : (l10n?.step2Of2 ?? 'Step 2 of 2: Confirm PIN'),
                       style: const TextStyle(
                         color: AppColors.crimson,
                         fontWeight: FontWeight.bold,
@@ -257,7 +263,9 @@ class _SetPinScreenState extends State<SetPinScreen> with SingleTickerProviderSt
                   key: ValueKey<int>(_step),
                   children: [
                     Text(
-                      _step == 1 ? 'Create your 4-digit PIN' : 'Confirm your PIN',
+                      _step == 1
+                          ? (l10n?.createPinHeading ?? 'Create your 4-digit PIN')
+                          : (l10n?.confirmPinHeading ?? 'Confirm your PIN'),
                       textAlign: TextAlign.center,
                       style: theme.textTheme.headlineSmall?.copyWith(
                         color: AppColors.textPrimary,
@@ -269,8 +277,8 @@ class _SetPinScreenState extends State<SetPinScreen> with SingleTickerProviderSt
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       _step == 1
-                          ? 'Choose a memorable 4-digit PIN to securely unlock the Legash app on this device.'
-                          : 'Please re-enter the same 4-digit PIN to confirm.',
+                          ? (l10n?.pinStep1Desc ?? 'Choose a memorable 4-digit PIN to securely unlock the Legash app on this device.')
+                          : (l10n?.pinStep2Desc ?? 'Please re-enter the same 4-digit PIN to confirm.'),
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: AppColors.textSecondary,
@@ -393,7 +401,7 @@ class _SetPinScreenState extends State<SetPinScreen> with SingleTickerProviderSt
                   color: AppColors.textSecondary,
                 ),
                 label: Text(
-                  _obscurePin ? 'Show PIN' : 'Hide PIN',
+                  _obscurePin ? (l10n?.showPin ?? 'Show PIN') : (l10n?.hidePin ?? 'Hide PIN'),
                   style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,
@@ -406,9 +414,9 @@ class _SetPinScreenState extends State<SetPinScreen> with SingleTickerProviderSt
                 const SizedBox(height: AppSpacing.xs),
                 TextButton(
                   onPressed: _goBackToStep1,
-                  child: const Text(
-                    'Change initial PIN',
-                    style: TextStyle(
+                  child: Text(
+                    l10n?.changeInitialPin ?? 'Change initial PIN',
+                    style: const TextStyle(
                       color: AppColors.crimson,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -431,7 +439,7 @@ class _SetPinScreenState extends State<SetPinScreen> with SingleTickerProviderSt
                           } else {
                             setState(() {
                               _hasError = true;
-                              _errorMessage = 'Please enter all 4 digits.';
+                              _errorMessage = l10n?.enterAll4Digits ?? 'Please enter all 4 digits.';
                             });
                           }
                         },
@@ -449,7 +457,9 @@ class _SetPinScreenState extends State<SetPinScreen> with SingleTickerProviderSt
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                         )
                       : Text(
-                          _step == 1 ? 'Continue to Confirm' : 'Confirm & Save PIN',
+                          _step == 1
+                              ? (l10n?.continueToConfirm ?? 'Continue to Confirm')
+                              : (l10n?.confirmAndSavePin ?? 'Confirm & Save PIN'),
                           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                         ),
                 ),
@@ -471,7 +481,7 @@ class _SetPinScreenState extends State<SetPinScreen> with SingleTickerProviderSt
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Your PIN is securely hashed and protected. Never share your PIN with anyone.',
+                        l10n?.pinConfidentialNote ?? 'Your PIN is securely hashed and protected. Never share your PIN with anyone.',
                         style: TextStyle(
                           color: AppColors.textSecondary.withValues(alpha: 0.85),
                           fontSize: 12,

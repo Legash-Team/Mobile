@@ -1,7 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 import '../models/donor_model.dart';
 import '../providers/auth_provider.dart';
 import '../services/auth_service.dart';
@@ -69,11 +70,12 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
   Future<void> _unlock() async {
     final phone = _phoneController.text.trim();
     final pin = _pin;
+    final l10n = AppLocalizations.of(context);
 
     if (phone.isEmpty) {
       setState(() {
         _hasError = true;
-        _errorMessage = 'Please enter your registered phone number.';
+        _errorMessage = l10n?.enterPhone ?? 'Please enter your registered phone number.';
       });
       return;
     }
@@ -81,7 +83,7 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
     if (pin.length < _pinLength) {
       setState(() {
         _hasError = true;
-        _errorMessage = 'Please enter your 4-digit PIN.';
+        _errorMessage = l10n?.enterPin4Digits ?? 'Please enter your 4-digit PIN.';
       });
       return;
     }
@@ -118,13 +120,14 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
     } catch (e) {
       if (!mounted) return;
       final errorMsg = e.toString();
+      final l10n = AppLocalizations.of(context);
       if (errorMsg.toLowerCase().contains('not verified') || errorMsg.toLowerCase().contains('verify')) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Account is not verified yet.'),
+            content: Text(l10n?.accountNotVerified ?? 'Account is not verified yet.'),
             backgroundColor: AppColors.crimson,
             action: SnackBarAction(
-              label: 'Verify Now',
+              label: l10n?.verifyNow ?? 'Verify Now',
               textColor: Colors.white,
               onPressed: () {
                 if (phone.isNotEmpty) {
@@ -138,10 +141,10 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
       } else if (errorMsg.toLowerCase().contains('pin has not been set')) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('PIN has not been set for this account.'),
+            content: Text(l10n?.pinNotSet ?? 'PIN has not been set for this account.'),
             backgroundColor: AppColors.crimson,
             action: SnackBarAction(
-              label: 'Set PIN',
+              label: l10n?.setPinButton ?? 'Set PIN',
               textColor: Colors.white,
               onPressed: () {
                 if (phone.isNotEmpty) {
@@ -191,6 +194,7 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: AppColors.paper,
@@ -230,7 +234,7 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
               const SizedBox(height: AppSpacing.lg),
 
               Text(
-                'Welcome Back',
+                l10n?.welcomeBack ?? 'Welcome Back',
                 style: theme.textTheme.headlineSmall?.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.bold,
@@ -240,7 +244,7 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Enter your phone number and 4-digit PIN to unlock',
+                l10n?.enterYourPin ?? 'Enter your phone number and 4-digit PIN to unlock',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: AppColors.textSecondary,
@@ -253,7 +257,7 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
               // Phone Field
               CustomTextField(
                 controller: _phoneController,
-                label: 'Phone Number',
+                label: l10n?.phoneNumber ?? 'Phone Number',
                 hintText: '09XXXXXXXX or +2519XXXXXXXX',
                 prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.textSecondary),
                 keyboardType: TextInputType.phone,
@@ -268,7 +272,7 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Security PIN',
+                    l10n?.security ?? 'Security PIN',
                     style: theme.textTheme.labelLarge?.copyWith(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.w600,
@@ -283,7 +287,7 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
                       color: AppColors.textSecondary,
                     ),
                     label: Text(
-                      _obscurePin ? 'Show' : 'Hide',
+                      _obscurePin ? (l10n?.showPin ?? 'Show') : (l10n?.hidePin ?? 'Hide'),
                       style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
                     ),
                   ),
@@ -408,9 +412,9 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
                           width: 20,
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                         )
-                      : const Text(
-                          'Unlock',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      : Text(
+                          l10n?.unlock ?? 'Unlock',
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                 ),
               ),
@@ -419,9 +423,9 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
 
               TextButton(
                 onPressed: _showForgotPinDialog,
-                child: const Text(
-                  'Forgot PIN?',
-                  style: TextStyle(color: AppColors.crimson, fontWeight: FontWeight.bold, fontSize: 14),
+                child: Text(
+                  l10n?.forgotPin ?? 'Forgot PIN?',
+                  style: const TextStyle(color: AppColors.crimson, fontWeight: FontWeight.bold, fontSize: 14),
                 ),
               ),
 
@@ -431,15 +435,15 @@ class _PinUnlockScreenState extends State<PinUnlockScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    "Don't have an account? ",
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                  Text(
+                    l10n?.dontHaveAccount ?? "Don't have an account? ",
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pushReplacementNamed(context, '/register'),
-                    child: const Text(
-                      'Create Account',
-                      style: TextStyle(
+                    child: Text(
+                      l10n?.createAccount ?? 'Create Account',
+                      style: const TextStyle(
                         color: AppColors.crimson,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -513,9 +517,10 @@ class _ForgotPinDialogState extends State<ForgotPinDialog> {
     if (!_formKey.currentState!.validate()) return;
     final pin = _pinController.text;
     final confirmPin = _confirmPinController.text;
+    final l10n = AppLocalizations.of(context);
     if (pin != confirmPin) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('PINs do not match'), backgroundColor: AppColors.crimson),
+        SnackBar(content: Text(l10n?.pinsDoNotMatchShort ?? 'PINs do not match'), backgroundColor: AppColors.crimson),
       );
       return;
     }
@@ -530,8 +535,8 @@ class _ForgotPinDialogState extends State<ForgotPinDialog> {
       if (!mounted) return;
       Navigator.pop(context, true);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('PIN reset successfully. Please log in with your new PIN.'),
+        SnackBar(
+          content: Text(l10n?.pinResetSuccess ?? 'PIN reset successfully. Please log in with your new PIN.'),
           backgroundColor: AppColors.verified,
         ),
       );
@@ -548,6 +553,7 @@ class _ForgotPinDialogState extends State<ForgotPinDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Dialog(
       backgroundColor: AppColors.paper,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
@@ -570,13 +576,13 @@ class _ForgotPinDialogState extends State<ForgotPinDialog> {
                         if (_step == 'pin') _step = 'otp';
                       }),
                     ),
-                  Expanded(
+                    Expanded(
                     child: Text(
                       _step == 'phone'
-                          ? 'Forgot PIN'
+                          ? (l10n?.forgotPin ?? 'Forgot PIN')
                           : _step == 'otp'
-                              ? 'Verify OTP'
-                              : 'Set New PIN',
+                              ? (l10n?.verifyOtp ?? 'Verify OTP')
+                              : (l10n?.setNewPin ?? 'Set New PIN'),
                       style: theme.textTheme.titleLarge?.copyWith(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w600,
@@ -592,13 +598,13 @@ class _ForgotPinDialogState extends State<ForgotPinDialog> {
               const SizedBox(height: AppSpacing.sm),
               if (_step == 'phone') ...[
                 Text(
-                  'Enter your phone number and we will send you an OTP to reset your PIN.',
+                  l10n?.enterPhoneForReset ?? 'Enter your phone number and we will send you an OTP to reset your PIN.',
                   style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 CustomTextField(
                   controller: _phoneController,
-                  label: 'Phone Number',
+                  label: l10n?.phoneNumber ?? 'Phone Number',
                   hintText: '09XXXXXXXX or +2519XXXXXXXX',
                   keyboardType: TextInputType.phone,
                   mono: true,
@@ -613,7 +619,7 @@ class _ForgotPinDialogState extends State<ForgotPinDialog> {
                           width: 20,
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                         )
-                      : const Text('Send OTP'),
+                      : Text(l10n?.sendOtp ?? 'Send OTP'),
                 ),
               ] else if (_step == 'otp') ...[
                 Text(
@@ -668,38 +674,38 @@ class _ForgotPinDialogState extends State<ForgotPinDialog> {
                           width: 20,
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                         )
-                      : const Text('Continue'),
+                      : Text(l10n?.continueButton ?? 'Continue'),
                 ),
               ] else ...[
                 Text(
-                  'Choose a new 4-digit PIN.',
+                  l10n?.chooseNewPin ?? 'Choose a new 4-digit PIN.',
                   style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 CustomTextField(
                   controller: _pinController,
-                  label: 'New PIN',
+                  label: l10n?.newPin ?? 'New PIN',
                   hintText: 'Enter 4-digit PIN',
                   keyboardType: TextInputType.number,
                   mono: true,
                   obscureText: true,
                   validator: (v) {
-                    if (v == null || v.length != 4) return 'PIN must be 4 digits';
-                    if (!RegExp(r'^\d{4}$').hasMatch(v)) return 'PIN must be digits only';
+                    if (v == null || v.length != 4) return l10n?.pinMustBe4Digits ?? 'PIN must be 4 digits';
+                    if (!RegExp(r'^\d{4}$').hasMatch(v)) return l10n?.pinDigitsOnly ?? 'PIN must be digits only';
                     return null;
                   },
                 ),
                 const SizedBox(height: AppSpacing.md),
                 CustomTextField(
                   controller: _confirmPinController,
-                  label: 'Confirm PIN',
+                  label: l10n?.confirmNewPin ?? 'Confirm PIN',
                   hintText: 'Re-enter 4-digit PIN',
                   keyboardType: TextInputType.number,
                   mono: true,
                   obscureText: true,
                   validator: (v) {
-                    if (v == null || v.length != 4) return 'PIN must be 4 digits';
-                    if (v != _pinController.text) return 'PINs do not match';
+                    if (v == null || v.length != 4) return l10n?.pinMustBe4Digits ?? 'PIN must be 4 digits';
+                    if (v != _pinController.text) return l10n?.pinsDoNotMatchShort ?? 'PINs do not match';
                     return null;
                   },
                 ),
@@ -712,7 +718,7 @@ class _ForgotPinDialogState extends State<ForgotPinDialog> {
                           width: 20,
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                         )
-                      : const Text('Reset PIN'),
+                      : Text(l10n?.resetPin ?? 'Reset PIN'),
                 ),
               ],
             ],

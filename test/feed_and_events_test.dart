@@ -137,14 +137,14 @@ void main() {
       expect(find.byType(BottomNavBar), findsOneWidget);
       expect(find.text('Home'), findsOneWidget);
       expect(find.text('Requests'), findsOneWidget);
-      expect(find.text('Feed'), findsOneWidget);
+      expect(find.text('Health'), findsOneWidget);
       expect(find.text('Events'), findsOneWidget);
       expect(find.text('Profile'), findsOneWidget);
 
-      // Tap on Feed tab
-      await tester.tap(find.text('Feed'));
+      // Tap on Health tab
+      await tester.tap(find.text('Health'));
       await tester.pumpAndSettle();
-      expect(find.text('COMMUNITY FEED'), findsOneWidget);
+      expect(find.text('Health & Wellness'), findsOneWidget);
 
       // Tap on Events tab
       await tester.tap(find.text('Events'));

@@ -1,6 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 import '../models/notification_model.dart';
 import '../services/notification_service.dart';
 
@@ -91,6 +92,7 @@ class _NotificationCardState extends State<NotificationCard> {
       } else {
         final error = res['error'] as String? ?? 'Something went wrong.';
         if (mounted) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(error), backgroundColor: AppColors.crimson),
           );
@@ -102,6 +104,7 @@ class _NotificationCardState extends State<NotificationCard> {
       }
     } catch (e) {
       if (!mounted) return;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString()), backgroundColor: AppColors.crimson),
       );
@@ -217,6 +220,7 @@ class _NotificationCardState extends State<NotificationCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final urgent = _item.isPending && _item.isOpen;
 
     return Container(
@@ -285,7 +289,7 @@ class _NotificationCardState extends State<NotificationCard> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Needed: ${_item.quantityNeeded} unit${_item.quantityNeeded > 1 ? 's' : ''} â€¢ ${_item.bloodType} blood',
+                      'Needed: ${_item.quantityNeeded} unit${_item.quantityNeeded > 1 ? 's' : ''} • ${_item.bloodType} blood',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: AppColors.textSecondary,
                         fontSize: 13,
@@ -304,9 +308,9 @@ class _NotificationCardState extends State<NotificationCard> {
                     color: AppColors.crimson,
                     borderRadius: BorderRadius.circular(AppRadius.pill),
                   ),
-                  child: const Text(
-                    'URGENT',
-                    style: TextStyle(
+                  child: Text(
+                    l10n?.urgentBadge ?? 'URGENT',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -373,9 +377,10 @@ class _NotificationCardState extends State<NotificationCard> {
 
           // Action section depending on status
           if (_item.isPending && _item.isOpen) ...[
-            const Text(
-              'Accepting reveals your phone number to the hospital to coordinate donation.',
-              style: TextStyle(
+            Text(
+              l10n?.acceptDisclaimer ??
+                  'Accepting reveals your phone number to the hospital to coordinate donation.',
+              style: const TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 12,
               ),
@@ -403,9 +408,9 @@ class _NotificationCardState extends State<NotificationCard> {
                               strokeWidth: 2,
                             ),
                           )
-                        : const Text(
-                            'Accept Request',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                        : Text(
+                            l10n?.acceptRequest ?? 'Accept Request',
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                           ),
                   ),
                 ),
@@ -422,9 +427,9 @@ class _NotificationCardState extends State<NotificationCard> {
                         borderRadius: BorderRadius.circular(AppRadius.md),
                       ),
                     ),
-                    child: const Text(
-                      'Decline',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    child: Text(
+                      l10n?.declineRequest ?? 'Decline',
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -441,10 +446,10 @@ class _NotificationCardState extends State<NotificationCard> {
                 color: AppColors.paperDim,
                 borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
-              child: const Text(
-                'This blood request has closed or expired.',
+              child: Text(
+                l10n?.requestClosedExpired ?? 'This blood request has closed or expired.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -467,7 +472,7 @@ class _NotificationCardState extends State<NotificationCard> {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          'You accepted â€” the hospital can see your contact info.',
+                          'You accepted — the hospital can see your contact info.',
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: AppColors.verified,
                             fontWeight: FontWeight.w600,
@@ -507,9 +512,9 @@ class _NotificationCardState extends State<NotificationCard> {
                               _item.hospitalName,
                             ),
                             icon: const Icon(Icons.directions, size: 16, color: AppColors.textPrimary),
-                            label: const Text(
-                              'Directions',
-                              style: TextStyle(
+                            label: Text(
+                              l10n?.directions ?? 'Directions',
+                              style: const TextStyle(
                                 color: AppColors.textPrimary,
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,

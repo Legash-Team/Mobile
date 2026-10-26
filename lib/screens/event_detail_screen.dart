@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 import '../models/event_model.dart';
 import '../widgets/video_player.dart';
 
@@ -71,9 +72,10 @@ class EventDetailScreen extends StatelessWidget {
   void _copyShareLink(BuildContext context) {
     final text = 'Join "${event.title}" on Legash Blood Network!\n${event.applyLink ?? ''}';
     Clipboard.setData(ClipboardData(text: text));
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Event details copied to clipboard!'),
+      SnackBar(
+        content: Text(l10n?.eventDetailsCopied ?? 'Event details copied to clipboard!'),
         backgroundColor: AppColors.verified,
       ),
     );
@@ -82,6 +84,7 @@ class EventDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final isOpen = event.isOpen;
     final cleanDesc = _cleanHtml(event.description);
     final organizer = (event.postedBy != null && event.postedBy!.trim().isNotEmpty)
@@ -99,9 +102,9 @@ class EventDetailScreen extends StatelessWidget {
           tooltip: 'Back',
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Campaign Details',
-          style: TextStyle(
+        title: Text(
+          l10n?.campaignDetails ?? 'Campaign Details',
+          style: const TextStyle(
             color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -195,7 +198,9 @@ class EventDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      isOpen ? 'ACTIVE CAMPAIGN' : 'CAMPAIGN CLOSED',
+                      isOpen
+                          ? (l10n?.activeCampaign ?? 'ACTIVE CAMPAIGN')
+                          : (l10n?.campaignClosed ?? 'CAMPAIGN CLOSED'),
                       style: TextStyle(
                         color: isOpen ? AppColors.verified : AppColors.textSecondary,
                         fontSize: 12,
@@ -273,9 +278,9 @@ class EventDetailScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Organized by',
-                            style: TextStyle(
+                          Text(
+                            l10n?.organizedBy ?? 'Organized by',
+                            style: const TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -318,9 +323,9 @@ class EventDetailScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Closing Date',
-                            style: TextStyle(
+                          Text(
+                            l10n?.closingDate ?? 'Closing Date',
+                            style: const TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -347,9 +352,9 @@ class EventDetailScreen extends StatelessWidget {
           const SizedBox(height: AppSpacing.xl),
 
           // About This Campaign Section
-          const Text(
-            'About This Campaign',
-            style: TextStyle(
+          Text(
+            l10n?.aboutThisCampaign ?? 'About This Campaign',
+            style: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
@@ -385,16 +390,16 @@ class EventDetailScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppRadius.lg),
               border: Border.all(color: AppColors.cardBorder),
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.shield_outlined, color: AppColors.verified, size: 20),
-                    SizedBox(width: 8),
+                    const Icon(Icons.shield_outlined, color: AppColors.verified, size: 20),
+                    const SizedBox(width: 8),
                     Text(
-                      'Donor Preparation Tips',
-                      style: TextStyle(
+                      l10n?.donorPrepTips ?? 'Donor Preparation Tips',
+                      style: const TextStyle(
                         color: AppColors.verified,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -402,8 +407,8 @@ class EventDetailScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 10),
-                Text(
+                const SizedBox(height: 10),
+                const Text(
                   '• Bring your Fayda National ID (FIN) or Donor ID.\n'
                   '• Drink plenty of water and eat a healthy meal before arriving.\n'
                   '• Donors should weigh at least 50 kg and feel well on the day of donation.',
@@ -438,7 +443,7 @@ class EventDetailScreen extends StatelessWidget {
               ? FilledButton.icon(
                   onPressed: () => _launchUrl(context, event.applyLink!),
                   icon: const Icon(Icons.open_in_new, size: 18),
-                  label: const Text('Apply / Register to Donate'),
+                  label: Text(l10n?.applyRegisterToDonate ?? 'Apply / Register to Donate'),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.crimson,
                     foregroundColor: Colors.white,
@@ -461,7 +466,9 @@ class EventDetailScreen extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    isOpen ? 'Registration Available at Center' : 'Campaign Closed',
+                    isOpen
+                        ? (l10n?.registrationAvailableAtCenter ?? 'Registration Available at Center')
+                        : (l10n?.campaignClosed ?? 'Campaign Closed'),
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w600,

@@ -2,6 +2,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../app_navigator.dart';
 import '../screens/donor_home_shell.dart';
 import 'api_service.dart';
@@ -28,6 +29,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 class FcmService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  static const String _permRequestedKey = 'notification_permission_requested';
 
   static Future<void> initialize() async {
     try {
@@ -49,17 +51,7 @@ class FcmService {
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
       if (androidPlugin != null) {
         await androidPlugin.createNotificationChannel(_bloodRequestsChannel);
-        await androidPlugin.requestNotificationsPermission();
       }
-
-      final settings = await _messaging.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-        provisional: false,
-      );
-
-      if (kDebugMode) print('[FCM] Permission: ${settings.authorizationStatus}');
 
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -85,6 +77,34 @@ class FcmService {
       });
     } catch (e) {
       if (kDebugMode) print('[FCM] Initialization error (non-fatal): $e');
+    }
+  }
+
+  static Future<void> requestPermissionOnFirstLaunch() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final alreadyRequested = prefs.getBool(_permRequestedKey) ?? false;
+      if (alreadyRequested) return;
+
+      final androidPlugin = _localNotifications
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      if (androidPlugin != null) {
+        await androidPlugin.requestNotificationsPermission();
+      }
+
+      final settings = await _messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+        provisional: false,
+      );
+
+      await prefs.setBool(_permRequestedKey, true);
+      if (kDebugMode) {
+        print('[FCM] First launch permission requested: ${settings.authorizationStatus}');
+      }
+    } catch (e) {
+      if (kDebugMode) print('[FCM] Permission request error: $e');
     }
   }
 

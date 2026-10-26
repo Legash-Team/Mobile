@@ -14,9 +14,11 @@ import 'screens/donor_home_shell.dart';
 import 'screens/onboarding_screen.dart';
 import 'providers/locale_provider.dart';
 import 'services/fcm_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -48,6 +50,7 @@ class _LegashAppState extends State<LegashApp> {
       return false;
     });
     FcmService.initializeNavigation();
+    FcmService.requestPermissionOnFirstLaunch();
   }
 
   @override

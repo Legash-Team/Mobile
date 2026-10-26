@@ -60,6 +60,7 @@ android/build/
 # Sensitive files / Configs
 *.env
 .env*
+!.env.example
 pushNotifications/
 doc_2026-*
 

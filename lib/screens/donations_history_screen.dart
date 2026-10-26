@@ -58,9 +58,9 @@ class _DonationsHistoryScreenState extends State<DonationsHistoryScreen> {
           tooltip: 'Home',
           onPressed: widget.onGoHome ?? () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Donation History',
-          style: TextStyle(
+        title: Text(
+          l10n?.donationHistory ?? 'Donation History',
+          style: const TextStyle(
             color: AppColors.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -93,7 +93,7 @@ class _DonationsHistoryScreenState extends State<DonationsHistoryScreen> {
           const Icon(Icons.error_outline, size: 48, color: AppColors.crimson),
           const SizedBox(height: AppSpacing.md),
           Text(
-            'Could not load donation history.',
+            l10n?.couldNotLoadHistory ?? 'Could not load donation history.',
             textAlign: TextAlign.center,
             style: themeText(context).bodyMedium?.copyWith(
                   color: AppColors.textSecondary,
@@ -105,7 +105,7 @@ class _DonationsHistoryScreenState extends State<DonationsHistoryScreen> {
             child: FilledButton(
               onPressed: _load,
               style: FilledButton.styleFrom(backgroundColor: AppColors.crimson),
-              child: const Text('Retry'),
+              child: Text(l10n?.retry ?? 'Retry'),
             ),
           ),
         ],
@@ -121,7 +121,7 @@ class _DonationsHistoryScreenState extends State<DonationsHistoryScreen> {
           const Icon(Icons.history_outlined, size: 56, color: AppColors.textSecondary),
           const SizedBox(height: AppSpacing.md),
           Text(
-            'No donation history yet',
+            l10n?.noDonationHistoryYet ?? 'No donation history yet',
             textAlign: TextAlign.center,
             style: themeText(context).titleMedium?.copyWith(
                   color: AppColors.textPrimary,
@@ -130,10 +130,11 @@ class _DonationsHistoryScreenState extends State<DonationsHistoryScreen> {
                 ),
           ),
           const SizedBox(height: AppSpacing.xs),
-          const Text(
-            'Your past blood donation records will appear here.',
+          Text(
+            l10n?.pastDonationsAppearHere ??
+                'Your past blood donation records will appear here.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
         ],
       );
@@ -231,12 +232,12 @@ class _DonationsHistoryScreenState extends State<DonationsHistoryScreen> {
           const SizedBox(height: AppSpacing.md),
           Row(
             children: [
-              _buildDetailItem(Icons.water_drop, 'Blood Type', d.bloodType),
+              _buildDetailItem(Icons.water_drop, l10n?.bloodType ?? 'Blood Type', d.bloodType),
               const SizedBox(width: AppSpacing.lg),
-              _buildDetailItem(Icons.schedule, 'Date', d.formattedDate),
+              _buildDetailItem(Icons.schedule, l10n?.dateLabel ?? 'Date', d.formattedDate),
               const SizedBox(width: AppSpacing.lg),
               _buildDetailItem(
-                  Icons.local_drink, 'Quantity', d.formattedQuantity),
+                  Icons.local_drink, l10n?.quantityLabel ?? 'Quantity', d.formattedQuantity),
             ],
           ),
           if (d.note != null && d.note!.isNotEmpty) ...[

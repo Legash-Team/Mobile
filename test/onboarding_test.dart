@@ -34,6 +34,12 @@ void main() {
       expect(dotsFinder, findsNWidgets(7));
     });
 
+    Future<void> pumpTransition(WidgetTester tester) async {
+      for (int i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+    }
+
     testWidgets('OnboardingScreen advances through slides on arrow tap', (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
@@ -43,22 +49,22 @@ void main() {
 
       // Advance to slide 2
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
-      await tester.pumpAndSettle();
+      await pumpTransition(tester);
       expect(find.text('Community Feed & Events'), findsOneWidget);
 
       // Advance to slide 3
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
-      await tester.pumpAndSettle();
+      await pumpTransition(tester);
       expect(find.text('Share urgent requests'), findsOneWidget);
 
       // Advance to slide 4
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
-      await tester.pumpAndSettle();
+      await pumpTransition(tester);
       expect(find.text('Your Health & Compatibility'), findsOneWidget);
 
       // Advance to slide 5
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
-      await tester.pumpAndSettle();
+      await pumpTransition(tester);
       expect(find.text('24/7 AI Health Assistant'), findsOneWidget);
     });
 
@@ -75,7 +81,7 @@ void main() {
 
       // Tap skip
       await tester.tap(find.text('Skip'));
-      await tester.pumpAndSettle();
+      await pumpTransition(tester);
 
       // Verify final slide content
       expect(find.text('Ready to save a life?'), findsOneWidget);
@@ -85,7 +91,7 @@ void main() {
 
       // Tap Create Account
       await tester.tap(find.text('Create an account'));
-      await tester.pumpAndSettle();
+      await pumpTransition(tester);
 
       expect(find.text('Register Route'), findsOneWidget);
       expect(await OnboardingScreen.isCompleted(), isTrue);

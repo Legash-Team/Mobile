@@ -7,8 +7,8 @@ class PostService {
     final data = res['posts'] ?? res['feed'] ?? res['data'] ?? (res is List ? res : []);
     if (data is! List) return [];
     return data
-        .where((item) => item is Map)
-        .map((item) => PostModel.fromJson(Map<String, dynamic>.from(item as Map)))
+        .whereType<Map>()
+        .map((item) => PostModel.fromJson(Map<String, dynamic>.from(item)))
         .toList();
   }
 }

@@ -76,6 +76,18 @@ class AuthService {
     return ApiService.put('/api/donor/profile', data);
   }
 
+  static Future<Map<String, dynamic>> requestPhoneChange(String newPhone) async {
+    return ApiService.post('/api/donor/profile/change-phone/request', {
+      'newPhone': PhoneFormatter.format(newPhone),
+    });
+  }
+
+  static Future<Map<String, dynamic>> confirmPhoneChange(String code) async {
+    return ApiService.post('/api/donor/profile/change-phone/confirm', {
+      'code': code.trim(),
+    });
+  }
+
   static Future<Map<String, dynamic>> deleteAccount() async {
     return ApiService.delete('/api/donor/profile');
   }

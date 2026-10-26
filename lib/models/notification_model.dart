@@ -13,6 +13,11 @@ class NotificationModel {
   final String requestStatus;
   final DateTime notifiedAt;
   final DateTime? closesAt;
+  final String? title;
+  final String? message;
+  final String? category;
+  final String? type;
+  final String? requestId;
 
   NotificationModel({
     required this.id,
@@ -29,6 +34,11 @@ class NotificationModel {
     required this.requestStatus,
     required this.notifiedAt,
     this.closesAt,
+    this.title,
+    this.message,
+    this.category,
+    this.type,
+    this.requestId,
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
@@ -58,16 +68,29 @@ class NotificationModel {
         .toLowerCase()
         .trim();
 
+    final isEmerg = json['isEmergency'] as bool? ?? false;
+    final hospName = json['hospitalName'] as String? ?? 'Blood Center / Hospital';
+    final bType = json['bloodType'] as String? ?? 'Any';
+
+    final title = json['title'] as String? ??
+        (isEmerg ? 'Urgent Blood Alert' : 'Blood Donation Request');
+    final message = json['message'] as String? ??
+        json['body'] as String? ??
+        '$hospName requested $bType blood. Tap to respond.';
+    final category = json['category'] as String? ?? (isEmerg ? 'Emergency' : 'Request');
+    final type = json['type'] as String? ?? 'BLOOD_REQUEST';
+    final reqId = (json['requestId'] ?? json['bloodRequestId'])?.toString();
+
     return NotificationModel(
       id: (json['id'] ?? json['_id'] ?? '').toString(),
-      hospitalName: json['hospitalName'] as String? ?? 'Blood Center / Hospital',
+      hospitalName: hospName,
       hospitalPhone: json['hospitalPhone'] as String?,
       hospitalAddress: address,
       hospitalLat: lat,
       hospitalLng: lng,
-      bloodType: json['bloodType'] as String? ?? 'Any',
+      bloodType: bType,
       quantityNeeded: (json['quantityNeeded'] as num?)?.toInt() ?? 1,
-      isEmergency: json['isEmergency'] as bool? ?? false,
+      isEmergency: isEmerg,
       description: json['description'] as String?,
       myResponseStatus: rawMyStatus,
       requestStatus: rawReqStatus,
@@ -77,6 +100,11 @@ class NotificationModel {
       closesAt: json['closesAt'] != null
           ? DateTime.tryParse(json['closesAt'] as String)
           : null,
+      title: title,
+      message: message,
+      category: category,
+      type: type,
+      requestId: reqId,
     );
   }
 
@@ -87,6 +115,11 @@ class NotificationModel {
     String? hospitalAddress,
     double? hospitalLat,
     double? hospitalLng,
+    String? title,
+    String? message,
+    String? category,
+    String? type,
+    String? requestId,
   }) {
     return NotificationModel(
       id: id,
@@ -103,8 +136,17 @@ class NotificationModel {
       requestStatus: requestStatus ?? this.requestStatus,
       notifiedAt: notifiedAt,
       closesAt: closesAt,
+      title: title ?? this.title,
+      message: message ?? this.message,
+      category: category ?? this.category,
+      type: type ?? this.type,
+      requestId: requestId ?? this.requestId,
     );
   }
+
+  String get displayTitle => title ?? (isEmergency ? 'Urgent Blood Alert' : 'Blood Donation Request');
+  String get displayMessage => message ?? '$hospitalName requested $bloodType blood. Tap to respond.';
+  String get displayCategory => category ?? (isEmergency ? 'Emergency' : 'Request');
 
   bool get isPending =>
       myResponseStatus == 'pending' ||

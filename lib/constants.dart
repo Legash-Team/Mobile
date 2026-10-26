@@ -1,21 +1,40 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-String get _defaultBaseUrl {
-  if (kIsWeb) return 'http://localhost:3000';
-  switch (defaultTargetPlatform) {
-    case TargetPlatform.android:
-      return 'http://10.0.2.2:3000';
-    default:
-      return 'http://localhost:3000';
+/// The backend base URL loaded from dotenv ('API_BASE_URL') at runtime.
+/// All API requests use this single base URL, with no hardcoded fallback
+/// or compile-time `--dart-define` requirement.
+String get baseUrl {
+  if (!dotenv.isInitialized) {
+    throw StateError(
+      'flutter_dotenv has not been initialized. Ensure await dotenv.load() is called before accessing API_BASE_URL.',
+    );
   }
+
+  final raw = dotenv.env['API_BASE_URL'];
+  if (raw == null || raw.trim().isEmpty) {
+    throw StateError(
+      'API_BASE_URL is not set in .env. Please configure API_BASE_URL in your .env file.',
+    );
+  }
+
+  final trimmed = raw.trim();
+  final sanitized = trimmed.replaceAll(RegExp(r'/+$'), '');
+  final uri = Uri.tryParse(sanitized);
+
+  if (uri == null ||
+      !uri.hasScheme ||
+      (!uri.isScheme('http') && !uri.isScheme('https')) ||
+      uri.host.isEmpty) {
+    throw FormatException(
+      'Invalid API_BASE_URL in .env: "$trimmed". It must be a valid HTTP or HTTPS URL (e.g. http://10.0.2.2:3000 or https://api.example.com).',
+    );
+  }
+
+  return sanitized;
 }
 
-/// The backend base URL loaded from the environment ('API_BASE_URL')
-/// with platform-aware fallback for local development.
-const String _envBaseUrl = String.fromEnvironment('API_BASE_URL');
-final String baseUrl = (_envBaseUrl.isNotEmpty ? _envBaseUrl : _defaultBaseUrl).replaceAll(RegExp(r'/+$'), '');
-final String apiBaseUrl = baseUrl;
+String get apiBaseUrl => baseUrl;
 
 class AppColors {
   static const Color ink = Color(0xFF1B1410);

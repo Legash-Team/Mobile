@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 
 class TermsPolicyScreen extends StatelessWidget {
   const TermsPolicyScreen({super.key});
@@ -7,10 +8,11 @@ class TermsPolicyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.paper,
       appBar: AppBar(
-        title: const Text('Terms & Policy'),
+        title: Text(l10n?.termsAndPolicyTitle ?? 'Terms & Policy'),
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,

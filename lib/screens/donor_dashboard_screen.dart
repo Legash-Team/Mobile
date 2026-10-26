@@ -3,10 +3,13 @@ import 'package:provider/provider.dart';
 import '../constants.dart';
 import '../l10n/app_localizations.dart';
 import 'donations_history_screen.dart';
+import 'donor_faq_screen.dart';
+import 'donor_notifications_screen.dart';
 import 'nearby_centers_screen.dart';
 import '../models/donor_model.dart';
 import '../providers/auth_provider.dart';
 import '../services/auth_service.dart';
+import '../widgets/blood_compatibility_card.dart';
 
 class DonorDashboardScreen extends StatefulWidget {
   final int pendingCount;
@@ -76,10 +79,29 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
             textColor: Colors.white,
             label: Text('${widget.pendingCount}'),
             child: IconButton(
-              icon: const Icon(Icons.campaign_outlined),
-              tooltip: l10n?.requestsTab ?? 'Requests',
-              onPressed: widget.onOpenRequests,
+              icon: const Icon(Icons.notifications_outlined),
+              tooltip: 'Notifications',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DonorNotificationsScreen(
+                      onNavigateToRequests: widget.onOpenRequests,
+                    ),
+                  ),
+                );
+              },
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            tooltip: 'Help & FAQ',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const DonorFaqScreen()),
+              );
+            },
           ),
           const SizedBox(width: AppSpacing.xs),
         ],
@@ -219,7 +241,8 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                     ),
                     const SizedBox(height: AppSpacing.md),
                     Text(
-                      'Legash matches you with emergency hospital requests in your area.',
+                      l10n?.legashMatchExplanation ??
+                          'Legash matches you with emergency hospital requests in your area.',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: AppColors.textSecondary,
                         fontSize: 14,
@@ -231,7 +254,10 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
 
-              _buildQuickNav(context),
+              _buildQuickNav(context, l10n),
+              const SizedBox(height: AppSpacing.md),
+
+              BloodCompatibilityCard(bloodType: bloodType),
             ],
           ),
         ),
@@ -239,13 +265,13 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
     );
   }
 
-  Widget _buildQuickNav(BuildContext context) {
+  Widget _buildQuickNav(BuildContext context, AppLocalizations? l10n) {
     return Row(
       children: [
         _buildNavChip(
           context,
           icon: Icons.history_outlined,
-          label: 'Donation History',
+          label: l10n?.donationHistory ?? 'Donation History',
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
@@ -259,7 +285,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
         _buildNavChip(
           context,
           icon: Icons.local_hospital_outlined,
-          label: 'Nearby Centers',
+          label: l10n?.nearbyCenters ?? 'Nearby Centers',
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const NearbyCentersScreen()),

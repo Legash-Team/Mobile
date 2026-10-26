@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -24,52 +25,63 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _pageController = PageController();
   int _currentPage = 0;
-  static int get _totalPages => _pages.length;
+  static const int _totalPages = 7;
 
-  static const _pages = [
-    _OnboardingPage(
-      icon: Icons.water_drop_rounded,
-      title: "Blood, matched to where it's needed",
-      subtitle:
-          "Legash connects donors directly with nearby hospitals that need their blood type \u2014 no waiting rooms, no guessing.",
-    ),
-    _OnboardingPage(
-      icon: Icons.dynamic_feed_rounded,
-      title: "Community Feed & Events",
-      subtitle:
-          "Follow live hospital updates and announcements on the Feed tab, and discover upcoming blood donation drives on the Events tab.",
-    ),
-    _OnboardingPage(
-      icon: Icons.share_rounded,
-      title: "Share urgent requests",
-      subtitle:
-          "Multiply your impact by generating instant referral links for critical blood requests to share with fellow registered donors.",
-    ),
-    _OnboardingPage(
-      icon: Icons.health_and_safety_rounded,
-      title: "Your Health & Compatibility",
-      subtitle:
-          "Visualize your blood compatibility directly on your dashboard, and explore personalized wellness and nutrition tips.",
-    ),
-    _OnboardingPage(
-      icon: Icons.smart_toy_rounded,
-      title: "24/7 AI Health Assistant",
-      subtitle:
-          "Tap the floating assistant anytime to get quick answers on donation eligibility, post-donation recovery, and wellness.",
-    ),
-    _OnboardingPage(
-      icon: Icons.verified_user_rounded,
-      title: "Verified, secure, and private",
-      subtitle:
-          "Every hospital and donor is verified before connecting. Your phone number stays private until you choose to respond.",
-    ),
-    _OnboardingPage(
-      icon: Icons.favorite_rounded,
-      title: "Ready to save a life?",
-      subtitle: "Takes about two minutes to set up your profile and get matched.",
-      isLast: true,
-    ),
-  ];
+  _OnboardingPage _buildPage(int index, AppLocalizations? l10n) {
+    switch (index) {
+      case 0:
+        return _OnboardingPage(
+          icon: Icons.water_drop_rounded,
+          title: l10n?.onboardingSlide1Title ?? "Blood, matched to where it's needed",
+          subtitle: l10n?.onboardingSlide1Desc ??
+              "Legash connects donors directly with nearby hospitals that need their blood type \u2014 no waiting rooms, no guessing.",
+        );
+      case 1:
+        return _OnboardingPage(
+          icon: Icons.dynamic_feed_rounded,
+          title: l10n?.onboardingSlide2Title ?? "Community Feed & Events",
+          subtitle: l10n?.onboardingSlide2Desc ??
+              "Follow live hospital updates and announcements on the Feed tab, and discover upcoming blood donation drives on the Events tab.",
+        );
+      case 2:
+        return _OnboardingPage(
+          icon: Icons.share_rounded,
+          title: l10n?.onboardingSlide3Title ?? "Share urgent requests",
+          subtitle: l10n?.onboardingSlide3Desc ??
+              "Multiply your impact by generating instant referral links for critical blood requests to share with fellow registered donors.",
+        );
+      case 3:
+        return _OnboardingPage(
+          icon: Icons.health_and_safety_rounded,
+          title: l10n?.onboardingSlide4Title ?? "Your Health & Compatibility",
+          subtitle: l10n?.onboardingSlide4Desc ??
+              "Visualize your blood compatibility directly on your dashboard, and explore personalized wellness and nutrition tips.",
+        );
+      case 4:
+        return _OnboardingPage(
+          icon: Icons.smart_toy_rounded,
+          title: l10n?.onboardingSlide5Title ?? "24/7 AI Health Assistant",
+          subtitle: l10n?.onboardingSlide5Desc ??
+              "Tap the floating assistant anytime to get quick answers on donation eligibility, post-donation recovery, and wellness.",
+        );
+      case 5:
+        return _OnboardingPage(
+          icon: Icons.verified_user_rounded,
+          title: l10n?.onboardingSlide6Title ?? "Verified, secure, and private",
+          subtitle: l10n?.onboardingSlide6Desc ??
+              "Every hospital and donor is verified before connecting. Your phone number stays private until you choose to respond.",
+        );
+      case 6:
+      default:
+        return _OnboardingPage(
+          icon: Icons.favorite_rounded,
+          title: l10n?.onboardingSlide7Title ?? "Ready to save a life?",
+          subtitle: l10n?.onboardingSlide7Desc ??
+              "Takes about two minutes to set up your profile and get matched.",
+          isLast: true,
+        );
+    }
+  }
 
   void _goToPage(int index) {
     if (index < 0 || index >= _totalPages) return;
@@ -93,12 +105,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.paper,
       body: SafeArea(
         child: Column(
           children: [
-            _buildSkip(),
+            _buildSkip(l10n),
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
@@ -107,7 +121,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 itemCount: _totalPages,
                 itemBuilder: (_, index) => Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppRadius.lg),
-                  child: _pages[index],
+                  child: _buildPage(index, l10n),
                 ),
               ),
             ),
@@ -118,7 +132,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildSkip() {
+  Widget _buildSkip(AppLocalizations? l10n) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
       child: Align(
@@ -135,7 +149,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: const Text('Skip', style: TextStyle(fontSize: 15)),
+                child: Text(l10n?.skip ?? 'Skip', style: const TextStyle(fontSize: 15)),
               )
             : const SizedBox(height: 48),
       ),
@@ -212,7 +226,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 }
 
-class _OnboardingPage extends StatelessWidget {
+class _OnboardingPage extends StatefulWidget {
   final IconData icon;
   final String title;
   final String subtitle;
@@ -226,7 +240,43 @@ class _OnboardingPage extends StatelessWidget {
   });
 
   @override
+  State<_OnboardingPage> createState() => _OnboardingPageState();
+}
+
+class _OnboardingPageState extends State<_OnboardingPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _ringAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    )..repeat(reverse: true);
+
+    _scaleAnimation = Tween<double>(begin: 0.96, end: 1.05).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeInOutSine),
+    );
+
+    _ringAnimation = Tween<double>(begin: 1.0, end: 1.25).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final disableAnimations =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         return SingleChildScrollView(
@@ -238,18 +288,72 @@ class _OnboardingPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: AppColors.crimson.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(icon, size: 56, color: AppColors.crimson),
-                  ),
+                  disableAnimations
+                      ? Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: AppColors.crimson.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(widget.icon, size: 56, color: AppColors.crimson),
+                        )
+                      : AnimatedBuilder(
+                          animation: _animController,
+                          builder: (context, child) {
+                            return SizedBox(
+                              width: 140,
+                              height: 140,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  // Pulsing outer ripple ring
+                                  Transform.scale(
+                                    scale: _ringAnimation.value,
+                                    child: Container(
+                                      width: 120,
+                                      height: 120,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: AppColors.crimson.withValues(
+                                            alpha: (1.0 - _animController.value) * 0.35,
+                                          ),
+                                          width: 2,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  // Heartbeat pulsing icon bubble
+                                  Transform.scale(
+                                    scale: _scaleAnimation.value,
+                                    child: Container(
+                                      width: 120,
+                                      height: 120,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.crimson.withValues(alpha: 0.12),
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: AppColors.crimson.withValues(
+                                              alpha: 0.15 * _animController.value,
+                                            ),
+                                            blurRadius: 18,
+                                            spreadRadius: 2,
+                                          ),
+                                        ],
+                                      ),
+                                      child: Icon(widget.icon, size: 56, color: AppColors.crimson),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                   const SizedBox(height: 32),
                   Text(
-                    title,
+                    widget.title,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontFamily: AppFonts.sans,
@@ -263,7 +367,7 @@ class _OnboardingPage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Text(
-                      subtitle,
+                      widget.subtitle,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontFamily: AppFonts.sans,
@@ -274,7 +378,7 @@ class _OnboardingPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (isLast) ...[
+                  if (widget.isLast) ...[
                     const SizedBox(height: 32),
                     SizedBox(
                       width: double.infinity,
@@ -290,9 +394,9 @@ class _OnboardingPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(AppRadius.md),
                           ),
                         ),
-                        child: const Text(
-                          'Create an account',
-                          style: TextStyle(
+                        child: Text(
+                          AppLocalizations.of(context)?.createAccount ?? 'Create an account',
+                          style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                           ),
@@ -318,9 +422,9 @@ class _OnboardingPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(AppRadius.md),
                           ),
                         ),
-                        child: const Text(
-                          'I already have an account',
-                          style: TextStyle(
+                        child: Text(
+                          AppLocalizations.of(context)?.alreadyHaveAccount ?? 'I already have an account',
+                          style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                           ),

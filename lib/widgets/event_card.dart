@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
+import '../l10n/app_localizations.dart';
 import '../models/event_model.dart';
 import '../screens/event_detail_screen.dart';
 import 'video_player.dart';
@@ -71,6 +72,7 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final isOpen = event.isOpen;
     final cleanDesc = _cleanHtml(event.description);
 
@@ -172,7 +174,9 @@ class EventCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            isOpen ? 'ACTIVE EVENT' : 'CLOSED',
+                            isOpen
+                                ? (l10n?.activeEventBadge ?? 'ACTIVE EVENT')
+                                : (l10n?.closedEventBadge ?? 'CLOSED'),
                             style: TextStyle(
                               color: isOpen ? AppColors.verified : AppColors.textSecondary,
                               fontSize: 11,
@@ -239,9 +243,9 @@ class EventCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Closing Date',
-                            style: TextStyle(
+                          Text(
+                            l10n?.closingDate ?? 'Closing Date',
+                            style: const TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
@@ -263,7 +267,7 @@ class EventCard extends StatelessWidget {
                       FilledButton.icon(
                         onPressed: () => _launchUrl(context, event.applyLink!),
                         icon: const Icon(Icons.open_in_new, size: 16),
-                        label: const Text('Apply / Join'),
+                        label: Text(l10n?.applyJoin ?? 'Apply / Join'),
                         style: FilledButton.styleFrom(
                           backgroundColor: AppColors.crimson,
                           foregroundColor: Colors.white,

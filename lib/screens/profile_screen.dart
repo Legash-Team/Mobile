@@ -213,108 +213,256 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showGenderPicker(String? currentGender) {
+  void _showChangePhoneFlow() {
+    final phoneController = TextEditingController();
+    bool isRequesting = false;
+    String? requestError;
     final l10n = AppLocalizations.of(context);
+
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: AppColors.paper,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),
       builder: (ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      l10n?.selectGender ?? 'Select Gender',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: AppSpacing.lg,
+                right: AppSpacing.lg,
+                top: AppSpacing.lg,
+                bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.lg,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        l10n?.changePhoneNumber ?? 'Change Phone Number',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n?.changePhoneInstruction ?? 'Enter your new phone number. We will send an authorization code to your current registered number.',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                      height: 1.4,
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: AppColors.textSecondary),
-                      onPressed: () => Navigator.pop(ctx),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  TextField(
+                    controller: phoneController,
+                    keyboardType: TextInputType.phone,
+                    decoration: InputDecoration(
+                      labelText: l10n?.newPhoneNumberLabel ?? 'New Phone Number',
+                      hintText: '0911234567 or +251911234567',
+                      prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.crimson),
+                      errorText: requestError,
                     ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.md),
-                _buildChoiceTile(
-                  title: l10n?.genderMale ?? 'Male',
-                  icon: Icons.male_rounded,
-                  isSelected: (currentGender ?? '').toLowerCase() == 'male',
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _updateField('gender', 'male', 'Gender updated to Male');
-                  },
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                _buildChoiceTile(
-                  title: l10n?.genderFemale ?? 'Female',
-                  icon: Icons.female_rounded,
-                  isSelected: (currentGender ?? '').toLowerCase() == 'female',
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _updateField('gender', 'female', 'Gender updated to Female');
-                  },
-                ),
-                const SizedBox(height: AppSpacing.md),
-              ],
-            ),
-          ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: isRequesting
+                          ? null
+                          : () async {
+                              final raw = phoneController.text.trim();
+                              if (raw.isEmpty) {
+                                setModalState(() => requestError = l10n?.phoneRequiredError ?? 'Phone number is required.');
+                                return;
+                              }
+                              setModalState(() {
+                                isRequesting = true;
+                                requestError = null;
+                              });
+
+                              try {
+                                await AuthService.requestPhoneChange(raw);
+                                if (!context.mounted) return;
+                                Navigator.pop(ctx);
+                                _showConfirmPhoneOtpFlow(raw);
+                              } catch (e) {
+                                setModalState(() {
+                                  isRequesting = false;
+                                  requestError = e.toString();
+                                });
+                              }
+                            },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.crimson,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                        ),
+                      ),
+                      child: isRequesting
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                            )
+                          : Text(
+                              l10n?.sendVerificationCode ?? 'Send Verification Code',
+                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildChoiceTile({
-    required String title,
-    required IconData icon,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadius.md),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.crimson.withValues(alpha: 0.08) : AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(
-            color: isSelected ? AppColors.crimson : AppColors.cardBorder,
-            width: isSelected ? 2.0 : 1.2,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: isSelected ? AppColors.crimson : AppColors.textSecondary),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? AppColors.crimson : AppColors.textPrimary,
-                ),
-              ),
-            ),
-            if (isSelected)
-              const Icon(Icons.check_circle, color: AppColors.crimson, size: 20),
-          ],
-        ),
+  void _showConfirmPhoneOtpFlow(String newPhone) {
+    final otpController = TextEditingController();
+    bool isConfirming = false;
+    String? confirmError;
+    final l10n = AppLocalizations.of(context);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.paper,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: AppSpacing.lg,
+                right: AppSpacing.lg,
+                top: AppSpacing.lg,
+                bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.lg,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        l10n?.confirmPhoneChange ?? 'Confirm Phone Change',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${l10n?.confirmPhoneChangeInstruction ?? 'Enter the 6-digit code sent to your current phone to confirm changing your number.'} ($newPhone)',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  TextField(
+                    controller: otpController,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    decoration: InputDecoration(
+                      labelText: l10n?.verificationCodeLabel ?? 'Verification Code',
+                      hintText: '123456',
+                      prefixIcon: const Icon(Icons.security, color: AppColors.crimson),
+                      errorText: confirmError,
+                      counterText: '',
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: isConfirming
+                          ? null
+                          : () async {
+                              final code = otpController.text.trim();
+                              if (code.length != 6) {
+                                setModalState(() => confirmError = l10n?.enter6DigitCodeError ?? 'Please enter a 6-digit code.');
+                                return;
+                              }
+                              setModalState(() {
+                                isConfirming = true;
+                                confirmError = null;
+                              });
+
+                              try {
+                                final res = await AuthService.confirmPhoneChange(code);
+                                if (!context.mounted) return;
+                                Navigator.pop(ctx);
+                                _loadProfile();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(res['message']?.toString() ?? l10n?.phoneUpdatedSuccess ?? 'Phone number updated successfully.'),
+                                    backgroundColor: AppColors.verified,
+                                  ),
+                                );
+                              } catch (e) {
+                                setModalState(() {
+                                  isConfirming = false;
+                                  confirmError = e.toString();
+                                });
+                              }
+                            },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.crimson,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                        ),
+                      ),
+                      child: isConfirming
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                            )
+                          : Text(
+                              l10n?.confirmAndUpdate ?? 'Confirm & Update',
+                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
+
 
   Future<void> _showDatePickerDialog(String? currentDob) async {
     DateTime initialDate = DateTime(1995, 1, 1);
@@ -734,14 +882,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: AppColors.pillGreen,
                         borderRadius: BorderRadius.circular(AppRadius.pill),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.verified, color: AppColors.verified, size: 15),
-                          SizedBox(width: 4),
+                          const Icon(Icons.verified, color: AppColors.verified, size: 15),
+                          const SizedBox(width: 4),
                           Text(
-                            'Verified Donor',
-                            style: TextStyle(
+                            l10n?.verifiedDonor ?? 'Verified Donor',
+                            style: const TextStyle(
                               color: AppColors.verified,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -780,9 +928,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: AppColors.sand.withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(AppRadius.pill),
                         ),
-                        child: const Text(
-                          'Blood Type Unset',
-                          style: TextStyle(
+                        child: Text(
+                          l10n?.bloodTypeUnset ?? 'Blood Type Unset',
+                          style: const TextStyle(
                             color: AppColors.inkSoft,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -835,11 +983,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onTap: () => _showBloodTypePicker(bloodType),
                 ),
                 const Divider(height: 1, color: AppColors.cardBorder),
-                _buildActionTile(
+                _buildReadOnlyTile(
                   icon: Icons.wc_outlined,
                   label: l10n?.gender ?? 'Gender',
                   value: gender.toUpperCase(),
-                  onTap: () => _showGenderPicker(gender),
                 ),
                 const Divider(height: 1, color: AppColors.cardBorder),
                 _buildReadOnlyTile(
@@ -847,6 +994,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   label: l10n?.phoneNumber ?? 'Phone Number',
                   value: phone,
                   mono: true,
+                  onAction: _showChangePhoneFlow,
+                  actionIcon: Icons.edit_outlined,
                 ),
                 const Divider(height: 1, color: AppColors.cardBorder),
                 _buildReadOnlyTile(
@@ -858,7 +1007,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const Divider(height: 1, color: AppColors.cardBorder),
                 _buildReadOnlyTile(
                   icon: Icons.tag,
-                  label: 'Donor ID',
+                  label: l10n?.donorId ?? 'Donor ID',
                   value: shortId,
                   mono: true,
                   copyable: donor?.shortId != null && donor!.shortId!.trim().isNotEmpty,
@@ -940,9 +1089,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: AppSpacing.xl),
 
           // Section: Donation Stats
-          const Text(
-            'Donation Stats',
-            style: TextStyle(
+          Text(
+            l10n?.donationStats ?? 'Donation Stats',
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
@@ -967,21 +1116,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 else ...[
                   _buildStatRow(
                     icon: Icons.bloodtype,
-                    label: 'Total Donations',
+                    label: l10n?.totalDonations ?? 'Total Donations',
                     value: '${_donations.length}',
                   ),
                   const Divider(height: 1, color: AppColors.cardBorder),
                   _buildStatRow(
                     icon: Icons.schedule,
-                    label: 'Last Donation',
+                    label: l10n?.lastDonation ?? 'Last Donation',
                     value: _donations.isNotEmpty
                         ? _donations.first.formattedDate
-                        : 'None',
+                        : (l10n?.none ?? 'None'),
                   ),
                   const Divider(height: 1, color: AppColors.cardBorder),
                   _buildStatRow(
                     icon: Icons.local_drink,
-                    label: 'Total Volume',
+                    label: l10n?.totalVolume ?? 'Total Volume',
                     value: '${_donations.fold<int>(0, (sum, d) => sum + d.quantityMl)} ml',
                   ),
                 ],
@@ -1215,6 +1364,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String value,
     bool mono = false,
     bool copyable = false,
+    VoidCallback? onAction,
+    IconData? actionIcon,
   }) {
     return Material(
       color: Colors.transparent,
@@ -1255,6 +1406,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: AppColors.textSecondary,
                   ),
                 ),
+              ),
+            ],
+            if (onAction != null) ...[
+              const SizedBox(width: 4),
+              IconButton(
+                icon: Icon(actionIcon ?? Icons.edit_outlined, size: 18, color: AppColors.crimson),
+                onPressed: onAction,
+                tooltip: 'Change $label',
+                splashRadius: 18,
               ),
             ],
           ],
